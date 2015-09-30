@@ -1,0 +1,686 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。
+题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MEF核心笔记（1）基础应用">
+<meta property="og:url" content="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。
+题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可">
+<meta property="og:image" content="http://blog.makeex.com/images/2013/04/04/001.png">
+<meta property="og:updated_time" content="2015-09-29T08:32:49.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MEF核心笔记（1）基础应用">
+<meta name="twitter:description" content="从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。
+题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> MEF核心笔记（1）基础应用 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              MEF核心笔记（1）基础应用
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-04-04T23:04:57+08:00" content="2013-04-04">
+            2013-04-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/C/" itemprop="url" rel="index">
+                  <span itemprop="name">C#</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/C/MEF/" itemprop="url" rel="index">
+                  <span itemprop="name">MEF</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/04/04/mef-core-note-basic-using/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/04/mef-core-note-basic-using/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。</p>
+<p>题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可惜。的确，这世间就是有太多的可惜，也许，哪天不如意了，我也会离开。当然，这一切都是题外话，偶尔的伤感和牢骚后，我们应该继续向前看，毕竟，向前看脖子才不酸（相比起仰视）。</p>
+<p>废话不多说了，下面，我们进入正题吧。</p>
+<a id="more"></a>
+<h2 id="一、基本概念">一、基本概念</h2><ul>
+<li><strong>MEF</strong>：Managed Extensibility Framework，.NET 4.0中带来的一个基于托管的扩展程序开发框架（挺拗口的，不过只是概念），另外通过强大的百度百科，我们发现MEF还是“小鼠胚胎成纤维细胞”的简称（这货是？）。</li>
+<li><strong>Contract</strong>：契约，即一种约定，具体在代码中表现为接口和抽象类。自从进入.NET 4.0，契约这个单词我们应该不会陌生，WCF中贯穿着各种契约，无论如何，契约就是一种约定。</li>
+<li><strong>Import</strong>：导入，导入契约的实现，说明此处需要一个实现的契约。</li>
+<li><strong>Export</strong>：导出，导出契约的实现，说明相应的类中实现了相应的契约。</li>
+<li><strong>Part</strong>：部件，即实现契约的类。</li>
+<li><strong>Catalog</strong>：目录（我是这样定义的），存放部件的地方，当需要某个部件时，会在目录中寻找。</li>
+<li><strong>Container</strong>：容器，存放目录并进行部件管理，如导出、导入等。</li>
+<li><strong>Compose</strong>：组装，通过容器在目录中寻找到实现了相应契约的部件，进行部件的组装。</li>
+</ul>
+<h2 id="二、框架图示">二、框架图示</h2><p><img src="/images/2013/04/04/001.png" alt="框架图示"></p>
+<p>不是很会作图，上面的图就将就着看吧。一个Component Import了两个Contract，分别是Contract 1和Contract 2，一个Catalog中有两个Part并且Export了上诉的两个Contract，最后，Component通过Container的Compose操作，实例化了两个Contract。（我表述的不是很好，说的很拗口，但MEF是非常简单的框架，坚持看下去，你一定会学会的）</p>
+<h2 id="三、基本使用示例">三、基本使用示例</h2><p>下面到了动手操作的时候了，打开Visual Studio，新建一个.NET 4的控制台项目【MyMEFApplication】，添加对MEF库的引用，即“System.ComponentModel.Composition”。</p>
+<h3 id="1、添加一个契约">1、添加一个契约</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#36825;&#20415;&#26159;&#25105;&#20204;&#30340;&#22865;&#32422; Contract&#10;public interface ICalculator &#123;&#10;&#10;    int Add(int a, int b);&#10;&#10;    int Sub(int a, int b);&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2、实现这个契约">2、实现这个契约</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#27492;&#22788;&#25105;&#20204;&#23548;&#20986;&#20102;&#22865;&#32422;&#65292;&#36825;&#23601;&#26159;&#19968;&#20010;&#37096;&#20214;&#10;[Export(typeof(ICalculator))]&#10;public class MyCalculator : ICalculator &#123;&#10;&#10;    public int Add(int a, int b) &#123;&#10;        Console.WriteLine(&#34;Add Invoked&#34;);&#10;        return a + b;&#10;    &#125;&#10;&#10;    public int Sub(int a, int b) &#123;&#10;        Console.WriteLine(&#34;Sub Invoked&#34;);&#10;        return a - b;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3、完成测试程序">3、完成测试程序</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class Program &#123;&#10;&#10;    private static CompositionContainer _container;&#10;&#10;    static void Main(string[] args) &#123;&#10;        //AssemblyCatalog &#30446;&#24405;&#30340;&#19968;&#31181;&#65292;&#34920;&#31034;&#22312;&#30456;&#24212;&#30340;&#31243;&#24207;&#38598;&#20013;&#25628;&#32034;&#10;        var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;        _container = new CompositionContainer(catalog);&#10;&#10;        MathCompute mathCompute = new MathCompute();&#10;        _container.ComposeParts(mathCompute);//&#32452;&#35013;&#37096;&#20214;&#10;&#10;        Console.WriteLine(mathCompute.Add(1, 3));&#10;        Console.WriteLine(mathCompute.Sub(3, 2));&#10;&#10;        Console.ReadLine();&#10;    &#125;&#10;&#125;&#10;&#10;public class MathCompute &#123;&#10;&#10;    //&#25105;&#20204;&#38656;&#35201;&#23548;&#20837;&#36825;&#20010;&#22865;&#32422;&#23454;&#29616;&#30340;&#37096;&#20214;&#10;    [Import(typeof(ICalculator))]&#10;    private ICalculator _calculator;&#10;&#10;&#10;    public int Add(int a, int b) &#123;&#10;        return _calculator.Add(a, b);&#10;    &#125;&#10;&#10;    public int Sub(int a, int b) &#123;&#10;        return _calculator.Sub(a, b);&#10;    &#125;&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>由于时间仓促，本次示例相当简单，并且无实际意义，接下来的实例，我会尽量弄些有实际意义的东西。</p>
+<h2 id="四、总结">四、总结</h2><p>本篇笔记中，我们大致的了解了MEF的使用，并且完成了一个很无聊的应用程序。我们熟知了什么是导入、导出，什么是契约、容器，这样就够了。</p>
+<p>文中所涉及的源码项目地址：<a href="https://github.com/prinsun/BlogDemo.MEF01" target="_blank" rel="external">https://github.com/prinsun/BlogDemo.MEF01</a></p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/04/05/mef-core-note-about-catalog/" rel="prev">MEF核心笔记（2）Catalog的种类</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/04/04/mef-core-note-basic-using/"
+                   data-title="MEF核心笔记（1）基础应用" data-url="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、基本概念"><span class="nav-number">1.</span> <span class="nav-text">一、基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、框架图示"><span class="nav-number">2.</span> <span class="nav-text">二、框架图示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、基本使用示例"><span class="nav-number">3.</span> <span class="nav-text">三、基本使用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1、添加一个契约"><span class="nav-number">3.1.</span> <span class="nav-text">1、添加一个契约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2、实现这个契约"><span class="nav-number">3.2.</span> <span class="nav-text">2、实现这个契约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3、完成测试程序"><span class="nav-number">3.3.</span> <span class="nav-text">3、完成测试程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、总结"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

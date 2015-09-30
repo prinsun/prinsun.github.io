@@ -1,0 +1,705 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="又到了写笔记的时候了，这次的内容网罗了MEF中的所有Attribute，感觉内容偏多，所以分为两个篇幅来记录，篇幅内容过多的话，感觉不太适合阅读。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MEF核心笔记（3）细说MEF中的Attribute [上]">
+<meta property="og:url" content="http://blog.makeex.com/2013/04/06/mef-core-note-attribute-part-a/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="又到了写笔记的时候了，这次的内容网罗了MEF中的所有Attribute，感觉内容偏多，所以分为两个篇幅来记录，篇幅内容过多的话，感觉不太适合阅读。">
+<meta property="og:updated_time" content="2015-09-29T08:33:02.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MEF核心笔记（3）细说MEF中的Attribute [上]">
+<meta name="twitter:description" content="又到了写笔记的时候了，这次的内容网罗了MEF中的所有Attribute，感觉内容偏多，所以分为两个篇幅来记录，篇幅内容过多的话，感觉不太适合阅读。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> MEF核心笔记（3）细说MEF中的Attribute [上] | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              MEF核心笔记（3）细说MEF中的Attribute [上]
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2013-04-06T17:25:34+08:00" content="2013-04-06">
+            2013-04-06
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/C/" itemprop="url" rel="index">
+                  <span itemprop="name">C#</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/C/MEF/" itemprop="url" rel="index">
+                  <span itemprop="name">MEF</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2013/04/06/mef-core-note-attribute-part-a/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/06/mef-core-note-attribute-part-a/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>又到了写笔记的时候了，这次的内容网罗了MEF中的所有Attribute，感觉内容偏多，所以分为两个篇幅来记录，篇幅内容过多的话，感觉不太适合阅读。</p>
+<a id="more"></a>
+<h2 id="一、基本导入导出">一、基本导入导出</h2><p>基本导入和导出在前两篇博客中都有涉及到，这里再简单的补充一下。</p>
+<h3 id="最基本的导入导出">最基本的导入导出</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface IAction &#123;&#10;    void DoAction();&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>上面这个接口是一个契约（Contract），会一直贯穿本篇文章的示例代码中。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export(typeof(IAction))]&#10;public class MyAction : IAction &#123;&#10;    public void DoAction() &#123;&#10;        Console.WriteLine(&#34;My Action Invoked&#34;);&#10;    &#125;&#10;&#125;&#10;&#10;&#10;public class ActionManager &#123;&#10;&#10;    [Import(typeof(IAction))]&#10;    private IAction _action;&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>这便是最最基本的导入和导出，我们都约定了<code>IAction</code>作为契约，所以这样的导入导出可以得到匹配。</p>
+<h3 id="默认导入导出类型">默认导入导出类型</h3><p>如果上述代码改变一下，成为下面这样：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export(&#34;IAction&#34;)]&#10;public class MyAction : IAction &#123;&#10;    public void DoAction() &#123;&#10;        Console.WriteLine(&#34;My Action Invoked&#34;);&#10;    &#125;&#10;&#125;&#10;&#10;public class ActionManager &#123;&#10;&#10;    [Import(&#34;IAction&#34;)]&#10;    private IAction _action;&#10;&#10;    public void DoAction() &#123;&#10;        _action.DoAction();&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>此时我们都只设定了<code>ContractName</code>，这个属性，并且一样，但是，这样的导入导出是不会匹配的，因为Export默认的导出类型（ContractType）是<code>MyAction</code>，而Import默认需要的导入类型是<code>IAction</code>，所以不会匹配。所以，我们改变下代码：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Import(&#34;IAction&#34;,typeof(MyAction))]</span><br></pre></td></tr></table></figure>
+<p>这样，便可以得到匹配了。</p>
+<h2 id="二、导入导出的种类">二、导入导出的种类</h2><p>在MEF中，我们可以导入和导出各种种类，以下罗列出来，方便以后使用。</p>
+<h3 id="导入导出字段">导入导出字段</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export(typeof(IAction))]&#10;private IAction MyExportAction = new MyAction();&#10;[Export]&#10;public class ActionManager &#123;&#10;&#10;    [Import(typeof(IAction))]&#10;    private IAction _action;&#10;&#10;    public void DoAction() &#123;&#10;        _action.DoAction();&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>在<code>ActionManager</code>上面标记了<code>Export</code>特性，这样，我们可以很方便的用下面的代码来实例化：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var actionManager = _container.GetExportedValue&#60;ActionManager&#62;();</span><br></pre></td></tr></table></figure>
+<p>基本上，我们是用MEF的话，都会采用这样的方式来创建部件。</p>
+<h3 id="导入导出属性">导入导出属性</h3><p>这个与上面的导入导出字段类似，不作太多赘述了。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export(typeof(IAction))]&#10;private static IAction MyExportAction &#123; get; set; &#125;</span><br></pre></td></tr></table></figure>
+<h3 id="导入导出方法">导入导出方法</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class MyAction  &#123;&#10;    [Export(typeof(Action))]&#10;    public void DoAction() &#123;&#10;        Console.WriteLine(&#34;My Action Invoked&#34;);&#10;    &#125;&#10;&#125;&#10;&#10;[Export]&#10;public class ActionManager &#123;&#10;    [Import(typeof(Action))]&#10;    public Action _importAction;&#10;&#10;    public void DoAction() &#123;&#10;        _importAction();&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>实际上，我么导入导出的是委托类型（delegate）。</p>
+<h3 id="导入构造函数">导入构造函数</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export(typeof(IAction))]&#10;public class MyAction : IAction &#123;&#10;   &#10;    public void DoAction() &#123;&#10;        Console.WriteLine(&#34;My Action Invoked&#34;);&#10;    &#125;&#10;&#125;&#10;&#10;[Export]&#10;public class ActionManager &#123;&#10;    private IAction _action;&#10;&#10;    [ImportingConstructor]&#10;    public ActionManager(IAction action) &#123;&#10;        _action = action;&#10;    &#125;&#10;&#10;    public void DoAction() &#123;&#10;        _action.DoAction();&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p>我们使用了<code>ImportingConstructor</code>特性来完成构造函数的导入。</p>
+<h3 id="动态导入">动态导入</h3><p>所谓的动态导入，就是指我们需要导入的字段或属性是<code>dynamic</code>类型的，当然，这是.NET 4.0之后特有的。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public class ActionManager &#123;&#10;    [Import(&#34;Action&#34;)]&#10;    public dynamic MyAction &#123; get; set; &#125;&#10;&#125;&#10;&#10;[Export(&#34;Action&#34;, typeof(IAction))]&#10;public class MyAction : IAction &#123; &#125;&#10;&#10;[Export(&#34;Action&#34;)]&#10;public class MyAction2 &#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>需要注意的是，上面两个导出都会匹配，因为<code>dynamic</code>没有类型约束，除非指定<code>ContractType</code>。</p>
+<h3 id="延时导入">延时导入</h3><p>延时导入，即并非立即导入组合，而是在访问时进行实例化，下面是一个完整的综合的例子。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">namespace MEFTest &#123;&#10;&#10;    class Program &#123;&#10;&#10;        //&#23383;&#27573;&#23548;&#20986;&#10;        [Export]&#10;        private static IAction MyExportedAction;&#10;&#10;        private static CompositionContainer _container;&#10;&#10;        static void Main(string[] args) &#123;&#10;&#10;            var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;            _container = new CompositionContainer(catalog);&#10;&#10;            //&#27492;&#26102;MyExportedAction&#23383;&#27573;&#26159;NULL&#10;            var actionManager = _container.GetExportedValue&#60;ActionManager&#62;();&#10;            //&#22914;&#26524;&#36825;&#26102;&#20505;&#30452;&#25509;  actionManager.DoAction(); &#30340;&#35805;&#65292;&#20250;&#25253;&#38169;&#10;            //&#25110;&#32773;ActionManager&#20013;&#30340;&#23548;&#20837;&#19981;&#26159;Lazy&#30340;&#35805;&#65292;&#20063;&#20250;&#25253;&#38169;&#10;&#10;            MyExportedAction = new MyAction();//&#25105;&#20204;&#23454;&#20363;&#21270;&#19968;&#19979;&#10;&#10;            actionManager.DoAction();&#10;&#10;            while (true) &#123;&#10;                Console.ReadLine();&#10;            &#125;&#10;&#10;        &#125;&#10;    &#125;&#10;&#10;&#10;    public interface IAction &#123;&#10;        void DoAction();&#10;    &#125;&#10;&#10;    public class MyAction : IAction &#123;&#10;        public void DoAction() &#123;&#10;            Console.WriteLine(&#34;My Action Invoked&#34;);&#10;        &#125;&#10;    &#125;&#10;&#10;    [Export]&#10;    public class ActionManager &#123;&#10;        private Lazy&#60;IAction&#62; _action;&#10;&#10;        //&#26500;&#36896;&#24310;&#26102;&#23548;&#20837;&#10;        [ImportingConstructor]&#10;        public ActionManager(Lazy&#60;IAction&#62; action) &#123;&#10;            _action = action;&#10;        &#125;&#10;&#10;        public void DoAction() &#123;&#10;            _action.Value.DoAction();&#10;        &#125;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="导入多个对象">导入多个对象</h3><p>需要导入多个对象（即集合）时，我们使用<code>ImportMany</code>特性，使用此特性，我们可以将所有匹配的导出，导入到一个集合中，可以使用<code>IEnumerable&lt;T&gt;</code>也可以使用数组，当然，最好是配合<code>Lazy</code>一起使用，这样我们无需实例化所有的导出。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ImportMany(typeof(IAction))]&#10;private IEnumerable&#60;IAction&#62; _actions;&#10;&#10;[ImportMany(typeof(IAction))]&#10;private Lazy&#60;IAction&#62;[] _lazyActions;</span><br></pre></td></tr></table></figure>
+<p>值得注意的是，我们在导入构造函数时，即ImportingConstructor，如果构造函数的参数是IEumerable<t>类型，使用ImportingConstructor导入的话，回去寻找IEumerable<t>类型的导出，而不是T类型的一组导出，如果我们需要的是T类型的一组导出的话，可以使用下面的代码：</t></t></p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Export]&#10;public class ActionManager &#123;&#10;&#10;    private IEnumerable&#60;Lazy&#60;IAction&#62;&#62; _actions;&#10;&#10;    [ImportingConstructor]&#10;    public ActionManager([ImportMany]IEnumerable&#60;Lazy&#60;IAction&#62;&#62; actions) &#123;&#10;        _actions = actions;&#10;    &#125;&#10;&#10;    public void DoAction() &#123;&#10;        foreach (var action in _actions) &#123;&#10;            action.Value.DoAction();&#10;        &#125;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="必备导入和可选导入">必备导入和可选导入</h3><p>必备和可选是相对于组合引擎（一般都是<code>Container</code>）创建部件时而言，例如默认的情况下，组合引擎创建部件都是使用无参数的构造函数，而使用了<code>ImportingConstructor</code>特性后，则会使用由<code>ImportingConstructor</code>所描述的构造参数，此时该项导入便是必备导入；可选导入就是在组装失效（未匹配到）的情况下，采用默认值，则此项导入为可选导入，例如：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Import(typeof(IAction), AllowDefault = true)]&#10;public IAction _myAction;</span><br></pre></td></tr></table></figure>
+<p>使用<code>AllowDefault</code>为<code>true</code>的情况下，该导入便是可选导入，如果匹配不上，上诉示例的字段值为空（null）。</p>
+<h2 id="三、导入和导出的继承">三、导入和导出的继承</h2><p>在MEF中，<code>Export</code>特性是不会被继承的，如果希望子类继承父类的导出，则要使用<code>InheritedExport</code>特性；而<code>Import</code>特性是继承的，也就是说，如果父类中引入了某个导入，则子类中依然会引用该导入。我们看示例：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[InheritedExport]&#10;public abstract class ActionManager &#123;&#10;    [Import]&#10;    private Lazy&#60;IAction&#62; _action;&#10;&#10;    public void DoAction() &#123;&#10;        _action.Value.DoAction();&#10;    &#125;&#10;&#125;&#10;&#10;public class ChildActionManager : ActionManager &#123; &#125;</span><br></pre></td></tr></table></figure>
+<p>此示例是根据上面的完整示例改写而来，我们这样调用它：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var actionManager = _container.GetExportedValue&#60;ActionManager&#62;();</span><br></pre></td></tr></table></figure>
+<p>此时我们调用了的是<code>ChildActionManager</code>，因为它的父类用了<code>InheritedExport</code>，并且父类是抽象类，具体内容，下一节中会讲解。</p>
+<h2 id="四、不被发现的导出">四、不被发现的导出</h2><p>在上面的示例中，我们用了<code>abstract</code>，也就是抽象类，如果不用抽象类的话，上诉的示例便会失败，报错内容会说找到多个匹配的导出。因为<code>ActionManager</code>会导出<code>ActionManager</code>，它的子类<code>ChildActionManager</code>也会导出<code>ActionManager</code>，所以<code>GetExportedValue&lt;T&gt;</code>方法会出错。</p>
+<p>经过上面的示例，我们已经知道了，如果类是抽象的，则它的导出是不会被发现的，但，如果我们无法使得类变成抽象类，又不想它导出被发现呢？我们可以使用<code>PartNotDiscoverable</code>特性来描述，这样，我们改写上面的示例为下，一切会正常执行：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[InheritedExport]&#10;[PartNotDiscoverable]&#10;public class ActionManager &#123;&#10;    [Import]&#10;    private Lazy&#60;IAction&#62; _action;&#10;&#10;    public void DoAction() &#123;&#10;        _action.Value.DoAction();&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="五、总结">五、总结</h2><p>到总结了，这次内容还是蛮多的，不过很基础，也不是很难理解，不过是导入导出而已。我们熟悉并且了解了导入导出的种类，也了解了导入导出的一些特性，假以时日，我们一定能成为导入导出的一等一高手！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2013/04/09/mef-core-note-attribute-part-b/" rel="prev">MEF核心笔记（4）细说MEF中的Attribute [下]</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2013/04/05/mef-core-note-about-catalog/" rel="next">MEF核心笔记（2）Catalog的种类</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2013/04/06/mef-core-note-attribute-part-a/"
+                   data-title="MEF核心笔记（3）细说MEF中的Attribute [上]" data-url="http://blog.makeex.com/2013/04/06/mef-core-note-attribute-part-a/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、基本导入导出"><span class="nav-number">1.</span> <span class="nav-text">一、基本导入导出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#最基本的导入导出"><span class="nav-number">1.1.</span> <span class="nav-text">最基本的导入导出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#默认导入导出类型"><span class="nav-number">1.2.</span> <span class="nav-text">默认导入导出类型</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、导入导出的种类"><span class="nav-number">2.</span> <span class="nav-text">二、导入导出的种类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#导入导出字段"><span class="nav-number">2.1.</span> <span class="nav-text">导入导出字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#导入导出属性"><span class="nav-number">2.2.</span> <span class="nav-text">导入导出属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#导入导出方法"><span class="nav-number">2.3.</span> <span class="nav-text">导入导出方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#导入构造函数"><span class="nav-number">2.4.</span> <span class="nav-text">导入构造函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态导入"><span class="nav-number">2.5.</span> <span class="nav-text">动态导入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#延时导入"><span class="nav-number">2.6.</span> <span class="nav-text">延时导入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#导入多个对象"><span class="nav-number">2.7.</span> <span class="nav-text">导入多个对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#必备导入和可选导入"><span class="nav-number">2.8.</span> <span class="nav-text">必备导入和可选导入</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、导入和导出的继承"><span class="nav-number">3.</span> <span class="nav-text">三、导入和导出的继承</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、不被发现的导出"><span class="nav-number">4.</span> <span class="nav-text">四、不被发现的导出</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、总结"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

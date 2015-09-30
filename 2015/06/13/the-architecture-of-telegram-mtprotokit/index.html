@@ -1,0 +1,772 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：MTProtoKit，我发现这">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Telegram 之 MTProtoKit 架构分析">
+<meta property="og:url" content="http://blog.makeex.com/2015/06/13/the-architecture-of-telegram-mtprotokit/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：MTProtoKit，我发现这">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/06/13/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/06/13/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/06/13/03.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/06/13/04.png">
+<meta property="og:updated_time" content="2015-09-29T08:35:23.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Telegram 之 MTProtoKit 架构分析">
+<meta name="twitter:description" content="上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：MTProtoKit，我发现这">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Telegram 之 MTProtoKit 架构分析 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Telegram 之 MTProtoKit 架构分析
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-06-13T22:33:48+08:00" content="2015-06-13">
+            2015-06-13
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/" itemprop="url" rel="index">
+                  <span itemprop="name">OSX</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/06/13/the-architecture-of-telegram-mtprotokit/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/13/the-architecture-of-telegram-mtprotokit/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：<strong>MTProtoKit</strong>，我发现这个项目和Mac客户端项目完全是两个水准，所以，我决定单独把它拿出来做次分析。</p>
+<p>首先，你应该要知道什么是Telegram，它和TeamTalk一样，都是开源的IM，百度搜索一下会有一些关于它的介绍。以下是和本篇博客有关的地址链接：</p>
+<ul>
+<li><a href="https://github.com/overtake/telegram" target="_blank" rel="external">Telegram Mac 客户端源码仓库</a></li>
+<li><a href="https://github.com/peter-iakovlev/MtProtoKit" target="_blank" rel="external">MTProtoKit 源码仓库</a></li>
+<li><a href="https://core.telegram.org/mtproto" target="_blank" rel="external">MTProto 官方文档</a></li>
+</ul>
+<p>我说过，要想提高自身的设计能力，阅读开源项目是很好的途径。在分析别人源码的过程中，我们可以汲取到一些其它的思想，架构设计这条路是没有止境的，我们唯有不断<strong>学习，才能成为更好的自己</strong>！那么，我们开始本次的分析之旅吧！</p>
+<a id="more"></a>
+<h2 id="MTProto_简介">MTProto 简介</h2><p>既然我们要对这个MTProtoKit进行分析，我们首先应该要清楚，这个<code>MTProto</code>到底是个什么东西？在官网上不难看到，官方给出了以下定义：</p>
+<blockquote>
+<p>The protocol is designed for access to a server API from applications running on mobile devices. It must be emphasized that a web browser is not such an application.</p>
+</blockquote>
+<p>也就是说，<code>MTProto</code>是一个Telegram自定义的通讯协议，用于移动端App与服务器交互数据使用。这里还特别指出了，一个浏览器不能算是移动端App，所以这个协议不适用于HTML5之类的网页客户端。</p>
+<p>现在我们大体知道了，<code>MTProto</code>是一种协议，那么MTProtoKit就是对该协议实现的封装，使得我们能够更方便的使用这样的协议。了解了这些，对我们接下来的分析会有很好的帮助。</p>
+<h2 id="宏观分析">宏观分析</h2><p>拿到这样一个项目，如果一开始就拘泥于细节实现，那么很难快速的了解它的一些核心信息。任何软件都是从无到有，从细小变得庞大，所有复杂的架构都会有一个简单的<strong>核心原型</strong>，而后进行<strong>增量迭代</strong>。所以，我们只要找到它的核心原型，再站在设计者得角度进行考虑、分析，任何复杂的软件体系，都可以顺藤摸瓜的理清一条思路。</p>
+<p>MTProtoKit复杂么？其实它并不复杂，但我觉得依然需要使用<strong>从整体到细节</strong>这样的方式来分析。首先，我们看看它的一个核心原型类图：</p>
+<p><img src="/images/2015/06/13/01.png" alt="核心原型图"></p>
+<p>这个核心原型还是相当简单的，主要有以下几个抽象：</p>
+<ul>
+<li><strong>MTProto</strong>：这可能是最核心的一个类了，所以设计者给了它这样一个看起来就非常重要的名字（<em>虽然我并不推荐这样命名</em>）。它主要负责管理消息服务（<em>MTMessageService</em>），给予消息服务适当的运行上下文，并且负责传输由消息服务所构建的消息事务（<em>MTMessageTransaction</em>）。实话说，这个类设计得有点臃肿，以至于一眼看上去，你都不知道它是干什么的。</li>
+<li><strong>MTMessageService</strong>：消息服务，这是另外一个非常重要的抽象，它是一个协议，也就是大多数高级语言里面的接口。这个协议是<code>MTProto</code>的一个<code>Observer</code>，也就是说，它会监听<code>MTProto</code>所有发布的事件，以此来控制自身实现逻辑。</li>
+<li><strong>MTMessageTransaction</strong>：消息事务，这是非常高级的一个特性，它内部保持了一系列需要发送的消息，并提供了一个所有消息发送完毕的回调。</li>
+</ul>
+<p>最核心的应该也就这三个类了，<code>MTMessageService</code>是暴露给最终使用者的，使用者用它发送消息，而它在内部将要发送的消息按照<strong>服务的特定实现</strong>构建成<code>MTMessageTransaction</code>，然后请求<code>MTProto</code>将这个<code>MTMessageTransaction</code>进行传输，并且监听<code>MTProto</code>收到消息的回调，来进一步完成一整个消息处理流程。下面是一个通用消息处理序列图：</p>
+<p><img src="/images/2015/06/13/02.png" alt="消息处理序列图"></p>
+<p>通过这样一个大体的分析，我们应该能够清楚怎样继续来寻根究底了。那么，我们接下来就将这个原型展开，进行一个比较全面的分析。</p>
+<h2 id="消息服务实现">消息服务实现</h2><p>消息服务，它提供了处理和消息相关的一组方法，比如我们发送一个RPC（<em>远程过程调用</em>）请求。这里使用<code>MessageService</code>来作为抽象名称，我觉得是因为比较容易进行泛化，特定性约束不强，只要和消息相关的操作，都可以以此来展开实现。因为<code>MTProto</code>的定义是一个非常强大的类，它能给所有消息相关操作提供它们想要的任何支持，这样的定义好坏是显而易见的。在目前的MTProtoKit中，大致提供了以下几个消息服务：</p>
+<h3 id="MTTimeSyncMessageService_-_时间同步">MTTimeSyncMessageService - 时间同步</h3><p>在telegram的协议中，每个消息标识都附带了系统时间信息，收到的消息标识符中是服务端时间，而发送的消息标识符中是客户端时间。客户端生成消息标识符的算法，在<code>MTSessionInfo</code>中如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">- (int64_t)generateClientMessageId:(<span class="keyword">bool</span> *)monotonityViolated</span><br><span class="line">&#123;</span><br><span class="line">    int64_t messageId = (int64_t)([_context globalTime] * <span class="number">4294967296</span>);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (messageId &lt; _lastClientMessageId)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> (monotonityViolated != <span class="literal">NULL</span>)</span><br><span class="line">            *monotonityViolated = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (messageId == _lastClientMessageId)</span><br><span class="line">        messageId = _lastClientMessageId + <span class="number">1</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">while</span> (messageId % <span class="number">4</span> != <span class="number">0</span>)</span><br><span class="line">        messageId++;</span><br><span class="line">    </span><br><span class="line">    _lastClientMessageId = messageId;</span><br><span class="line">    <span class="keyword">return</span> messageId;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当服务端意识到和客户端时间相差较大，则会忽略掉客户端发送来的消息，而这个服务便是用来和服务端时间进行校准。实现逻辑也比较简单，它会主动向服务端发送若干个消息进行时间采样，最终去除相差最小和相差最大的两个采样来求平均值。</p>
+<p>这个时间同步服务，是直接由<code>MTProto</code>调用的（<em>requestTimeResync</em>），所以这里的逻辑依赖关系有点紊乱，我们使用类图梳理一下：</p>
+<p><img src="/images/2015/06/13/03.png" alt="同步消息类图"></p>
+<p>这里有个明显的互相依赖，<code>MTTimeSyncMessageService</code>是<code>MTProto</code>的观察者，并使用了它的相应方法；<code>MTProto</code>亦是<code>MTTimeSyncMessageService</code>的观察者，也使用了它的相应方法。从类设计的角度来说，这样的耦合状态是我们不愿意看到的，因为它提高了以后的维护成本。这里之所以这么设计，是因为同步服务必须依赖于<code>MTProto</code>提供的强有力后盾，但<code>MTProto</code>又必须要确保消息时间的准确性，于是乎就造成了这样的格局，但，肯定是可以通过改变结构来解除这样的紊乱。</p>
+<h3 id="MTRequestMessageService_-_RPC_请求和响应">MTRequestMessageService - RPC 请求和响应</h3><p>这是一个使用非常频繁的服务，主要是用来向服务端发送RPC请求，并负责处理超时、错误、回执等。从它这么多的职责中，就可以看出它会是一个比较巨大的类，一般人是难以Hold住的，但将职责拆分细化又会增加结构上的复杂度，所以这是我们在进行设计的时候需要权衡的。</p>
+<p>这里完整消息处理的复杂度还是蛮高的，因为有很多处理细节，要想完整阐述清楚也不容易。所以，还是很佩服telegram这样严谨的协议设计，使得<code>MTProto</code>能适应很多不同场合，相比之下，我所使用或设计过的协议，大多都逊色很多。这里，我只列出一些比较关键的处理点，更多细节，有兴趣的自己去深挖吧！</p>
+<ol>
+<li><p><strong>消息打包</strong></p>
+<p> 这是一个比较有用的特性，每一个<code>MTRequest</code>都会携带一个它需要发送的消息数据，然后添加到RPC服务（<em>MTRequestMessageService</em>）中，此时RPC服务会请求<code>MTProto</code>进行事务传输，但<code>MTProto</code>需要进行一些另外的准备和检验操作，所以可能会晚点才能向RPC服务要求构建事务，这时候RPC服务中可能会积累多个<code>MTRequest</code>，于是在构建事务的时候，事务的payload里就会有多个消息。同理，<code>MTProto</code>在请求真正的向外传输时，又有可能会积累多个需要传输的事务，因为底层传输支持也需要做一些其他额外的处理。</p>
+<p> 针对上诉情况，telegram的MTProto中有一个消息容器的概念，它可以将多个消息放置到一个容器里，一同发送到服务器，服务器亦会对消息容器里需要响应的消息进行打包响应。这样就减少了网络传输的次数，也提高了响应的及时性（<em>减少了排队请求的可能性</em>）。</p>
+</li>
+<li><p><strong>依赖处理</strong></p>
+<p> 针对上诉的打包特性，它隐性的引入了一个问题，也就是时序问题，有些消息是必须在某些消息前得到处理的。所以，telegram增加了消息依赖的特性，它可以指定某个消息必须在另外一个消息前得到执行，这会对并发处理的服务端有很好的提示，但必然的增加了客户端实现的复杂度。</p>
+</li>
+<li><p><strong>超时管理</strong></p>
+<p> 由于消息可能会被打包处理，所以在超时管理上亦会跟一般超时处理不同，首先会在真的进入发送阶段前进行检测，其次是在收到响应时再做检测。值得一提的是，这里超时时钟使用的是<code>MTAbsoluteTime</code>，它是一个取CPU频率计算的高精度时钟。</p>
+</li>
+<li><p><strong>错误处理</strong></p>
+<p> 除了响应的RPCError之外，<code>MTProto</code>在对消息进行标识符编码的时候，还会检查标识符的唯一性，因为标识符和系统时间息息相关，所以如果小于上个消息标识符，则说明唯一性被破坏了，亦说明了系统时间有问题。发生这样的情况，<code>MTProto</code>会重置当前的<code>Session</code>，并进行时间同步，也就是使用了<code>MTTimeSyncMessageService</code>。而这样的消息，会在本次传输中被抛弃掉，切换完<code>Session</code>后，才会继续发送。</p>
+</li>
+</ol>
+<h3 id="MTResendMessageService_-_消息重传">MTResendMessageService - 消息重传</h3><p>这算是MTProto比较有特性的另一个服务，所以，telegram对这个协议的确是花费了不少心思，也不枉费我把这个周末的时间花在了这上面。这里的消息重传，并不是指客户端发送消息出现错误而进行后续的重新请求，而是指当客户端向服务器发出RPC请求后，服务端检测到这是一个重复的请求（<em>消息标识符相同</em>），如果响应内容较小，服务端会直接返回结果，而如果响应内容较大，此时服务端会回馈一个<code>MTMsgDetailedResponseInfoMessage</code>，如果想要取得相应结果，则需要使用该服务，将请求消息标识符重新发送到服务器。</p>
+<p>这个服务和时间同步服务一样，是由<code>MTProto</code>直接使用的，涉及到的核心代码如下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)_processIncomingMessage:(MTIncomingMessage *)incomingMessage withTransactionId:(<span class="keyword">id</span>)transactionId &#123;</span><br><span class="line"><span class="comment">// ... 略</span></span><br><span class="line">        <span class="keyword">if</span> (shouldRequest) &#123;</span><br><span class="line">            [<span class="keyword">self</span> requestMessageWithId:detailedInfoMessage<span class="variable">.responseMessageId</span>];</span><br><span class="line">            MTLog(<span class="string">@"[MTProto#%p will request message %"</span> PRId64 <span class="string">""</span>, <span class="keyword">self</span>, detailedInfoMessage<span class="variable">.responseMessageId</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            [_sessionInfo scheduleMessageConfirmation:detailedInfoMessage<span class="variable">.responseMessageId</span> size:(<span class="built_in">NSInteger</span>)detailedInfoMessage<span class="variable">.responseLength</span>];</span><br><span class="line">            [<span class="keyword">self</span> requestTransportTransaction];</span><br><span class="line">        &#125;</span><br><span class="line"><span class="comment">// ... 略       </span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)requestMessageWithId:(int64_t)messageId &#123;</span><br><span class="line">    <span class="keyword">bool</span> alreadyRequestingThisMessage = <span class="literal">false</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">id</span>&lt;MTMessageService&gt; messageService <span class="keyword">in</span> _messageServices) &#123;</span><br><span class="line">        <span class="keyword">if</span> ([messageService isKindOfClass:[MTResendMessageService class]]) &#123;</span><br><span class="line">            <span class="keyword">if</span> (((MTResendMessageService *)messageService)<span class="variable">.messageId</span> == messageId) &#123;</span><br><span class="line">                alreadyRequestingThisMessage = <span class="literal">true</span>;</span><br><span class="line">                </span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!alreadyRequestingThisMessage &amp;&amp; ![_sessionInfo messageProcessed:messageId]) &#123;</span><br><span class="line">        MTResendMessageService *resendService = [[MTResendMessageService alloc] initWithMessageId:messageId];</span><br><span class="line">        resendService<span class="variable">.delegate</span> = <span class="keyword">self</span>;</span><br><span class="line">        [<span class="keyword">self</span> addMessageService:resendService];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="MTDatacenterAuthMessageService_-_数据中心授权">MTDatacenterAuthMessageService - 数据中心授权</h3><p>这也是一个非常重要的服务，它和用户授权息息相关，首先我们要清楚什么是<strong>DataCenter</strong>，也就是数据中心。可以简单的把一个数据中心就当成一台完整的服务器，我们可以对它进行发送任何合理的请求。telegram的数据中心遍布在全球各地，而它们之间的数据同步是对客户端透明的，客户端要做的就是选择一个最适合自身的数据中心。数据中心地址的查找，在MTProtoKit中被封装在了<code>MTDiscoverDatacenterAddressAction</code>中，而后由全局上下文<code>MTContext</code>进行调用。</p>
+<p>那么这个授权服务，它所做的便是向特定的数据中心发出授权请求，完成一个授权的全过程。整个授权的加密过程都在这个服务中体现出来，telegram号称它是非常安全的IM，从这里的源码中可以看出，它的确没有撒谎。它采用的是基于nonce的一个认证体质，在安全领域中，nonce是指在一个特定的上下文中，仅仅只被使用一次的数。通过使用nonce，我们可以防御Replay attack（<em>回放攻击</em>）和Chosen-Plaintext attack（<em>选择明文攻击</em>）。关于安全相关的知识，我这里就不展开了，有兴趣的同学可以自己去查阅相关资料。telegram同时使用了客户端nonce和服务端nonce，并且加入了DH值校验，所以安全程度是非常高的。大体流程如下图：</p>
+<p><img src="/images/2015/06/13/04.png" alt="数据中心认证大体时序"></p>
+<p>在这个服务类的具体实现里，很容易可以看来，它是一个状态机，随着授权环节的推进，当前状态进行相应的推进。而使用这个服务的，是另一个封装类<code>MTDatacenterAuthAction</code>，和上面说过的那个数据中心查找类类似，它们都采用了<code>Command</code>模式进行设计，也都是由全局上下文进行管理、调用。</p>
+<h3 id="MTTransport_-_数据传输">MTTransport - 数据传输</h3><p>这是最后一个实现了<code>MTService</code>的类，也是所有数据传输的基础服务，它的主要职责即是传输和接受数据，并且还监听网络可用性变化。这算得上是一个抽象类，它有两个子类实现<code>MTTcpTransport</code>和<code>MTHttpTransport</code>，很显然，是基于特定协议的实现。</p>
+<p><code>MTTransport</code>的设计也稍显复杂，虽然它是由<code>MTProto</code>直接使用的，但却是由全局上下文进行统一管理。在<code>MTTransport</code>之上还有另一个更高层级的抽象<code>MTTransportScheme</code>，这个类是用来描述一种特定的传输格式，并且可以根据这个特定的格式构建出合适的<code>MTTransport</code>。而确定这种传输格式，是通过另一Command类<code>MTDiscoverTransportSchemeAction</code>，它可以发现某个数据中心支持的传输格式，并可以挑选出最优的结果。</p>
+<p>这里的实现细节，就不一一展开了，大体清楚了他们的意图，我觉得也就够了。</p>
+<h2 id="内置消息简析">内置消息简析</h2><p>在MTProtoKit中，有很多内置的消息，定义在<strong>Serialization</strong>目录下，这些基本都是和协议相关的PONSO。除了这些消息之外，还有和解析这些消息相关的类，比如<code>MTBufferReader</code>和<code>MTInternalMessageParser</code>，这些都是用来对这些内置消息进行解析用的。除了内置消息，还应该有很多业务相关性的消息，而这些消息都不在MTProtoKit考虑之中，MTProtoKit将其它消息的序列化由<code>MTSerialization</code>协议委托给了使用者去实现，这样做还是很合理的，因为MTProto是一个非常动态的协议，扩展性非常强。</p>
+<p>内置消息其实就像编程语言给我提供的标准库一样，它是框架，也是基础。下面我简单选取一些消息做个介绍：</p>
+<ul>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#notice-of-ignored-error-message" target="_blank" rel="external">MTBadMsgNotificationMessage</a></strong>：服务端未能正确解析客户端消息时，会返回该消息，并附带错误码。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#notice-of-ignored-error-message" target="_blank" rel="external">MTBadServerSaltNotificationMessage</a></strong>：服务端对Salt验证失败时，会返回该消息。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#request-to-destroy-session" target="_blank" rel="external">MTDestroySessionResponseOkMessage</a></strong>：客户端请求销毁当前会话，服务端返回销毁成功的响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#request-to-destroy-session" target="_blank" rel="external">MTDestroySessionResponseNoneMessage</a></strong>：客户端请求销毁当前会话，服务端返回未找到该会话的响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#cancellation-of-an-rpc-query" target="_blank" rel="external">MTDropRpcResultUnknownMessage</a></strong>：客户端请求服务端取消某次RPC请求，服务端返回未知状态的响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#cancellation-of-an-rpc-query" target="_blank" rel="external">MTDropRpcResultDroppedRunningMessage</a></strong>：客户端请求服务端取消某次RPC请求，服务端返回正在处理的响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#cancellation-of-an-rpc-query" target="_blank" rel="external">MTDropRpcResultDroppedMessage</a></strong>：客户端请求服务端取消某次RPC请求，服务端返回处理完成的响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#request-for-several-future-salts" target="_blank" rel="external">MTFutureSaltsMessage</a></strong>：客户端请求服务端Salt，服务端的响应消息。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#request-for-message-status-information" target="_blank" rel="external">MTMsgsStateReqMessage</a></strong>：当消息处理的任何一方（<em>服务器或客户端</em>）长时间未收到发出消息的响应，则可以通过该请求来查询消息处理状态。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#informational-message-regarding-status-of-messages" target="_blank" rel="external">MTMsgsStateInfoMessage</a></strong>：消息处理状态响应。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#voluntary-communication-of-status-of-messages" target="_blank" rel="external">MTMsgAllInfoMessage</a></strong>：自发性的通知另一方，消息处理的状态。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#simple-container" target="_blank" rel="external">MTMsgContainerMessage</a></strong>：消息容器，用于多个消息同时打包发送。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#extended-voluntary-communication-of-status-of-one-message" target="_blank" rel="external">MTMsgDetailedResponseInfoMessage</a></strong>：当收到重复的消息请求时，且响应内容过大，服务端会返回该条响应，用于描述响应内容。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#explicit-request-to-re-send-messages" target="_blank" rel="external">MTMsgResendReqMessage</a></strong>：客户端请求消息响应重传，旨在处理重复请求时，明确的让服务端返回响应内容。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages_about_messages#acknowledgment-of-receipt" target="_blank" rel="external">MTMsgsAckMessage</a></strong>：消息回执。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#new-session-creation-notification" target="_blank" rel="external">MTNewSessionCreatedMessage</a></strong>：服务端通知客户端，一个新的会话被创建。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#response-to-an-rpc-query" target="_blank" rel="external">MTRpcResultMessage</a></strong>：RPC请求响应消息。</li>
+<li><strong><a href="https://core.telegram.org/mtproto/service_messages#rpc-error" target="_blank" rel="external">MTRpcError</a></strong>：RPC请求错误响应。</li>
+</ul>
+<h2 id="全局上下文">全局上下文</h2><p>所谓的全局上下文，也就是<code>MTContext</code>类，这是一个使用相当频繁的类，它的主要意图是用来给MTProtoKit中，其它类提供一个公共的运行上下文，也相当于是整个MTProtoKit的入口点。所以，一些公共的状态和方法都会被提升到这个类中，它大体记录了以下信息：</p>
+<ol>
+<li>客户端运行环境，即<code>MTApiEnvironment</code>。</li>
+<li>非内置消息的序列化器实现，即<code>MTSerialization</code>协议的实现。</li>
+<li>客户端时间，并允许设定偏差来校准。</li>
+<li>当前用户的授权相关信息和操作。</li>
+<li>数据中心的相关信息和操作。</li>
+<li>传输格式（<em>MTTransportScheme</em>）的相关信息和操作。</li>
+</ol>
+<p>这个全局上下文的实现，倒是没有太多可以展开的，有兴趣深入研究的，可以自行去观看。</p>
+<h2 id="其它细节">其它细节</h2><p>现在，我们再来看看一些比较有意思的细节处理。首先是<code>MTBuffer</code>类中，字节对齐的算法实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">inline</span> <span class="keyword">int</span> roundUp(<span class="keyword">int</span> numToRound, <span class="keyword">int</span> multiple)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> multiple == <span class="number">0</span> ? numToRound : ((numToRound % multiple) == <span class="number">0</span> ? numToRound : (numToRound + multiple - (numToRound % multiple)));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很简单的算法，但我觉得很有意思，使用<code>roundUp(17, 4)</code>，则会得到17按照4向上对齐的结果，也就是20。那么，怎么实现<code>roundDown</code>呢？这么简单的问题，大家自己动手去实现吧！</p>
+<p><code>MTBuffer</code>中，还有一个方法，也就是追加TL字节，我们来看一下：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)appendTLBytes:(<span class="built_in">NSData</span> *)bytes &#123;</span><br><span class="line">    int32_t length = (int32_t)bytes<span class="variable">.length</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (bytes == <span class="literal">nil</span> || length == <span class="number">0</span>) &#123;</span><br><span class="line">        [<span class="keyword">self</span> appendInt32:<span class="number">0</span>];</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">int</span> paddingBytes = <span class="number">0</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (length &gt;= <span class="number">254</span>) &#123;</span><br><span class="line">        uint8_t tmp = <span class="number">254</span>;</span><br><span class="line">        [<span class="keyword">self</span> appendBytes:&amp;tmp length:<span class="number">1</span>];</span><br><span class="line">        </span><br><span class="line">        [<span class="keyword">self</span> appendBytes:(<span class="keyword">const</span> uint8_t *)&amp;length length:<span class="number">3</span>];</span><br><span class="line">        </span><br><span class="line">        paddingBytes = roundUp(length, <span class="number">4</span>) - length;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        [<span class="keyword">self</span> appendBytes:(<span class="keyword">const</span> uint8_t *)&amp;length length:<span class="number">1</span>];</span><br><span class="line">        paddingBytes = roundUp(length + <span class="number">1</span>, <span class="number">4</span>) - (length + <span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> appendBytes:bytes<span class="variable">.bytes</span> length:length];</span><br><span class="line">    </span><br><span class="line">    uint8_t tmp = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; paddingBytes; i++)</span><br><span class="line">        [<span class="keyword">self</span> appendBytes:&amp;tmp length:<span class="number">1</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当字节长度大于或等于254时，这样的处理是不是有点让人困惑呢？其实是这样的，当这个块的长度小于254时，第一个字节就是用来标识内容的长度；而当这个块的长度大于或等于254时，第一个字节只是一个标志，后面3个字节才是真正的长度（<em>考虑一下大小端的问题哦</em>），所以，每个块的最大长度是24位值，而不是32位。这样做，长度值所占用的字节就可以被压缩了，大家再考虑下，为什么要按4字节进行对齐呢？优化内存布局？</p>
+<p>再来看一个<code>MTInternalMessageParser</code>中的<code>decompressGZip</code>方法，因为消息是可以放置在gzip容器中进行传输的，所以客户端需要解压字节流。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="built_in">NSData</span> *)decompressGZip:(<span class="built_in">NSData</span> *)data &#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> kMemoryChunkSize = <span class="number">1024</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">NSUInteger</span> length = [data length];</span><br><span class="line">    <span class="keyword">int</span> windowBits = <span class="number">15</span> + <span class="number">32</span>; <span class="comment">//Default + gzip header instead of zlib header</span></span><br><span class="line">    <span class="keyword">int</span> retCode;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">char</span> output[kMemoryChunkSize];</span><br><span class="line">    uInt gotBack;</span><br><span class="line">    <span class="built_in">NSMutableData</span> *result;</span><br><span class="line">    z_stream stream;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> ((length == <span class="number">0</span>) || (length &gt; <span class="built_in">UINT_MAX</span>)) <span class="comment">//<span class="doctag">FIXME:</span> Support 64 bit inputs</span></span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    </span><br><span class="line">    bzero(&amp;stream, <span class="keyword">sizeof</span>(z_stream));</span><br><span class="line">    stream<span class="variable">.avail_in</span> = (uInt)length;</span><br><span class="line">    stream<span class="variable">.next_in</span> = (<span class="keyword">unsigned</span> <span class="keyword">char</span>*)[data bytes];</span><br><span class="line">    </span><br><span class="line">    retCode = inflateInit2(&amp;stream, windowBits);</span><br><span class="line">    <span class="keyword">if</span>(retCode != Z_OK) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@"%s: inflateInit2() failed with error %i"</span>, __PRETTY_FUNCTION__, retCode);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    result = [<span class="built_in">NSMutableData</span> dataWithCapacity:(length * <span class="number">4</span>)];</span><br><span class="line">    <span class="keyword">do</span> &#123;</span><br><span class="line">        stream<span class="variable">.avail_out</span> = kMemoryChunkSize;</span><br><span class="line">        stream<span class="variable">.next_out</span> = output;</span><br><span class="line">        retCode = inflate(&amp;stream, Z_NO_FLUSH);</span><br><span class="line">        <span class="keyword">if</span> ((retCode != Z_OK) &amp;&amp; (retCode != Z_STREAM_END))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="built_in">NSLog</span>(<span class="string">@"%s: inflate() failed with error %i"</span>, __PRETTY_FUNCTION__, retCode);</span><br><span class="line">            inflateEnd(&amp;stream);</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        gotBack = kMemoryChunkSize - stream<span class="variable">.avail_out</span>;</span><br><span class="line">        <span class="keyword">if</span> (gotBack &gt; <span class="number">0</span>)</span><br><span class="line">            [result appendBytes:output length:gotBack];</span><br><span class="line">    &#125; <span class="keyword">while</span>( retCode == Z_OK);</span><br><span class="line">    inflateEnd(&amp;stream);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> (retCode == Z_STREAM_END ? result : <span class="literal">nil</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再看精确时钟的实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">MTAbsoluteTime MTAbsoluteSystemTime()</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">static</span> mach_timebase_info_data_t s_timebase_info;</span><br><span class="line">    <span class="keyword">if</span> (s_timebase_info<span class="variable">.denom</span> == <span class="number">0</span>)</span><br><span class="line">        mach_timebase_info(&amp;s_timebase_info);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> ((MTAbsoluteTime)(mach_absolute_time() * s_timebase_info<span class="variable">.numer</span>)) / (s_timebase_info<span class="variable">.denom</span> * <span class="built_in">NSEC_PER_SEC</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>好了，这些都是可以在我们设计网络通讯协议的时候拿来借鉴的，他山之石，可以攻玉啊！学习，才能成为更好的自己啊！</p>
+<h2 id="总结">总结</h2><p>本次分析，只能算是比较粗略的将核心内容过了一遍，由于时间和精力问题，并没有分析的非常透彻，但，收获依然很多。telegram在协议设计上面，还是做到了非常专业，细节处理得也都非常完善，这些都是值得我们去深思和探讨的，毕竟网络通讯中异常杂多，而细节终会决定成败。</p>
+<p>MTProto协议里，还有一块非常重要的部分，也就是用来描述该协议的<code>TL Language</code>，这也是非常有意思的设计。如果不出意外，下一篇博文中，我会来简略的谈谈这个<code>TL Language</code>，借此，我们可以看一看，这样一个可扩展的协议它的元数据是如何描述的，并更能体会到这个Protocol的强大！</p>
+<p>那么，拭目以待吧！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/06/14/the-tl-language-of-telegram/" rel="prev">Telegram 之 TL Language</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/05/30/the-architecture-of-teamtalk-mac-client/" rel="next">TeamTalk 之 Mac 客户端架构分析</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/06/13/the-architecture-of-telegram-mtprotokit/"
+                   data-title="Telegram 之 MTProtoKit 架构分析" data-url="http://blog.makeex.com/2015/06/13/the-architecture-of-telegram-mtprotokit/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MTProto_简介"><span class="nav-number">1.</span> <span class="nav-text">MTProto 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#宏观分析"><span class="nav-number">2.</span> <span class="nav-text">宏观分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#消息服务实现"><span class="nav-number">3.</span> <span class="nav-text">消息服务实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MTTimeSyncMessageService_-_时间同步"><span class="nav-number">3.1.</span> <span class="nav-text">MTTimeSyncMessageService - 时间同步</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MTRequestMessageService_-_RPC_请求和响应"><span class="nav-number">3.2.</span> <span class="nav-text">MTRequestMessageService - RPC 请求和响应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MTResendMessageService_-_消息重传"><span class="nav-number">3.3.</span> <span class="nav-text">MTResendMessageService - 消息重传</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MTDatacenterAuthMessageService_-_数据中心授权"><span class="nav-number">3.4.</span> <span class="nav-text">MTDatacenterAuthMessageService - 数据中心授权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MTTransport_-_数据传输"><span class="nav-number">3.5.</span> <span class="nav-text">MTTransport - 数据传输</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#内置消息简析"><span class="nav-number">4.</span> <span class="nav-text">内置消息简析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#全局上下文"><span class="nav-number">5.</span> <span class="nav-text">全局上下文</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它细节"><span class="nav-number">6.</span> <span class="nav-text">其它细节</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

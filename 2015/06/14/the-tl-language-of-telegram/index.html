@@ -1,0 +1,729 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="上一篇博文的最后提出，如果不出意外，这一篇就是用来介绍telegram的TL-Language，那么我的确也没出什么意外，所以这一篇就兑现这样的承诺吧！
+TL-Language是telegram用来描述MTProto的一种自定义语言，不难看出，能将协议的描述定义成一门语言，这也足够说明了telegram的逼格。其存在的意义，类似基于SOAP协议的Web Service用来描述服务元数据的XML S">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Telegram 之 TL Language">
+<meta property="og:url" content="http://blog.makeex.com/2015/06/14/the-tl-language-of-telegram/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="上一篇博文的最后提出，如果不出意外，这一篇就是用来介绍telegram的TL-Language，那么我的确也没出什么意外，所以这一篇就兑现这样的承诺吧！
+TL-Language是telegram用来描述MTProto的一种自定义语言，不难看出，能将协议的描述定义成一门语言，这也足够说明了telegram的逼格。其存在的意义，类似基于SOAP协议的Web Service用来描述服务元数据的XML S">
+<meta property="og:updated_time" content="2015-09-29T08:35:29.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Telegram 之 TL Language">
+<meta name="twitter:description" content="上一篇博文的最后提出，如果不出意外，这一篇就是用来介绍telegram的TL-Language，那么我的确也没出什么意外，所以这一篇就兑现这样的承诺吧！
+TL-Language是telegram用来描述MTProto的一种自定义语言，不难看出，能将协议的描述定义成一门语言，这也足够说明了telegram的逼格。其存在的意义，类似基于SOAP协议的Web Service用来描述服务元数据的XML S">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Telegram 之 TL Language | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Telegram 之 TL Language
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-06-14T19:34:27+08:00" content="2015-06-14">
+            2015-06-14
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/" itemprop="url" rel="index">
+                  <span itemprop="name">OSX</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/06/14/the-tl-language-of-telegram/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/14/the-tl-language-of-telegram/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>上一篇博文的最后提出，如果不出意外，这一篇就是用来介绍telegram的TL-Language，那么我的确也没出什么意外，所以这一篇就兑现这样的承诺吧！</p>
+<p>TL-Language是telegram用来描述MTProto的一种自定义语言，不难看出，能将协议的描述定义成一门语言，这也足够说明了telegram的逼格。其存在的意义，类似基于SOAP协议的Web Service用来描述服务元数据的XML Scheme，但又有不同，目前的TL-Language仅仅只能用来作“描述”作用，最终通讯还是序列化成二进制流，并且也没有服务元数据这么一说。</p>
+<p>这一次我们不管通讯，不管架构，只是单纯的看看这门语言吧！</p>
+<a id="more"></a>
+<h2 id="基本语法">基本语法</h2><p>在进入高级主题之前，我们先看看它的基础语法，起码你要能够看懂它的一般表达形式嘛！我们看看下面这段TL-Language：</p>
+<figure class="highlight d"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">user#d23c81a3 id:<span class="keyword">int</span> first_name:<span class="built_in">string</span> last_name:<span class="built_in">string</span> = User;</span><br><span class="line"></span><br><span class="line">--- functions ---</span><br><span class="line"></span><br><span class="line"><span class="comment">// API functions</span></span><br><span class="line">getUser#b0f732d5 <span class="keyword">int</span> = User;</span><br></pre></td></tr></table></figure>
+<p>第一眼看上去，你可能会看得比较懵懂，起码我第一眼看过之后心里就开始小鹿乱蹦了。这片代码被<code>--- functions ---</code>分为上下两个部分，telegram规定了，在这之上的为类型定义区域，而这之下的为方法定义区域，另外，如果你非要在方法定义区域之下定义类型，telegram说了，你要用一个<code>--- types ---</code>进行分割。</p>
+<p>首先，我们来看看类型定义：</p>
+<pre><code><span class="tag">user</span><span class="id">#d23c81a3</span> <span class="rule"><span class="attribute">id</span>:<span class="value">int first_name:string last_name:string = User</span></span>;
+</code></pre><p>这里被等号分成了左右两个部分，左边的为构造方法，右边的为具体类型，所以这里定义了一个<code>User</code>类型。左边的构造方法中，<code>user#d23c81a3</code>为方法名，后面的为方法参数，方法参数的定义方式，是不是和Objective-C很像啊？找到亲切感了没？方法名中的<code>#d23c81a3</code>为方法唯一标识符，用来全局标识这样一个方法。</p>
+<p>为什么要有方法标识符呢？其实很简单啊，在一般的编程语言里，方法其实也就对应了内存里的某一个地址，想一想函数指针，这样会更贴切。那么，在跨网络通信的时候，我们要调用另外一台机器上的某个方法，传递这样一个唯一标识符，就像传递函数地址一样，快捷而方便的就可以被识别、调用。所以我们要确保这标识的唯一性，默认情况下，telegram是使用方法签名计算CRC32的值，并以此来作为方法的唯一标识。比如这个定义，便是计算了<code>user id:int first_name:string last_name:string = User</code>的CRC32。</p>
+<p>看完了类型定义，我们再来看方法定义：</p>
+<pre><code>getUser#b<span class="number">0f732d5</span> int = User<span class="comment">;</span>
+</code></pre><p>是的，这下一眼就看懂了，其实类型定义和方法定义是同样一回事，只是在含义上有所不同。类型定义里，左边为构造函数，右边为具体定义的类型；方法定义里，左边为方法签名，右边为方法返回值类型。其实我们可以把类型定义里右边的具体类型，看作是左边构造函数的返回值类型，这样就更能明白它们的一致性了。</p>
+<p>以上便是TL-Language最基础的语法，能够定义出这样一种描述性语言，我觉得还是值得敬佩的。它将方法和类型巧妙的融合在了一起，简洁而不失描述的准确性，最难得的是它的可读性还非常强，在接下来的介绍中，我们会越发觉得它的强大！</p>
+<h2 id="词法和语法">词法和语法</h2><p>看完了基础语法，我们有必要看一下它的词法和语法的描述，官方给出了一个完整的描述文档：</p>
+<ul>
+<li><a href="https://core.telegram.org/mtproto/TL-formal" target="_blank" rel="external">Formal description of TL language syntax</a></li>
+</ul>
+<p>学过编译原理的应该能很容易看懂这样的文档，没有学过的，我这里简略的介绍以下吧！（<em>看懂的就可以略过下面部分</em>）</p>
+<h3 id="什么是Token？">什么是Token？</h3><p>token是语言中的最小组成部分，我们可以把它称之为<strong>单词</strong>、<strong>令牌</strong>、<strong>符号</strong>等，结合官方文档的具体例子如下：</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">lc-letter ::= a |<span class="string"> b </span>|<span class="string"> … </span>|<span class="string"> z</span><br><span class="line">uc-letter ::= A </span>|<span class="string"> B </span>|<span class="string"> … </span>|<span class="string"> Z</span><br><span class="line">digit ::= 0 </span>|<span class="string"> 1 </span>|<span class="string"> … </span>|<span class="string"> 9</span></span><br></pre></td></tr></table></figure>
+<p>其中<code>lc-letter</code>、<code>uc-letter</code>、<code>digit</code>都是所谓的token。编译器或分析器在对文本进行词素（lexeme）分析的时候，会按照预先定义好的token规则，翻译成一串token，这个过程也叫Tokenize（<em>单词化</em>），而后续的语法分析中，便是以token作为输入。</p>
+<p>所以，考虑这样一个字符串<code>aaB0</code>，那么按照上面的token定义，会被处理成怎样的token序列呢？如果按照数组来表示的话，它应该被处理成以下结果：</p>
+<pre><code>[lc-letter, lc-letter, uc-letter, digit]
+</code></pre><p>想必聪明的你，应该理解了token的含义了吧！关于token定义的这个表达式，左边是token名，右边是token的匹配模式，有点像正则表达式，而实际上，正则也是非常适合用来描述词法的。</p>
+<h3 id="什么是Syntax？">什么是Syntax？</h3><p>了解了token，那么syntax便很容易理解了，这里的syntax也就是语法，所谓语法就是将token按照一定的规则进行排列。语法定义表达式和token表达式极其的类似，左侧为语法名，右侧为语法匹配模式。我们来看一个完整的TL程序语法定义：</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">TL-program ::= constr-declarations &#123; --- functions --- <span class="function"><span class="keyword">fun</span>-declarations | --- types --- constr-declarations &#125;</span></span><br><span class="line">constr-declarations ::= &#123; declaration ; &#125;</span><br><span class="line"><span class="function"><span class="keyword">fun</span>-declarations ::= &#123; declaration ; &#125;</span></span><br><span class="line">declaration ::= combinator-decl | partial-app-decl | <span class="keyword">final</span>-decl</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>花括号代表里面内容可选，<code>|</code>代表或，通过这个语法，可以看出，<code>constr-declarations</code>和<code>fun-declarations</code>是完全相同的格式。所以，也应和了我上面所说的，类型定义和方法定义是相同的说法。</p>
+<h2 id="多态">多态</h2><p>词法和语法大致看一下就可以了，遇到不明白的定义时回头再看便可。那么现在我们进入一些TL-Language高级特性，首先我们来说说它的多态性吧！什么是多态？面向对象如果没有白学的话，应该都会很清楚，一个实体会有多种形态便是多态，最常见的便是子类继承父类，那么父类在运行时便会有多态的特性。在TL-Language里，多态并不是体现在继承，我们看一看下面的定义：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">responseOk</span> <span class="rule"><span class="attribute">data</span>:<span class="value">string = DataResponse</span></span>;</span><br><span class="line"><span class="tag">responseFailed</span> <span class="rule"><span class="attribute">code</span>:<span class="value">int error:string = DataResponse</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这里便体现了多态，同样是<code>DataResponse</code>类型，却会有两种形式，不同的形式附带的成员也不相同。考虑下，客户端如何识别具体是哪一种类型呢？对！我们有方法唯一标识符啊，通过CRC32计算，不同的方法签名会有不同的标识符，所以客户端很容易能够区分是<code>responseOk</code>还是<code>responseFailed</code>。有没有感觉到这个TL-Language比你想象中要强大了？</p>
+<p>再思考一下，这样的多态特性能给我们带来怎样的便利？首先我们不需要用一个状态码来标识数据状态了，另外也去除了很多冗余的数据传递（<em>特定形式下所需要的字段会不相同</em>），而且从表述上来说，会更加明确了。</p>
+<h2 id="可选类型">可选类型</h2><p>看完了多态，我们再来看看另外一个高级特性，可选类型。所谓可选类型，就是在使用的时候，可以传递，也可以不传递值。还是结合实例来看吧：</p>
+<figure class="highlight tp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">resultFalse &#123;t:Type&#125; = Maybe t;</span><br><span class="line">resultTrue &#123;t:Type&#125; result:t = Maybe t;</span><br><span class="line"></span><br><span class="line">pair &#123;<span class="keyword">X</span>:Type&#125; &#123;<span class="keyword">Y</span>:Type&#125; a:<span class="keyword">X</span> b:<span class="keyword">Y</span> = Pair <span class="keyword">X</span> <span class="keyword">Y</span>;</span><br><span class="line">map &#123;<span class="keyword">X</span>:Type&#125; &#123;<span class="keyword">Y</span>:Type&#125; key:<span class="keyword">X</span> value:<span class="keyword">Y</span> = Map <span class="keyword">X</span> <span class="keyword">Y</span>;</span><br></pre></td></tr></table></figure>
+<p>可选类型的定义，是用一对花括号包起来，上面可选类型中的<code>Type</code>，是TL-Language里面预定的一个类型，是用来描述类型的类型，可以称之为元类型，就和Objective-C中的<code>Class</code>类似。考虑一下，这里引入了可选类型，会给我们客户端解析带来哪些麻烦？</p>
+<p>的确，因为参数是可选的，所以客户端解析的时候很难确认到底调用怎样的模式，这里方法签名都一样，所以通过标识符也无法解决问题。那么该怎么办呢？telegram给出要求，<strong>所有可选类型只支持<code>Type</code>和自然数，并且必须出现在参数的第一位，另外可选类型必需出现在返回类型中</strong>，否则就是不合法的定义。</p>
+<p>通过这样强硬的要求，客户端便可以通过实际传参进行推导了，比如下面的情况：</p>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- functions ---</span></span><br><span class="line"><span class="title">reqData</span> <span class="typedef"><span class="keyword">data</span>:<span class="container">(<span class="type">Maybe</span> <span class="title">string</span>)</span> = responseData;</span></span><br><span class="line"><span class="title">reqData</span> <span class="typedef"><span class="keyword">data</span>:<span class="container">(<span class="type">Pair</span> <span class="title">int</span> <span class="title">int</span>)</span> = responseData;</span></span><br></pre></td></tr></table></figure>
+<p>是不是可以通过实际传入的类型进行推导了啊？是不是了解了为什么必须要在返回类型中包含可选类型了啊？自己先多考虑和推导一下，绝对没有忽悠你。</p>
+<h2 id="泛型">泛型</h2><p>看到这样的可选类型，有没有想过，它和高级语言中什么特性非常相似？对，泛型！swift中就有泛型，WWDC 2015之后，Objective-C中也有了泛型。那么，我们的TL-Language（<em>什么时候成为我们的了？</em>）中当然也有泛型。TL-Language中的泛型，就是基于可选类型实现的，我们再简单看看下面的定义：</p>
+<figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">resultFalse &#123;t:<span class="type">Type</span>&#125; = <span class="type">Maybe</span> t;</span><br><span class="line">resultTrue &#123;t:<span class="type">Type</span>&#125; <span class="literal">result</span>:t = <span class="type">Maybe</span> t;</span><br></pre></td></tr></table></figure>
+<p>因为<code>Type</code>是可选的，并且它又是用来描述类型的元类型，所以，非常巧妙的，就完成了类似泛型的特性：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">maybeInt <span class="list">(<span class="keyword">resultFalse</span> int)</span> = MaybeInt<span class="comment">;</span></span><br><span class="line">maybeInt <span class="list">(<span class="keyword">resultTrue</span> int)</span> = MaybeInt<span class="comment">;</span></span><br></pre></td></tr></table></figure>
+<p>TL-Language针对<code>resultFalse int</code>这样的形式，还提供了语法糖使其更像泛型：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">maybeInt resultFalse<span class="tag">&lt;<span class="title">int</span>&gt;</span> = MaybeInt;</span><br><span class="line">maybeInt resultTrue<span class="tag">&lt;<span class="title">int</span>&gt;</span> = MaybeInt;</span><br></pre></td></tr></table></figure>
+<p>这样的定义和上面的定义是相同的，但它更有泛型的味道了。</p>
+<h2 id="装箱类型和类型依赖">装箱类型和类型依赖</h2><p>再进入一个更高级的话题吧，不得不说这个TL-Language还是非常强大的，大家应该也都该赞同这一点了吧？首先看看什么是装箱类型。在高级语言里，我们应该都听说过什么是装箱类型，在MSIL里还有专门的<code>box</code>和<code>unbox</code>操作符，而Objective-C中，<code>NSNumber</code>就是一个很好的装箱类型，因为我们要取到真正想要的值，需要做一次类似拆箱的动作。</p>
+<p>我们看看TL-Language中所谓的装箱类型，考虑下面这样一个定义：</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">int_cons</span> <span class="rule"><span class="attribute">hd</span>:<span class="value">int tl:IntList = IntList</span></span>;</span><br></pre></td></tr></table></figure>
+<p>这里第二个参数引用了返回类型本身，那么这样形成了怎样一种形式呢？对，类型递归，所以通过这样的方式，我们可以定义一个列表，而在解析的时候，我们必须不断对第二个参数进行“拆箱”，这便是TL-Language中的装箱类型。</p>
+<p>看完了装箱，我们再来稍微讨论下<strong>类型依赖</strong>吧！类型依赖，便是参数中的某个类型依赖与另外一个参数。结合下面的定义来解释吧，考虑定义一个多元组：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">tnil = Tuple0;</span><br><span class="line">tcons0 <span class="string">hd:</span><span class="typename">int</span> <span class="string">tl:</span>Tuple0 = Tuple1;</span><br><span class="line">tcons1 <span class="string">hd:</span><span class="typename">int</span> <span class="string">tl:</span>Tuple1 = Tuple2;</span><br><span class="line">tcons2 <span class="string">hd:</span><span class="typename">int</span> <span class="string">tl:</span>Tuple2 = Tuple3;</span><br><span class="line">...</span><br><span class="line">tcons_n <span class="string">hd:</span><span class="typename">int</span> <span class="string">tl:</span>Tuple_n = Tuple_(n+<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们的第二个参数，依赖于元祖的具体个数，对于解决这样的问题，强大的TL-Language给出了下面的定义方式：</p>
+<figure class="highlight oxygene"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tnil = <span class="keyword">Tuple</span> <span class="number">0</span>;</span><br><span class="line">tcons <span class="comment">&#123;n:#&#125;</span> hd:int tl:%(<span class="keyword">Tuple</span> n) = <span class="keyword">Tuple</span> (S n);</span><br></pre></td></tr></table></figure>
+<p>第一个<code>n</code>是可选类型，是一个自然数，别问我啥叫自然数，<code>%(Tuple n)</code>便是引用了这样的自然数，百分号的作用，是在表达式中直接定义新类型，所以<code>(Tuple n)</code>是种新类型，右侧的<code>Tuple (S n)</code>中，引用的<code>S</code>是一个预定义表达式：<code>S : # -&gt; #</code>，其中 <code>S n = n + 1</code>。这里有点难理解哦，考虑下，这样的定义是怎样的一种递归，比如<code>Tuple 3</code>会被转换成怎样的等同定义方式？</p>
+<h2 id="其它修饰符">其它修饰符</h2><p>最后，再补充一下TL-Language里的一些其它修饰符吧！万能的TL-Language还给我们提供了什么呢？</p>
+<ol>
+<li><strong><code>!</code>修饰符</strong>：代表“非”的意思，比如<code>invokeAfterMsg#cb9f372d {X:Type} msg_id:long query:!X = X;</code>，这里<code>query</code>的类型即为所有非<code>X</code>的类型。</li>
+<li><strong><code>$</code>修饰符</strong>：代表所有符合类型的表达式都可以作为参数，类似于swift中的自动闭包。</li>
+<li><strong><code>@</code>修饰符</strong>：强制将所有可选类型变为必选，比如<code>con {X:Type} = Opt X;</code>，那么<code>@con</code>便是<code>con X:Type = Opt X;</code>。</li>
+</ol>
+<h2 id="总结">总结</h2><p>好了，本还打算介绍下序列化相关的东西，但时间似乎并不够用了。所以，留给感兴趣的人自己去看文档吧！</p>
+<p>通过本篇博文，相信大家会对TL-Language有了一个比较透彻的认识，作为一门描述性语言，还是做得相当到位了，也有很多值得我们去借鉴的。比起XML，这样的语法和灵活度是有过之而无不及的！</p>
+<p>还是那句话，<strong>学习，成为更好的自己</strong>！加油吧，各位！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/07/08/why-we-using-swift-these-features/" rel="prev">带你领略 Swift 的风骚</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/06/13/the-architecture-of-telegram-mtprotokit/" rel="next">Telegram 之 MTProtoKit 架构分析</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/06/14/the-tl-language-of-telegram/"
+                   data-title="Telegram 之 TL Language" data-url="http://blog.makeex.com/2015/06/14/the-tl-language-of-telegram/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#基本语法"><span class="nav-number">1.</span> <span class="nav-text">基本语法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#词法和语法"><span class="nav-number">2.</span> <span class="nav-text">词法和语法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是Token？"><span class="nav-number">2.1.</span> <span class="nav-text">什么是Token？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是Syntax？"><span class="nav-number">2.2.</span> <span class="nav-text">什么是Syntax？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多态"><span class="nav-number">3.</span> <span class="nav-text">多态</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#可选类型"><span class="nav-number">4.</span> <span class="nav-text">可选类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#泛型"><span class="nav-number">5.</span> <span class="nav-text">泛型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#装箱类型和类型依赖"><span class="nav-number">6.</span> <span class="nav-text">装箱类型和类型依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其它修饰符"><span class="nav-number">7.</span> <span class="nav-text">其它修饰符</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">8.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

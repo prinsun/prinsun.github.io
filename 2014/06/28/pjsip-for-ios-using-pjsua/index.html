@@ -1,0 +1,707 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pjsip for iOS：iPJSUA的简单使用">
+<meta property="og:url" content="http://blog.makeex.com/2014/06/28/pjsip-for-ios-using-pjsua/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/03.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/04.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/05.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/06.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/07.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/08.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/09.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/10.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/11.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/12.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/13.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/14.png">
+<meta property="og:updated_time" content="2015-09-29T08:33:58.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="pjsip for iOS：iPJSUA的简单使用">
+<meta name="twitter:description" content="上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> pjsip for iOS：iPJSUA的简单使用 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              pjsip for iOS：iPJSUA的简单使用
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2014-06-28T21:08:22+08:00" content="2014-06-28">
+            2014-06-28
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/" itemprop="url" rel="index">
+                  <span itemprop="name">iOS</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/pjsip/" itemprop="url" rel="index">
+                  <span itemprop="name">pjsip</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2014/06/28/pjsip-for-ios-using-pjsua/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2014/06/28/pjsip-for-ios-using-pjsua/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。</p>
+<a id="more"></a>
+<p>首先，要确保你的pjsip的库和你即将要编译的平台对应，或者你直接使用上一篇博文最后链接下载的库，那样不用做任何配置，因为它相应的lib文件夹中的库，都是支持多平台的。</p>
+<p>打开位于：pjsip-apps/src/pjsua/ios/下的 ipjsua.xcodeproj，command + r，运行该项目，如果编译不成功，请参看我上面说的那句话；如果提示缺少 ”libmilenage-arm-apple-darwin9.a“，删除项目Libraries文件夹中，对应的该文件：</p>
+<p><img src="/images/2014/06/28/03.png" alt="项目文件列表"></p>
+<p>再次<code>command + r</code>，应该不会出什么问题了，那么你将看见如下的界面：</p>
+<p><img src="/images/2014/06/28/04.png" alt="pjsua主界面"></p>
+<p>很直观的一个界面，它叫你<code>telnet</code>到一个指定的地址和端口，那么从你的mac或者其它能和你电脑通讯的机器上<code>telnet</code>相应的地址即可。进去后，就可以参考<a href="http://trac.pjsip.org/repos/wiki/PJSUA-CLI" target="_blank" rel="external">PJSUA-CLI</a>中的指令来进行相应操作了。</p>
+<p>由于我的mac是安装在虚拟机中的（真屌丝。。。），宿主系统是win7，那么我在我的win7中搭建一个SIP服务器，和添加一个SIP客户端，来做一个最基本的使用演示。这里使用miniSIPServer和miniSIPPhone来作演示，从<a href="http://www.myvoipapp.com/download/index.html" target="_blank" rel="external">这里</a>下载试用版：</p>
+<p><img src="/images/2014/06/28/05.png" alt="下载miniSIP"></p>
+<p>下载后，安装，打开即可：</p>
+<p><img src="/images/2014/06/28/06.png" alt="配置服务端"></p>
+<p>SIP帐号和密码，对应着分机里面的设定，默认它已经给我们建立了几个，账户和密码一样，以下是 SIPPhone 客户端帐号配置（<em>账户名、密码：101，对应分机配置</em>）：</p>
+<p><img src="/images/2014/06/28/07.png" alt="配置客户端"></p>
+<p>这样我们的服务器搭建好了，并且有这么一个客户端，这样就可以在mac中与该服务器和客户端进行通讯了，大家可以看到，我这里主系统的IP为192.168.1.100，那么你们要视自己实际情况而定了。</p>
+<p>首先从mac系统的终端中telnet模拟器中提示的地址和端口，进入后，我们参考文档上，注册一个账户（<em>类似于登录到服务器上，并不是新增加一个帐号，也就是说该账户服务器上必须要有</em>）的命令是：<code>acc add</code>，这里有个技巧，当我们不知道后面怎么输入参数时，就按tab键，它会给我们提示。这里我们输入<code>acc add</code>然后按tab键（<em>一次没反应，就再按一次</em>）：</p>
+<p><img src="/images/2014/06/28/08.png" alt=""></p>
+<p>它提示要我们输入SIP URL，然后我们输入sip:102@192.168.1.100 ，再按tab它又会提示输入SIP注册服务器的地址，当然熟悉了之后，并不需要这样一直按tab，直接如下：</p>
+<p><img src="/images/2014/06/28/09.png" alt="登记账户完整命令"></p>
+<p>参数的意义分别是： 用户的SIP地址，注册服务器地址，<a href="http://blog.sina.com.cn/s/blog_4b839a1b01000bqq.html" target="_blank" rel="external">Realm</a>，用户名，密码，回车后，显示注册成功，这时候，我们看下miniSIPServer的分机列表：</p>
+<p><img src="/images/2014/06/28/10.png" alt="分机列表"></p>
+<p>此时 102 分机已经在线了，现在对 101 发起一次呼叫：</p>
+<pre><code>call <span class="keyword">new</span> sip:<span class="number">101</span>@<span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span>
+</code></pre><p>OK，这时听到 miniSIPPhone 振铃了，我们点击接听即可接通：</p>
+<p><img src="/images/2014/06/28/11.png" alt="通话状态"></p>
+<p>上图为分机在通话中的状态，我们挂断它，终端输入：</p>
+<pre><code><span class="built_in">call</span> hangup
+</code></pre><p>这时我们的通话被终结了，最后，我们来接一通电话，从miniSIPPhone中，直接呼叫102：</p>
+<p><img src="/images/2014/06/28/12.png" alt="呼叫102"></p>
+<p>这时候，我们在mac的telnet终端中输入<code>call list</code>, 会看到一个状态为incoming的呼叫：</p>
+<p><img src="/images/2014/06/28/13.png" alt="呼叫列表"></p>
+<p>我们输入 ：<code>call answer 200</code>，即可接入，其中200为状态码（和http的状态码类似）。</p>
+<p><img src="/images/2014/06/28/14.png" alt="呼叫应答"></p>
+<p>OK，到这里，这个<strong>iPJSUA</strong>，你应该知道怎么玩了吧~~ 其实很简单的嘛~</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/05/21/pjsip-for-ios-a-simple-sip-phone/" rel="prev">pjsip for iOS：实现一个简单的语音通话APP</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2014/06/28/pjsip-for-ios-build-mutil-target-support/" rel="next">pjsip for iOS：编译多平台支持的静态库</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2014/06/28/pjsip-for-ios-using-pjsua/"
+                   data-title="pjsip for iOS：iPJSUA的简单使用" data-url="http://blog.makeex.com/2014/06/28/pjsip-for-ios-using-pjsua/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">0</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
