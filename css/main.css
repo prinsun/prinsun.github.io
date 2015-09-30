@@ -979,6 +979,7 @@ body {
   display: block;
   margin: 0 auto;
   max-width: 96px;
+  min-width: 50px;
   height: auto;
   border: 2px solid #333;
   padding: 2px;
@@ -1055,7 +1056,7 @@ body {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #5b2bff;
+  background: #094783;
 }
 .sidebar-nav {
   margin: 0;
