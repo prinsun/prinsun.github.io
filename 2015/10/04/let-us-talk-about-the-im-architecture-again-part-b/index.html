@@ -1,0 +1,747 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="分层设计,抽象,模块化框架," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。
+软件开发是门很有趣的艺术，如果你真的用心去体会它。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="再谈 IM 架构设计（中）">
+<meta property="og:url" content="http://blog.makeex.com/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。
+软件开发是门很有趣的艺术，如果你真的用心去体会它。">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/03.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/04.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/05.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/05/06.png">
+<meta property="og:updated_time" content="2015-10-05T02:26:51.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="再谈 IM 架构设计（中）">
+<meta name="twitter:description" content="在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。
+软件开发是门很有趣的艺术，如果你真的用心去体会它。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 再谈 IM 架构设计（中） | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              再谈 IM 架构设计（中）
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-10-04T00:04:42+08:00" content="2015-10-04">
+            2015-10-04
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/" itemprop="url" rel="index">
+                  <span itemprop="name">OSX</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。</p>
+<p><em>软件开发是门很有趣的艺术，如果你真的用心去体会它。</em></p>
+<a id="more"></a>
+<h2 id="重塑设计之分层架构">重塑设计之分层架构</h2><p>分层在软件设计中非常常见，以至于被一些不明所以的人滥用，以为有了分层就是好的设计。过度细分的层次结构，会给整体设计带来没必要的复杂性，这会导致核心事件传递的路径过长，又或者层与层之间的耦合度过高，任何事情都应该有个度，分层亦是如此。</p>
+<p>究竟为何要分层？有句话是这么说的：“计算机科学中的大多数问题都可以通过增加一层间接性来解决”，分层使得问题的复杂度降低，这是更高层次的抽象，抽象的目的之一就是让我们的关注度尽量单一，分层也是为了这样的目的。为了达到这样的目的，分层应该遵循以下几条基本原则：</p>
+<ul>
+<li>层与层应该有上下或高低关系，相同层次必须归为同一个层（<em>避免多余层次</em>）</li>
+<li>每个层中的业务逻辑可以通过模块进行细分，避免出现二级分层。如果业务逻辑足够复杂，可对单独或部分模块进行分层设计（<em>每层独立演化</em>）</li>
+<li>每个层功能的实现，只能依赖于当前层或底层，底层不能依赖于高层实现（<em>避免双向依赖，过度耦合</em>）</li>
+<li>每个层都应提供相应的访问接口，层之间的访问应该通过接口，而不是具体实现（<em>关注点分离</em>）</li>
+</ul>
+<p>以上原则可以帮助大家避免一些分层设计中遇到的问题，简单介绍完了这些，我们来看看这个 IM 的分层，是如何进行设计的：</p>
+<p><img src="/images/2015/10/05/01.png" alt="分层架构图"></p>
+<p>这个层次结构还是比较简单的，从低到高大体分为以下这些个层次：</p>
+<ol>
+<li><strong>Infrastructure</strong>：基础设施层，这是最基础的一层，也是上一篇我们花大力气构建的消息基础组件的安身之处。因为它是最基础的一层，可以被任何层使用，所以，也可以把它看成纵向的一层，类似于 AOP 的思想。这一层主要提供了两个基础组件：消息组件和持久化组件，分别进行了细化设计，并对外提供了一些简单的调用接口</li>
+<li><strong>NetworkKit</strong>：网络基础层，这一层主要负责一些高层公用组件的抽象，提供了一些基础模块，譬如：用户模块、账户模块；也提供了一些高层设计的约束，主要是基于上下文的用户划分和一个通用的模块化设计框架</li>
+<li><strong>Business Layer</strong>：业务逻辑层，这一层是相应的业务逻辑实现，内部通过底层的模块化框架对业务逻辑的实现进行细分</li>
+<li><strong>UI Layer</strong>：界面层，这一层处理用户交互相关的逻辑，也是对最终用户暴露的一层，主要使用了苹果的 MVC 界面框架</li>
+</ol>
+<p>分层设计是宏观的，也没有太多可讲之处，但，没有层次的软件设计注定是糟糕的。下面就最核心的一层 <strong>NetworkKit</strong> 进行细化讲解，可以说，这是整个设计的核心原型，是电，是光，是唯一的神话。</p>
+<h2 id="重塑设计之模块框架">重塑设计之模块框架</h2><p>在 NetworkKit 中，最核心的部分就是它提供了一个模块化的框架，本身也是基于该框架实现，因此它约束了更高层次的实现必须遵循该框架。这样有个好处，统一了高层整体的设计风格，不同于 libMessageCore，它的灵活性更强，只是统一了风格而不强制逻辑划分，更不会提供一些让高层蹩脚的使用接口。</p>
+<p>首先，我们来看看这个模块化框架的核心原型。</p>
+<h3 id="核心原型">核心原型</h3><p><img src="/images/2015/10/05/02.png" alt="模块化框架原型类图"></p>
+<p>原型类图非常简单，所以称之为原型，后续再高的复杂度也是从这最基本的原型中演化出来的，知其根本还是非常有意义的。在这原型中，有以下几个非常重要的抽象概念：</p>
+<ul>
+<li><strong>Module</strong>：模块的基本抽象，所有的具体模块（<em>ConcreteModule</em>）实现都必须继承至该基类</li>
+<li><strong>ModuleProvider</strong>：模块提供程序，可以通过模块标识（<em>如：模块类名</em>）获取具体模块的实例，上图中，Module 可以获取到该提供程序，用于模块间功能的复用</li>
+<li><strong>ModuleContainer</strong>：负责构建所有模块，从上图中可以看出，该容器实现了 ModuleProvider，这样可以很方便的在构建模块时，将自己注入到模块中</li>
+</ul>
+<p>描述看起来可能会让人不知所云，还是用代码来加以辅助吧！先简单的看一下核心原型中的<code>ModuleContainer</code>是如何实现的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="built_in">NSMutableSet</span> *ModuleClassSet;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ModuleContainer</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *modules;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setup &#123;</span><br><span class="line">    [ModuleClassSet enumerateObjectsUsingBlock:^(Class moduleClass, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        Module *module = [[moduleClass alloc] initWithModuleProvider:<span class="keyword">self</span>];</span><br><span class="line">        [modules setObject:module forKey:<span class="built_in">NSStringFromClass</span>(moduleClass)];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    [modules<span class="variable">.allValues</span> enumerateObjectsUsingBlock:^(Module *module, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        [module setup];</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)teardown &#123;</span><br><span class="line">    [modules<span class="variable">.allValues</span> enumerateObjectsUsingBlock:^(Module *module, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        [module teardown];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    [modules removeAllObjects];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">id</span>)moduleForClass:(Class)moduleClass &#123;</span><br><span class="line">    <span class="keyword">return</span> modules[<span class="built_in">NSStringFromClass</span>(moduleClass)];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>可以看到这里提供了一个静态的<code>ModuleClassSet</code>，所有模块的构建也都依赖于这个集合。众所周知，在<code>Objective-C</code>中有一个非常特殊的方法：<code>+load</code>，这个模块化框架依赖于这样一个方法，在具体模块的<code>+load</code>中，调用类似下面这样一个方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> RegisterModule(Class moduleClass) &#123;</span><br><span class="line">    <span class="keyword">if</span> (ModuleClassSet == <span class="literal">nil</span>) &#123;</span><br><span class="line">        ModuleClassSet = [<span class="built_in">NSMutableSet</span> new];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [ModuleClassSet addObject:moduleClass];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样可以在模块的实现中，非常内聚的控制是否安装一个模块，也很好的遵循了<strong>开放闭合原则</strong>。例如以下模块实现代码中：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">LogWriter</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>)load &#123;</span><br><span class="line">    RegisterModule(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)writeLog:(<span class="built_in">NSString</span> *)log &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@ : %@"</span>, [<span class="built_in">NSDate</span> date], log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面提到过，模块间代码可以复用，也就是通过<code>ModuleProvider</code>，也就是类似于下面这样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">UserManager</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>)load &#123;</span><br><span class="line">    RegisterModule(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)usernameForId:(<span class="built_in">NSInteger</span>)userId &#123;</span><br><span class="line">    LogWriter *logWriter = [moduleProvider moduleForClass:[LogWriter class]];</span><br><span class="line">    </span><br><span class="line">    [logWriter writeLog:<span class="string">@"username for id invoked"</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="string">@"username"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>至此，模块化框架大体就介绍完了，了解了这个，对了解整个 IM 的设计至关重要，后续，便是对这个原型进行扩充和推演，看看到底还能玩出哪些花样。</p>
+<h3 id="上下文">上下文</h3><p>上下文相关的设计，主要用于屏蔽数据变化带来的复杂性，试想一下，我们高层所有的模块是否都是上下文相关的？也就是说，当用户A登录后，再切换至用户B，所有模块中的数据都需要进行更换，所以，我们的模块是和用户相关，基于此，我们需要构建一个上下文相关的模块化设计，这是我们扩充模块化设计原型的第一步。</p>
+<p>良好的设计是指引用户以正确的方式来使用所暴露的接口，换句话说，我们的约束性越强，给用户造成的困扰就会越小，当然，随之也会带来灵活性的损失，这是我们需要权衡的。以下是我们<strong>用户上下文相关的模块化设计</strong>类图（<em>这个描述性的前缀越来越长了</em>）：</p>
+<p><img src="/images/2015/10/05/03.png" alt="上下文相关的模块化框架原型类图"></p>
+<p>对比核心原型图，我们可以很清楚的看出所作出的改变，这里的<code>NetworkContext</code>替代了原先的<code>ModuleContainer</code>，这是很合理的设计，因为模块是用户上下文相关的，所以模块的构建和获取应该由特定的用户上下文来处理。</p>
+<p>上图中还有一个<code>NetworkEntry</code>，这是使用者的入口类，通过调用<code>signIn</code>方法，可以获取一个代表当前用户的上下文对象<code>NetworkContext</code>。而构建这个<code>NetworkEntry</code>需要一些配置参数，通过这样引导着使用者，一步一步朝我们预先设计的路线来使用，避免一些额外的临界情况出现。</p>
+<p>当然，<code>NetworkContext</code>在构建模块时，还必须要担负起一项很重要的职责，那便是管理模块的生命周期。一个应用在运行时会经历一系列的生命周期方法（<em>思考下AppDelegate</em>），模块被构建后，也需要经历一些生命周期，下面，我们就来看看模块有哪些生命周期。</p>
+<h3 id="生命周期">生命周期</h3><p>生命周期的划分有助于我们处理一些临界情况，亦如我们分层、接口隔离，都是为了关注点分离，也可以说是关注点单一，不同的生命周期中，只关注与当前生命周期有关的业务逻辑。这样在组织代码和后续的维护中会带来很多好处，否则我们需要撰写很多类似状态机的方法，还难保万无一失。先看看我们的模块有哪些个生命周期方法：</p>
+<p><img src="/images/2015/10/05/04.png" alt="模块生命周期方法图"></p>
+<ul>
+<li><strong>Preparing</strong>：准备阶段，这是模块构建时最初的生命周期方法，一个模块只会执行一次，在这个生命周期方法中，模块只能初始化自身相关的信息，还无法获取到其它模块</li>
+<li><strong>Initializing</strong>：初始化阶段，这时在<code>NetworkContext</code>中，所有的模块都已经<strong>创建</strong>完毕，可以在这个生命周期方法中安全的使用其它模块</li>
+<li><strong>Online</strong>：在线阶段，当初始化完毕后，会立即进入在线阶段，这个生命周期里，模块可以安全的使用网络相关基础组件</li>
+<li><strong>Offline</strong>：离线阶段，当<code>Sockect</code>断开连接，或者单点登录被踢下线，又或是主动退出登录时，模块立即进入了离线阶段。在这样的一个生命周期方法里，无法使用网络相关基础组件，并且<code>NetworkContext</code>的一个标志属性也置为了离线。当重新连接上服务器时，又会转变回在线状态，相应的生命周期方法也会得到调用</li>
+<li><strong>Finalizing</strong>：终止阶段，这是模块生命周期中的最后一个阶段，当用户主动退出时才会进入该阶段，该生命周期主要用于模块所占用的资源释放。在这个生命周期结束之后，用户上下文会被销毁，所有用户相关信息都会被清除</li>
+</ul>
+<p>上述的生命周期映射到程序中时，便是抽象类<code>Module</code>的虚方法，具体模块通过覆写这些方法来在相应的生命周期中处理自身相关的业务逻辑。除了生命周期的处理，<code>NetworkContext</code>在构建模块时，还需要处理一件事，那便是模块的依赖关系。</p>
+<h3 id="依赖关系">依赖关系</h3><p>在模块化设计中，要么不允许模块间相互使用，要么就必须要处理模块构建时的依赖关系。当然，我们无法预知具体模块的依赖，这需要模块的实现者显示的声明依赖。于是，我们需要赋予这个模块化框架依赖处理的能力，在抽象类<code>Module</code>中，我们定义一个抽象的类方法<code>dependencyModules</code>，具体模块实现时返回所依赖的模块类。例如下面的代码片段：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CCNInteractiveTargetModule</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">NSArray</span>&lt;Class&gt; *)dependencyModules &#123;</span><br><span class="line">    <span class="keyword">return</span> @[CCNBuddyModule<span class="variable">.class</span>, CCNGroupModule<span class="variable">.class</span>, CCNDiscussModule<span class="variable">.class</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>有了这一份声明，<code>NetworkContext</code>在构建模块前即可梳理好模块的先后顺序，依次进行构建和相应生命周期方法调用。至此，我们的核心层<code>NetworkKit</code>中所包含的细节大体梳理完毕了，接下来简单讲讲更高层的一些抽象划分。</p>
+<h2 id="重塑设计之二次抽象">重塑设计之二次抽象</h2><p>软件设计中，最困难也最精彩的部分便是<strong>抽象</strong>，抽象是将具体问题细分、归类、划分原型的一个过程，如果思维被一个既有的模式限定，那么抽象会更加举步维艰。我们这次的抽象之旅，或多或少都被<code>libMessageCore</code>既有的模块划分所影响，所以，我们只能冠名它为<strong>二次抽象</strong>，在原有的抽象设计基础上，进行增强和弥补。</p>
+<h3 id="可交互对象">可交互对象</h3><p>在 IM 的设计中，有一个很不容易管理的内容，那就是关系。这也是整个 IM 中非常核心的内容，主要有好友、非好友、讨论组成员、群成员，以及讨论组和群本身，在原先的<code>libMessageCore</code>中并没有对这些内容进行任何抽象，也就是说它们没有任何关联。这样的设计会给高层实现带来很多麻烦，因为现实中它们总是有很多藕断丝连的联系，业务需求中也会有很多类似的需求，这些迹象指引我们必须将它们抽象至一个共同体，那么，应该如何设计呢？</p>
+<p>还是老办法，提取公共字段，归纳出一个合适的名字。这里，我们提取出了一个公共协议，叫<code>InteractiveTarget</code>，也就是<strong>可交互对象</strong>，拥有两个属性：<code>identifier</code>和<code>interactiveTargetType</code>。有了这样一个共通的抽象基础，后续一些相同的业务实现就可以只依赖于这样的抽象即可，无疑省去了很多重复性代码。</p>
+<p>以下是整个 IM 中所有可交互对象的关系类图：</p>
+<p><img src="/images/2015/10/05/05.png" alt="可交互对象类图"></p>
+<p>有了可交互对象这样的抽象，那么，我们就再看看基于这个抽象而实现的一个非常重要的业务功能，那便是会话。</p>
+<h3 id="会话管理">会话管理</h3><p>一个 IM 中如果没有会话，那肯定谈不上 IM 了，但在原先的<code>libMessageCore</code>中，完全没有会话这样的抽象设计。原本的设计中，私聊就是对用户发送私聊指令，群聊就是对群发送群聊指令，讨论组类似。本身只是目标不同，我们却需要调用不同的三个方法（<em>包括发送图片、文件等，都是不同的方法</em>），这是很难以让人接受的。所以，我们的二次抽象中，必须赋予整个体系中缺失的会话管理功能，内部屏蔽掉底层不统一的细节，对更高层的使用者暴露出相同的调用接口。</p>
+<p>会话便是一场交互，我们给用户A发送一条消息，那么可以看成我们和用户A进行了一场交互，这场交互的承载体便是会话。一个会话中包含两个可交互的对象：<strong>我</strong>和<strong>用户A</strong>，相对于我而言，用户A是这场交互的目标对象，也可以归结为交互主体，相对于用户A，则我是交互主体。群和讨论组的交互拆分流程与上面类似，只是把<strong>用户A</strong>替换成群或讨论组即可。有了这些细节抽象的补充，我们即可明白下面会话管理核心类图的含义了：</p>
+<p><img src="/images/2015/10/05/06.png" alt="会话管理核心类图"></p>
+<p>由于底层实现的不统一，我们抽象出了两个适配接口<code>ChatMessageSender</code>和<code>ChatMessageReceiver</code>，分别由不同交互类型来实现，然后注册到<code>ConversationModule</code>中。<code>ConversationModule</code>根据类型构建会话，并且为会话选择合适的<code>Sender</code>和<code>Receiver</code>。消息便是由会话发出，发出的消息中包含上述文字中提到的<code>subjecter</code>，即交互主体对象，以及发起者和接收者。</p>
+<h2 id="本篇完">本篇完</h2><p>本篇到此暂时告一段落了，如开头所述一致，通篇基本上都是宏观性的介绍。那么下一篇，也是本系列的最后一篇，会主要介绍一些实现中的细节。虽然，我经常提不要拘泥于细节，可我的意思是在设计时要着眼整体的布局，在实现时还是必须要把握每一个细节的，毕竟细节决定成败嘛！那么，下一篇，我们继续！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/分层设计/" rel="tag">#分层设计</a>
+          
+            <a href="/tags/抽象/" rel="tag">#抽象</a>
+          
+            <a href="/tags/模块化框架/" rel="tag">#模块化框架</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/" rel="next">再谈 IM 架构设计（上）</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/"
+                   data-title="再谈 IM 架构设计（中）" data-url="http://blog.makeex.com/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#重塑设计之分层架构"><span class="nav-number">1.</span> <span class="nav-text">重塑设计之分层架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重塑设计之模块框架"><span class="nav-number">2.</span> <span class="nav-text">重塑设计之模块框架</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#核心原型"><span class="nav-number">2.1.</span> <span class="nav-text">核心原型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#上下文"><span class="nav-number">2.2.</span> <span class="nav-text">上下文</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生命周期"><span class="nav-number">2.3.</span> <span class="nav-text">生命周期</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#依赖关系"><span class="nav-number">2.4.</span> <span class="nav-text">依赖关系</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重塑设计之二次抽象"><span class="nav-number">3.</span> <span class="nav-text">重塑设计之二次抽象</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#可交互对象"><span class="nav-number">3.1.</span> <span class="nav-text">可交互对象</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#会话管理"><span class="nav-number">3.2.</span> <span class="nav-text">会话管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#本篇完"><span class="nav-number">4.</span> <span class="nav-text">本篇完</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

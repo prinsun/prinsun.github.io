@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2015-09-30T05:12:44.000Z</updated>
+  <updated>2015-10-05T02:26:51.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -13,6 +13,100 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[再谈 IM 架构设计（中）]]></title>
+    <link href="http://blog.makeex.com/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/"/>
+    <id>http://blog.makeex.com/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/</id>
+    <published>2015-10-03T16:04:42.000Z</published>
+    <updated>2015-10-05T02:26:51.000Z</updated>
+    <content type="html"><![CDATA[<p>在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。</p>
+<p><em>软件开发是门很有趣的艺术，如果你真的用心去体会它。</em></p>
+<a id="more"></a>
+<h2 id="重塑设计之分层架构">重塑设计之分层架构</h2><p>分层在软件设计中非常常见，以至于被一些不明所以的人滥用，以为有了分层就是好的设计。过度细分的层次结构，会给整体设计带来没必要的复杂性，这会导致核心事件传递的路径过长，又或者层与层之间的耦合度过高，任何事情都应该有个度，分层亦是如此。</p>
+<p>究竟为何要分层？有句话是这么说的：“计算机科学中的大多数问题都可以通过增加一层间接性来解决”，分层使得问题的复杂度降低，这是更高层次的抽象，抽象的目的之一就是让我们的关注度尽量单一，分层也是为了这样的目的。为了达到这样的目的，分层应该遵循以下几条基本原则：</p>
+<ul>
+<li>层与层应该有上下或高低关系，相同层次必须归为同一个层（<em>避免多余层次</em>）</li>
+<li>每个层中的业务逻辑可以通过模块进行细分，避免出现二级分层。如果业务逻辑足够复杂，可对单独或部分模块进行分层设计（<em>每层独立演化</em>）</li>
+<li>每个层功能的实现，只能依赖于当前层或底层，底层不能依赖于高层实现（<em>避免双向依赖，过度耦合</em>）</li>
+<li>每个层都应提供相应的访问接口，层之间的访问应该通过接口，而不是具体实现（<em>关注点分离</em>）</li>
+</ul>
+<p>以上原则可以帮助大家避免一些分层设计中遇到的问题，简单介绍完了这些，我们来看看这个 IM 的分层，是如何进行设计的：</p>
+<p><img src="/images/2015/10/05/01.png" alt="分层架构图"></p>
+<p>这个层次结构还是比较简单的，从低到高大体分为以下这些个层次：</p>
+<ol>
+<li><strong>Infrastructure</strong>：基础设施层，这是最基础的一层，也是上一篇我们花大力气构建的消息基础组件的安身之处。因为它是最基础的一层，可以被任何层使用，所以，也可以把它看成纵向的一层，类似于 AOP 的思想。这一层主要提供了两个基础组件：消息组件和持久化组件，分别进行了细化设计，并对外提供了一些简单的调用接口</li>
+<li><strong>NetworkKit</strong>：网络基础层，这一层主要负责一些高层公用组件的抽象，提供了一些基础模块，譬如：用户模块、账户模块；也提供了一些高层设计的约束，主要是基于上下文的用户划分和一个通用的模块化设计框架</li>
+<li><strong>Business Layer</strong>：业务逻辑层，这一层是相应的业务逻辑实现，内部通过底层的模块化框架对业务逻辑的实现进行细分</li>
+<li><strong>UI Layer</strong>：界面层，这一层处理用户交互相关的逻辑，也是对最终用户暴露的一层，主要使用了苹果的 MVC 界面框架</li>
+</ol>
+<p>分层设计是宏观的，也没有太多可讲之处，但，没有层次的软件设计注定是糟糕的。下面就最核心的一层 <strong>NetworkKit</strong> 进行细化讲解，可以说，这是整个设计的核心原型，是电，是光，是唯一的神话。</p>
+<h2 id="重塑设计之模块框架">重塑设计之模块框架</h2><p>在 NetworkKit 中，最核心的部分就是它提供了一个模块化的框架，本身也是基于该框架实现，因此它约束了更高层次的实现必须遵循该框架。这样有个好处，统一了高层整体的设计风格，不同于 libMessageCore，它的灵活性更强，只是统一了风格而不强制逻辑划分，更不会提供一些让高层蹩脚的使用接口。</p>
+<p>首先，我们来看看这个模块化框架的核心原型。</p>
+<h3 id="核心原型">核心原型</h3><p><img src="/images/2015/10/05/02.png" alt="模块化框架原型类图"></p>
+<p>原型类图非常简单，所以称之为原型，后续再高的复杂度也是从这最基本的原型中演化出来的，知其根本还是非常有意义的。在这原型中，有以下几个非常重要的抽象概念：</p>
+<ul>
+<li><strong>Module</strong>：模块的基本抽象，所有的具体模块（<em>ConcreteModule</em>）实现都必须继承至该基类</li>
+<li><strong>ModuleProvider</strong>：模块提供程序，可以通过模块标识（<em>如：模块类名</em>）获取具体模块的实例，上图中，Module 可以获取到该提供程序，用于模块间功能的复用</li>
+<li><strong>ModuleContainer</strong>：负责构建所有模块，从上图中可以看出，该容器实现了 ModuleProvider，这样可以很方便的在构建模块时，将自己注入到模块中</li>
+</ul>
+<p>描述看起来可能会让人不知所云，还是用代码来加以辅助吧！先简单的看一下核心原型中的<code>ModuleContainer</code>是如何实现的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="built_in">NSMutableSet</span> *ModuleClassSet;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ModuleContainer</span> </span>&#123;</span><br><span class="line">    <span class="built_in">NSMutableDictionary</span> *modules;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)setup &#123;</span><br><span class="line">    [ModuleClassSet enumerateObjectsUsingBlock:^(Class moduleClass, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        Module *module = [[moduleClass alloc] initWithModuleProvider:<span class="keyword">self</span>];</span><br><span class="line">        [modules setObject:module forKey:<span class="built_in">NSStringFromClass</span>(moduleClass)];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    [modules<span class="variable">.allValues</span> enumerateObjectsUsingBlock:^(Module *module, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        [module setup];</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)teardown &#123;</span><br><span class="line">    [modules<span class="variable">.allValues</span> enumerateObjectsUsingBlock:^(Module *module, <span class="built_in">NSUInteger</span> idx, <span class="built_in">BOOL</span> *stop) &#123;</span><br><span class="line">        [module teardown];</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">    [modules removeAllObjects];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">id</span>)moduleForClass:(Class)moduleClass &#123;</span><br><span class="line">    <span class="keyword">return</span> modules[<span class="built_in">NSStringFromClass</span>(moduleClass)];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>可以看到这里提供了一个静态的<code>ModuleClassSet</code>，所有模块的构建也都依赖于这个集合。众所周知，在<code>Objective-C</code>中有一个非常特殊的方法：<code>+load</code>，这个模块化框架依赖于这样一个方法，在具体模块的<code>+load</code>中，调用类似下面这样一个方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">void</span> RegisterModule(Class moduleClass) &#123;</span><br><span class="line">    <span class="keyword">if</span> (ModuleClassSet == <span class="literal">nil</span>) &#123;</span><br><span class="line">        ModuleClassSet = [<span class="built_in">NSMutableSet</span> new];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    [ModuleClassSet addObject:moduleClass];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样可以在模块的实现中，非常内聚的控制是否安装一个模块，也很好的遵循了<strong>开放闭合原则</strong>。例如以下模块实现代码中：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">LogWriter</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>)load &#123;</span><br><span class="line">    RegisterModule(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)writeLog:(<span class="built_in">NSString</span> *)log &#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"%@ : %@"</span>, [<span class="built_in">NSDate</span> date], log);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面提到过，模块间代码可以复用，也就是通过<code>ModuleProvider</code>，也就是类似于下面这样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">UserManager</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>)load &#123;</span><br><span class="line">    RegisterModule(<span class="keyword">self</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="built_in">NSString</span> *)usernameForId:(<span class="built_in">NSInteger</span>)userId &#123;</span><br><span class="line">    LogWriter *logWriter = [moduleProvider moduleForClass:[LogWriter class]];</span><br><span class="line">    </span><br><span class="line">    [logWriter writeLog:<span class="string">@"username for id invoked"</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="string">@"username"</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>至此，模块化框架大体就介绍完了，了解了这个，对了解整个 IM 的设计至关重要，后续，便是对这个原型进行扩充和推演，看看到底还能玩出哪些花样。</p>
+<h3 id="上下文">上下文</h3><p>上下文相关的设计，主要用于屏蔽数据变化带来的复杂性，试想一下，我们高层所有的模块是否都是上下文相关的？也就是说，当用户A登录后，再切换至用户B，所有模块中的数据都需要进行更换，所以，我们的模块是和用户相关，基于此，我们需要构建一个上下文相关的模块化设计，这是我们扩充模块化设计原型的第一步。</p>
+<p>良好的设计是指引用户以正确的方式来使用所暴露的接口，换句话说，我们的约束性越强，给用户造成的困扰就会越小，当然，随之也会带来灵活性的损失，这是我们需要权衡的。以下是我们<strong>用户上下文相关的模块化设计</strong>类图（<em>这个描述性的前缀越来越长了</em>）：</p>
+<p><img src="/images/2015/10/05/03.png" alt="上下文相关的模块化框架原型类图"></p>
+<p>对比核心原型图，我们可以很清楚的看出所作出的改变，这里的<code>NetworkContext</code>替代了原先的<code>ModuleContainer</code>，这是很合理的设计，因为模块是用户上下文相关的，所以模块的构建和获取应该由特定的用户上下文来处理。</p>
+<p>上图中还有一个<code>NetworkEntry</code>，这是使用者的入口类，通过调用<code>signIn</code>方法，可以获取一个代表当前用户的上下文对象<code>NetworkContext</code>。而构建这个<code>NetworkEntry</code>需要一些配置参数，通过这样引导着使用者，一步一步朝我们预先设计的路线来使用，避免一些额外的临界情况出现。</p>
+<p>当然，<code>NetworkContext</code>在构建模块时，还必须要担负起一项很重要的职责，那便是管理模块的生命周期。一个应用在运行时会经历一系列的生命周期方法（<em>思考下AppDelegate</em>），模块被构建后，也需要经历一些生命周期，下面，我们就来看看模块有哪些生命周期。</p>
+<h3 id="生命周期">生命周期</h3><p>生命周期的划分有助于我们处理一些临界情况，亦如我们分层、接口隔离，都是为了关注点分离，也可以说是关注点单一，不同的生命周期中，只关注与当前生命周期有关的业务逻辑。这样在组织代码和后续的维护中会带来很多好处，否则我们需要撰写很多类似状态机的方法，还难保万无一失。先看看我们的模块有哪些个生命周期方法：</p>
+<p><img src="/images/2015/10/05/04.png" alt="模块生命周期方法图"></p>
+<ul>
+<li><strong>Preparing</strong>：准备阶段，这是模块构建时最初的生命周期方法，一个模块只会执行一次，在这个生命周期方法中，模块只能初始化自身相关的信息，还无法获取到其它模块</li>
+<li><strong>Initializing</strong>：初始化阶段，这时在<code>NetworkContext</code>中，所有的模块都已经<strong>创建</strong>完毕，可以在这个生命周期方法中安全的使用其它模块</li>
+<li><strong>Online</strong>：在线阶段，当初始化完毕后，会立即进入在线阶段，这个生命周期里，模块可以安全的使用网络相关基础组件</li>
+<li><strong>Offline</strong>：离线阶段，当<code>Sockect</code>断开连接，或者单点登录被踢下线，又或是主动退出登录时，模块立即进入了离线阶段。在这样的一个生命周期方法里，无法使用网络相关基础组件，并且<code>NetworkContext</code>的一个标志属性也置为了离线。当重新连接上服务器时，又会转变回在线状态，相应的生命周期方法也会得到调用</li>
+<li><strong>Finalizing</strong>：终止阶段，这是模块生命周期中的最后一个阶段，当用户主动退出时才会进入该阶段，该生命周期主要用于模块所占用的资源释放。在这个生命周期结束之后，用户上下文会被销毁，所有用户相关信息都会被清除</li>
+</ul>
+<p>上述的生命周期映射到程序中时，便是抽象类<code>Module</code>的虚方法，具体模块通过覆写这些方法来在相应的生命周期中处理自身相关的业务逻辑。除了生命周期的处理，<code>NetworkContext</code>在构建模块时，还需要处理一件事，那便是模块的依赖关系。</p>
+<h3 id="依赖关系">依赖关系</h3><p>在模块化设计中，要么不允许模块间相互使用，要么就必须要处理模块构建时的依赖关系。当然，我们无法预知具体模块的依赖，这需要模块的实现者显示的声明依赖。于是，我们需要赋予这个模块化框架依赖处理的能力，在抽象类<code>Module</code>中，我们定义一个抽象的类方法<code>dependencyModules</code>，具体模块实现时返回所依赖的模块类。例如下面的代码片段：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">CCNInteractiveTargetModule</span></span></span><br><span class="line"></span><br><span class="line">+ (<span class="built_in">NSArray</span>&lt;Class&gt; *)dependencyModules &#123;</span><br><span class="line">    <span class="keyword">return</span> @[CCNBuddyModule<span class="variable">.class</span>, CCNGroupModule<span class="variable">.class</span>, CCNDiscussModule<span class="variable">.class</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>有了这一份声明，<code>NetworkContext</code>在构建模块前即可梳理好模块的先后顺序，依次进行构建和相应生命周期方法调用。至此，我们的核心层<code>NetworkKit</code>中所包含的细节大体梳理完毕了，接下来简单讲讲更高层的一些抽象划分。</p>
+<h2 id="重塑设计之二次抽象">重塑设计之二次抽象</h2><p>软件设计中，最困难也最精彩的部分便是<strong>抽象</strong>，抽象是将具体问题细分、归类、划分原型的一个过程，如果思维被一个既有的模式限定，那么抽象会更加举步维艰。我们这次的抽象之旅，或多或少都被<code>libMessageCore</code>既有的模块划分所影响，所以，我们只能冠名它为<strong>二次抽象</strong>，在原有的抽象设计基础上，进行增强和弥补。</p>
+<h3 id="可交互对象">可交互对象</h3><p>在 IM 的设计中，有一个很不容易管理的内容，那就是关系。这也是整个 IM 中非常核心的内容，主要有好友、非好友、讨论组成员、群成员，以及讨论组和群本身，在原先的<code>libMessageCore</code>中并没有对这些内容进行任何抽象，也就是说它们没有任何关联。这样的设计会给高层实现带来很多麻烦，因为现实中它们总是有很多藕断丝连的联系，业务需求中也会有很多类似的需求，这些迹象指引我们必须将它们抽象至一个共同体，那么，应该如何设计呢？</p>
+<p>还是老办法，提取公共字段，归纳出一个合适的名字。这里，我们提取出了一个公共协议，叫<code>InteractiveTarget</code>，也就是<strong>可交互对象</strong>，拥有两个属性：<code>identifier</code>和<code>interactiveTargetType</code>。有了这样一个共通的抽象基础，后续一些相同的业务实现就可以只依赖于这样的抽象即可，无疑省去了很多重复性代码。</p>
+<p>以下是整个 IM 中所有可交互对象的关系类图：</p>
+<p><img src="/images/2015/10/05/05.png" alt="可交互对象类图"></p>
+<p>有了可交互对象这样的抽象，那么，我们就再看看基于这个抽象而实现的一个非常重要的业务功能，那便是会话。</p>
+<h3 id="会话管理">会话管理</h3><p>一个 IM 中如果没有会话，那肯定谈不上 IM 了，但在原先的<code>libMessageCore</code>中，完全没有会话这样的抽象设计。原本的设计中，私聊就是对用户发送私聊指令，群聊就是对群发送群聊指令，讨论组类似。本身只是目标不同，我们却需要调用不同的三个方法（<em>包括发送图片、文件等，都是不同的方法</em>），这是很难以让人接受的。所以，我们的二次抽象中，必须赋予整个体系中缺失的会话管理功能，内部屏蔽掉底层不统一的细节，对更高层的使用者暴露出相同的调用接口。</p>
+<p>会话便是一场交互，我们给用户A发送一条消息，那么可以看成我们和用户A进行了一场交互，这场交互的承载体便是会话。一个会话中包含两个可交互的对象：<strong>我</strong>和<strong>用户A</strong>，相对于我而言，用户A是这场交互的目标对象，也可以归结为交互主体，相对于用户A，则我是交互主体。群和讨论组的交互拆分流程与上面类似，只是把<strong>用户A</strong>替换成群或讨论组即可。有了这些细节抽象的补充，我们即可明白下面会话管理核心类图的含义了：</p>
+<p><img src="/images/2015/10/05/06.png" alt="会话管理核心类图"></p>
+<p>由于底层实现的不统一，我们抽象出了两个适配接口<code>ChatMessageSender</code>和<code>ChatMessageReceiver</code>，分别由不同交互类型来实现，然后注册到<code>ConversationModule</code>中。<code>ConversationModule</code>根据类型构建会话，并且为会话选择合适的<code>Sender</code>和<code>Receiver</code>。消息便是由会话发出，发出的消息中包含上述文字中提到的<code>subjecter</code>，即交互主体对象，以及发起者和接收者。</p>
+<h2 id="本篇完">本篇完</h2><p>本篇到此暂时告一段落了，如开头所述一致，通篇基本上都是宏观性的介绍。那么下一篇，也是本系列的最后一篇，会主要介绍一些实现中的细节。虽然，我经常提不要拘泥于细节，可我的意思是在设计时要着眼整体的布局，在实现时还是必须要把握每一个细节的，毕竟细节决定成败嘛！那么，下一篇，我们继续！</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>在上一篇博文里，我们将最基础的消息通讯组件打磨了一下，并且为了节约开发时间，我们还量身定制了一款代码生成工具。本篇不会再纠结于底层的相关细节，而是将重心放置在高层，乃至整体的一个宏观设计和分析。</p>
+<p><em>软件开发是门很有趣的艺术，如果你真的用心去体会它。</em></p>]]>
+    
+    </summary>
+    
+      <category term="分层设计" scheme="http://blog.makeex.com/tags/%E5%88%86%E5%B1%82%E8%AE%BE%E8%AE%A1/"/>
+    
+      <category term="抽象" scheme="http://blog.makeex.com/tags/%E6%8A%BD%E8%B1%A1/"/>
+    
+      <category term="模块化框架" scheme="http://blog.makeex.com/tags/%E6%A8%A1%E5%9D%97%E5%8C%96%E6%A1%86%E6%9E%B6/"/>
+    
+      <category term="OSX" scheme="http://blog.makeex.com/categories/OSX/"/>
+    
+      <category term="Design" scheme="http://blog.makeex.com/categories/OSX/Design/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[再谈 IM 架构设计（上）]]></title>
