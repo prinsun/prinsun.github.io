@@ -1,0 +1,707 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="iOS安全,严谨的心态,逆向," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="经历过最近轰动一时的 Xcode Ghost 事件后，可以看出，即便大如腾讯这般的企业，在面对 APP 的安全性时，态度也是不够严谨的。各大媒体却将矛头指向了苹果手机（标题：苹果手机不安全），这种低俗的竞争手段还真让人汗颜。作为开发人员，我觉得非常有必要修习安全相关的知识，即便不是精通，起码要有些常识。
+这篇文章，便是在普及 iOS 安全的基本常识，而你目前关于这方面的认知，可能都是错的！">
+<meta property="og:type" content="article">
+<meta property="og:title" content="你所认为 iOS 中的安全并不安全">
+<meta property="og:url" content="http://blog.makeex.com/2015/10/11/the-safety-about-ios-you-know-is-wrong/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="经历过最近轰动一时的 Xcode Ghost 事件后，可以看出，即便大如腾讯这般的企业，在面对 APP 的安全性时，态度也是不够严谨的。各大媒体却将矛头指向了苹果手机（标题：苹果手机不安全），这种低俗的竞争手段还真让人汗颜。作为开发人员，我觉得非常有必要修习安全相关的知识，即便不是精通，起码要有些常识。
+这篇文章，便是在普及 iOS 安全的基本常识，而你目前关于这方面的认知，可能都是错的！">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/11/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/10/11/02.png">
+<meta property="og:updated_time" content="2015-10-11T06:53:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="你所认为 iOS 中的安全并不安全">
+<meta name="twitter:description" content="经历过最近轰动一时的 Xcode Ghost 事件后，可以看出，即便大如腾讯这般的企业，在面对 APP 的安全性时，态度也是不够严谨的。各大媒体却将矛头指向了苹果手机（标题：苹果手机不安全），这种低俗的竞争手段还真让人汗颜。作为开发人员，我觉得非常有必要修习安全相关的知识，即便不是精通，起码要有些常识。
+这篇文章，便是在普及 iOS 安全的基本常识，而你目前关于这方面的认知，可能都是错的！">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 你所认为 iOS 中的安全并不安全 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              你所认为 iOS 中的安全并不安全
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-10-11T09:22:57+08:00" content="2015-10-11">
+            2015-10-11
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/" itemprop="url" rel="index">
+                  <span itemprop="name">iOS</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/Reverse/" itemprop="url" rel="index">
+                  <span itemprop="name">Reverse</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/10/11/the-safety-about-ios-you-know-is-wrong/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/10/11/the-safety-about-ios-you-know-is-wrong/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>经历过最近轰动一时的 Xcode Ghost 事件后，可以看出，即便大如腾讯这般的企业，在面对 APP 的安全性时，态度也是不够严谨的。各大媒体却将矛头指向了苹果手机（<em>标题：苹果手机不安全</em>），这种低俗的竞争手段还真让人汗颜。作为开发人员，我觉得非常有必要修习安全相关的知识，即便不是精通，起码要有些常识。</p>
+<p>这篇文章，便是在普及 iOS 安全的基本常识，而你目前关于这方面的认知，可能都是错的！</p>
+<a id="more"></a>
+<h2 id="逆向有多难">逆向有多难</h2><p>谈及一个应用的安全，其实更多的便是关于一个应用的逆向，所谓逆向便是通过一系列的手法，从原始的可执行二进制文件中分析出有漏洞的地方，从而进行窜改，以达到不可告人的目的。逆向有多难呢？对于未涉及该领域的人来说，常常处于两个极端，一种认为非常简单，一种认为难如登天。</p>
+<p>曾经有个人对我说，他可以在一分钟内将我手头上的一份可执行文件向上抽象，并画出它们的类交互图。当时，我弱弱的问了一句：什么是向上抽象？然后被他狠狠的鄙视了，并且问旁边的人，公司招我来做啥。这样的言论出自一个技术人员的口中，这让人非常担忧，不假思索的态度真心不适合从事需要严谨对待的程序设计。他所说的向上抽象便是进行逆向分析，而我只是在质疑他的言论，质疑点很多，但大体如下：</p>
+<ul>
+<li>我质疑你根本不懂<code>Objective-C</code>，如何进行类交互图绘制？难道你能在一分钟里绘制出一份如蜘蛛网般的<code>objc_msgSend</code>？</li>
+<li>我质疑你根本就没搞清楚<code>PE</code>、<code>ELF</code>、<code>Mach-O</code>之间的区别，甚至含义</li>
+<li>我质疑你调试的能力，只接触过 gdb，很难让我相信你能在一台越狱手机上通过 lldb 完成所需的调试操作 </li>
+</ul>
+<p>那么逆向到底有多难？当然，肯定不会如上述言论中的那般简单，就算我们是拿到全部源码也达不到那般速度。从复杂度而言，它并不复杂，只是可能会非常繁琐，接下来的示例，可能会改变你一直以来的看法。</p>
+<h2 id="你所认为的安全手段">你所认为的安全手段</h2><p>在一个应用中，面对一些必须持久化的敏感数据，为了安全起见，大家通常都会对这些数据进行加密存储，防止用户窃取一些类似<code>Token</code>、<code>AppKey</code>，甚至更为重要的数据。那么下面就模拟一个这样的应用，我们要存储一个用户对象，用户对象中有一个需要受保护的凭证字段，该凭证主要用于和服务端进行通讯。</p>
+<p>下面是该对象的接口代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">User</span> : <span class="title">NSObject</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> *  加载保存的用户</span><br><span class="line"> *</span><br><span class="line"> *  @return 用户信息</span><br><span class="line"> */</span></span><br><span class="line">+ (User *)loadLastSaveUser;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> *  用户唯一标识</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">assign</span>) <span class="built_in">NSUInteger</span> identifier;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> *  用户凭证</span><br><span class="line"> */</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>) <span class="built_in">NSString</span> *credentials;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span><br><span class="line"> *  保存用户</span><br><span class="line"> */</span></span><br><span class="line">- (<span class="keyword">void</span>)save;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>下面是实现部分的相关代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">User</span> () &lt;<span class="title">NSCoding</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">User</span></span></span><br><span class="line"></span><br><span class="line">- (instancetype)initWithCoder:(<span class="built_in">NSCoder</span> *)decoder &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">self</span> = [<span class="keyword">super</span> init]) &#123;</span><br><span class="line">        <span class="keyword">self</span><span class="variable">.identifier</span> = [decoder decodeIntegerForKey:<span class="built_in">NSStringFromSelector</span>(<span class="keyword">@selector</span>(identifier))];</span><br><span class="line">        <span class="keyword">self</span><span class="variable">.credentials</span> = [decoder decodeObjectForKey:<span class="built_in">NSStringFromSelector</span>(<span class="keyword">@selector</span>(credentials))];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)encodeWithCoder:(<span class="built_in">NSCoder</span> *)coder &#123;</span><br><span class="line">    [coder encodeInteger:<span class="keyword">self</span><span class="variable">.identifier</span> forKey:<span class="built_in">NSStringFromSelector</span>(<span class="keyword">@selector</span>(identifier))];</span><br><span class="line">    [coder encodeObject:<span class="keyword">self</span><span class="variable">.credentials</span> forKey:<span class="built_in">NSStringFromSelector</span>(<span class="keyword">@selector</span>(credentials))];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (User *)loadLastSaveUser &#123;</span><br><span class="line">    <span class="built_in">NSData</span> *userData = [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] dataForKey:kDefaultKeyForUser];</span><br><span class="line">    userData = SuperPowerDecrypt(userData); <span class="comment">// 解密</span></span><br><span class="line">    <span class="keyword">if</span> (userData == <span class="literal">nil</span>) <span class="keyword">return</span> <span class="literal">nil</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> [<span class="built_in">NSKeyedUnarchiver</span> unarchiveObjectWithData:userData];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>)save &#123;</span><br><span class="line">    <span class="built_in">NSData</span> *userData = [<span class="built_in">NSKeyedArchiver</span> archivedDataWithRootObject:<span class="keyword">self</span>];</span><br><span class="line">    userData = SuperPowerEncrypt(userData); <span class="comment">// 加密</span></span><br><span class="line">    </span><br><span class="line">    [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] setObject:userData forKey:kDefaultKeyForUser];</span><br><span class="line">    [[<span class="built_in">NSUserDefaults</span> standardUserDefaults] synchronize];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>可以看到，我们这里进行了非常强大（<em>SuperPower</em>）的加解密持久化操作，相信大家肯定都知道这个是可以被攻破的，但是，我们要攻破这样一个存储内容，需要多大气力呢？</p>
+<h2 id="不下于三种的攻破方式">不下于三种的攻破方式</h2><p>要攻破这样的防护，其实非常简单，以至于可以有很多不同的方式来攻破，以下我们例举一些非常有代表性的手法。一般在进行破解之前，我们会通过<code>class-dump</code>导出所有的<code>Objective-C</code>头文件，当然，从 AppStore 上下载的应用，苹果都是经过加密的，可以用<code>Clutch</code>或其他工具进行解密，这可是非常简单的步骤，然后便可以导出所有的<code>Objective-C</code>头文件了，以下是我们导出的<code>User</code>类文件：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">User</span> : <span class="title">NSObject</span> &lt;<span class="title">NSCoding</span>&gt;</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> _identifier;</span><br><span class="line">    <span class="built_in">NSString</span> *_credentials;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">id</span>)loadLastSaveUser;</span><br><span class="line">- (<span class="keyword">void</span>)<span class="variable">.cxx_destruct</span>;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">copy</span>, <span class="keyword">nonatomic</span>) <span class="built_in">NSString</span> *credentials; <span class="comment">// @synthesize credentials=_credentials;</span></span><br><span class="line">- (<span class="keyword">void</span>)encodeWithCoder:(<span class="keyword">id</span>)arg1;</span><br><span class="line"><span class="keyword">@property</span>(<span class="keyword">nonatomic</span>) <span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="keyword">long</span> identifier; <span class="comment">// @synthesize identifier=_identifier;</span></span><br><span class="line">- (<span class="keyword">id</span>)initWithCoder:(<span class="keyword">id</span>)arg1;</span><br><span class="line">- (<span class="keyword">void</span>)save;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>一切都暴露无疑，那么，有了这样一个头文件，我们就可采用不同的手段来进行攻破了。</p>
+<h3 id="Cycript_神器">Cycript 神器</h3><p><code>cy</code>一直都是 saurik 大神的御用前缀，<code>Cycript</code>也是他非常具有代表性的作品之一，详细内容我就不再介绍了，相信有兴趣的通过搜索引擎可以很容易的了解到。我们这里，就通过该工具就可以非常容易的解密到<code>User</code>中所存储的内容，具体方式如下：</p>
+<p><img src="/images/2015/10/11/01.png" alt=""></p>
+<p>这个过程可以说，非常简单，只要将<code>Cycript</code>附加的进程，然后直接调用相关类的方法，我们就可以获取到需要得到的信息。</p>
+<h3 id="lldb_调试">lldb 调试</h3><p>除了上面所的方式，我们还可以使用<code>lldb</code>进行调试，获取到我们相应的信息，具体步骤如下：</p>
+<p><img src="/images/2015/10/11/02.png" alt=""></p>
+<p>依然是十分的方便，豪不费力气的我们就获得到了想要的信息，可以想象这个所谓的加密解密是多么的不堪一击。除了<code>po</code>之外，我们还可以通过增加符号断点，然后读取寄存器中的值，也是可以达到相同的效果。通过窜改寄存器中的值，我们可以扰乱原有设定的程序逻辑，比如窜改<code>identifier</code>，如果服务端安全性没有做好，这时候我们可以冒充其它用户进行相应的网络操作了。</p>
+<h3 id="无处不在的_Hook">无处不在的 Hook</h3><p>除了上面对<code>User</code>对象操作的方式之外，我们甚至完全不用考虑<code>User</code>的存在，因为这个凭证最终是需要通过网络请求进行发送的，即便是使用 https 也无妨，因为我们不需要通过抓包就可以提前获取到请求的内容。这便是进行 Hook 操作，通过<code>MobileSubstrate</code>配合<code>theos</code>，我们可以非常方便的编写自己的 tweak，从而 Hook 一些我们感兴趣的方法，比如这里我们就可以 Hook 掉 <code>NSURLRequest</code> 设置请求头的方法，将内容 Dump 出来，这里偷懒一下，就不进行具体的演示操作了。</p>
+<h2 id="矛盾所在">矛盾所在</h2><p>看来上面操作，是不是对原先这样的设计产生质疑了？其实，如果是这种程度的防护，根本就是多余的操作，因为一旦攻击者对你存储的数据感兴趣，那么你这样费尽苦心的加解密对攻击者而言根本没有任何意义，而普通用户更不会关心你数据是否是加密存储。那么，问题究竟出在那？</p>
+<p>问题通常存在于客户端将锁和钥匙都放在了一起，很多时候这都是无可奈何的做法，那么所能做的便是将这钥匙藏得更难发现点，但，终归会有开锁的时候，这时攻击者会偷瞄到你钥匙存放的地方，整个防线便崩溃了。就算你有特别的技巧，在开锁的时候让自己隐身，但锁一打开，攻击者可能就直奔进去，拿走了自己想要的东西。</p>
+<p>就比如我们要防止 MP3 音频数据被盗，使用了非常复杂的加密算法，社么矩阵啊，什么向量啊，但最终客户端还是需要调用系统 API 进行播放的，无论是<code>CoreAudio</code>还是<code>AudioTookbox</code>中的方法，都可以被攻击者 Hook 掉，从而 Dump 出原始的 PCM 数据，你的加密只是降低播放性能，增加自己的工作量而已。</p>
+<p>没有绝对的安全，就我所知的所有 iOS 安全防护，也都有相应破解手段，只不过是更加繁琐了一点而已。只要你的应用防不过操作系统，那么肯定就有破解的手段，当然，你的应用最终是需要进行正确执行的，所以操作系统肯定会完全知情，这便是所有的矛盾所在。</p>
+<h2 id="何去何从">何去何从</h2><p>那么，难道我们就这样放任不管了么？我们应该尽可能的将安全数据存放置于服务器中，并且所有核心的校验也都应该是服务器进行的，这样客户端便没有了后顾之忧。就算你窜改数据，服务端也是不会认账的，自然，客户端那些毫无意义的加密解密操作便可以去掉了。</p>
+<p>安全是一个比较庞大的话题，本篇通过非常简单的一个实例普及了下常识性的内容，如果进行深入研究，那么你会发现一些更鲜为人知的黑魔法，加油吧，少年！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS安全/" rel="tag">#iOS安全</a>
+          
+            <a href="/tags/严谨的心态/" rel="tag">#严谨的心态</a>
+          
+            <a href="/tags/逆向/" rel="tag">#逆向</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/10/06/let-us-talk-about-the-im-architecture-again-part-c/" rel="next">再谈 IM 架构设计（下）</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/10/11/the-safety-about-ios-you-know-is-wrong/"
+                   data-title="你所认为 iOS 中的安全并不安全" data-url="http://blog.makeex.com/2015/10/11/the-safety-about-ios-you-know-is-wrong/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">11</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#逆向有多难"><span class="nav-number">1.</span> <span class="nav-text">逆向有多难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#你所认为的安全手段"><span class="nav-number">2.</span> <span class="nav-text">你所认为的安全手段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不下于三种的攻破方式"><span class="nav-number">3.</span> <span class="nav-text">不下于三种的攻破方式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cycript_神器"><span class="nav-number">3.1.</span> <span class="nav-text">Cycript 神器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lldb_调试"><span class="nav-number">3.2.</span> <span class="nav-text">lldb 调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#无处不在的_Hook"><span class="nav-number">3.3.</span> <span class="nav-text">无处不在的 Hook</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#矛盾所在"><span class="nav-number">4.</span> <span class="nav-text">矛盾所在</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#何去何从"><span class="nav-number">5.</span> <span class="nav-text">何去何从</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2015</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
