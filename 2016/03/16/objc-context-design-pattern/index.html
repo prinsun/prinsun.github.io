@@ -1,0 +1,712 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="上下文,线程本地存储," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。
+本篇文章主要介绍了关于上下文（Context）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用Objective-C实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ObjC 基于上下文的设计">
+<meta property="og:url" content="http://blog.makeex.com/2016/03/16/objc-context-design-pattern/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。
+本篇文章主要介绍了关于上下文（Context）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用Objective-C实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们">
+<meta property="og:updated_time" content="2016-03-16T16:02:44.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="ObjC 基于上下文的设计">
+<meta name="twitter:description" content="春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。
+本篇文章主要介绍了关于上下文（Context）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用Objective-C实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> ObjC 基于上下文的设计 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              ObjC 基于上下文的设计
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-03-16T23:59:57+08:00" content="2016-03-16">
+            2016-03-16
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/" itemprop="url" rel="index">
+                  <span itemprop="name">iOS</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/iOS/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/16/objc-context-design-pattern/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/16/objc-context-design-pattern/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。</p>
+<p>本篇文章主要介绍了关于上下文（<em>Context</em>）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用<code>Objective-C</code>实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们，会将此推演到更高的境界。</p>
+<p>那么，让我们从一些比较轻松的环节开始吧！</p>
+<a id="more"></a>
+<h2 id="什么是上下文">什么是上下文</h2><p>既然我们要说上下文（<em>Context</em>），那么我们首先应该能够比较清晰的理解，什么是上下文，以及它适用于哪些场景。那么什么是上下文呢？<strong>上下文就是在某个特定的场景里，用于记录该场景特定状态的一种抽象。</strong></p>
+<p>要想解释清楚这样一种抽象的概念，还是比较困难的，不过在我们现实的开发中，其实也已或多或少用到过上下文。这些上下文通常都是以<code>XXXContext</code>来命名，并且通常都有明确的区间分割，比如下面使用<code>UIKit</code>进行绘图的代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGImageRef</span> flip(<span class="built_in">CGImageRef</span> im) &#123; </span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGSize</span> sz = <span class="built_in">CGSizeMake</span>(<span class="built_in">CGImageGetWidth</span>(im), <span class="built_in">CGImageGetHeight</span>(im)); </span><br><span class="line"> </span><br><span class="line"><span class="built_in">UIGraphicsBeginImageContextWithOptions</span>(sz, <span class="literal">NO</span>, <span class="number">0</span>);  <span class="comment">// 上下文开始</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGContextDrawImage</span>(<span class="built_in">UIGraphicsGetCurrentContext</span>(), </span><br><span class="line">	<span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, sz<span class="variable">.width</span>, sz<span class="variable">.height</span>), im); </span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGImageRef</span> result = [<span class="built_in">UIGraphicsGetImageFromCurrentImageContext</span>() <span class="built_in">CGImage</span>]; </span><br><span class="line"> </span><br><span class="line"><span class="built_in">UIGraphicsEndImageContext</span>(); <span class="comment">// 上下文结束</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">return</span> result; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码中，<code>ImageContext</code>便是一种上下文，它会记录下在<code>Begin</code>和<code>End</code>区间中的一些信息，并影响这其间其他方法的行为。在广为人知的 <strong>GoF</strong> 设计模式中，解析器模式（<em>Interpreter</em>）的一般实现里，也会有上下文，用于记录解析过程的中间状态。类似的例子还有很多，这里就不一一列出了。</p>
+<p>那么，接下来我们来看看，如果要去实现一个上下文，需要注意哪些问题。</p>
+<h2 id="嵌套上下文">嵌套上下文</h2><p>首先我们需要注意的是，一个健全的上下文必须是需要支持嵌套的，比如这样一段代码片段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BeginXXContext();</span><br><span class="line">    <span class="comment">// 区间A</span></span><br><span class="line">    BeginXXContext();</span><br><span class="line">        <span class="comment">// 区间B</span></span><br><span class="line">    EndXXContext();</span><br><span class="line">    <span class="comment">// 区间A</span></span><br><span class="line">EndXXContext();</span><br></pre></td></tr></table></figure>
+<p>理想的情况下，我们在 <strong>区间A</strong> 里所设定的信息应该是不能影响到 <strong>区间B</strong> 的，因为 <strong>区间B</strong> 是一个独立的上下文。这样的设计比起上下文行为继承，我觉得会更加合理，如果 <strong>区间B</strong> 继承 <strong>区间A</strong> 上下文的信息，会导致一些不可预料的后果。比如，整个 <strong>区间B</strong> 是在另一个子函数里，那么就无法确保这个子函数对外能有一个确定的行为表现了。</p>
+<p>那么，我们如何来实现这样的需求呢？其实很简单，我们确保在 <strong>区间A</strong> 里获取到的上下文与在 <strong>区间B</strong> 里获取到的上下文是两个对象即可。这样就需要我们在抽象时，考虑父子关系，下面是简略的代码实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XXContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 父 Context</span></span><br><span class="line">    XXContext *_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> XXContext *sXXContext;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)begin &#123;</span><br><span class="line">    XXContext *parent = sXXContext;</span><br><span class="line">    sXXContext = [XXContext new];</span><br><span class="line">    sXXContext-&gt;_parent = parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当前 Context</span></span><br><span class="line">+ (instancetype)current &#123;</span><br><span class="line">    <span class="keyword">return</span> sXXContext;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)end &#123;</span><br><span class="line">    sXXContext = sXXContext-&gt;_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面的代码还是非常简陋的，未做任何异常处理，但这里只是提供出实现的思路，有兴趣的朋友，可以自己再细化下。</p>
+<p>好的，我们解决了嵌套的问题，那么接下来要谈谈<strong>线程安全</strong>了。</p>
+<h2 id="线程安全问题">线程安全问题</h2><p>上下文的实现中，非常重要的一环就是要考虑上下文的线程安全。考虑一下，上一节代码实现的上下文，在如下的代码中，表现会是怎样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="comment">// 区间A </span></span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br><span class="line">        </span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="comment">// 区间B</span></span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>很明显的可以看出来，如果是之前的实现，在面对这种多线程并发操作的情况下，会有不可预料的结果。上面代码里，<strong>区间A</strong> 或 <strong>区间B</strong> 里获取到的<code>[XXContext current]</code>都是不确定的，因为无法保证代码的执行顺序。那么，我们如果来解决这样的问题呢？</p>
+<p>换个角度来思考下，我们可以确保的是，<code>begin</code>和<code>end</code>中的这段代码肯定是在一个线程里，或者说，上下文是<strong>线程相关</strong>的，一个上下文针对一个线程。所以下面这段代码是不对的（<em>或者说是不允许的</em>）：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="built_in">dispatch_sync</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">        [XXContext current]; <span class="comment">// 获取不到</span></span><br><span class="line">    &#125;);</span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样分析下来，我们应该能够很容易的想到一个概念：<strong>线程本地存储</strong>，也就是所谓的<strong>TLS</strong>（<em>Thread Local Storage</em>），顾名思义，就是可以针对线程存储一些信息，并且存储的这些信息只有在该线程才可以访问到，与其他线程是隔离的。</p>
+<p>在<code>Objective-C</code>中，<strong>TLS</strong> 的使用非常简单，<code>NSThread</code>中有个<code>threadDictionary</code>属性，用于存储信息，所以，我们可以将上面的实现改成如下这样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XXContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 父 Context</span></span><br><span class="line">    XXContext *_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)begin &#123;</span><br><span class="line">    XXContext *ctx = [XXContext new];</span><br><span class="line">    ctx-&gt;_parent = [<span class="keyword">self</span> current];</span><br><span class="line">    [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>] = ctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当前 Context</span></span><br><span class="line">+ (instancetype)current &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)end &#123;</span><br><span class="line">    XXContext *ctx = [<span class="keyword">self</span> current];</span><br><span class="line">    ctx = ctx-&gt;_parent;</span><br><span class="line">    [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>] = ctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面的改动其实很简单，也就是把原先的<code>sXXContext</code>静态变量，替换成<code>[NSThread currentThread].threadDictionary[@&quot;xx-ctx&quot;]</code>这样一种线程相关的存储方式。经过这样的改造，我们可以轻松面对本节开头的那段代码了，所以，接下来我们可以做一些更有意义的事情。</p>
+<h2 id="实现举例_-_事件总线">实现举例 - 事件总线</h2><p>前先时间，在微信上看到一篇关于<a href="https://mp.weixin.qq.com/s?__biz=MzA3ODg4MDk0Ng==&amp;mid=402696366&amp;idx=1&amp;sn=ba8cbd75849b9657175c4b25bb0ac5b5&amp;scene=2&amp;srcid=0311YoPncvJPZrIVeGFIGtbN&amp;from=timeline&amp;isappinstalled=0&amp;uin=MTcwODQ2NjAwMQ%3D%3D&amp;key=710a5d99946419d9f3292e1b7809aa8ba9c2ff77c4026fd40cdcbb05c14087955671075ca2b03a38b906c3a437a2b7a7&amp;devicetype=iMac+MacBookPro12%2C1+OSX+OSX+10.10.5+build(14F1605)&amp;version=11020201&amp;lang=zh_CN&amp;pass_ticket=bsuXUqOzYRQxfF1HqhcKnsnl1sCfaWp5f2nszKfKRwhXcUSSUVWFkfXzcmbJXr8J" target="_blank" rel="external">蘑菇街组件化的文章</a>（<em>怎么又是蘑菇街？</em>），里面讲到了它们的<a href="https://github.com/mogujie/MGJRouter" target="_blank" rel="external">MGJRouter</a>，用于模块间的解耦。这个库主要都是主动去取另一个模块的数据，但模块间除了这种主动的行为，有时还会需要监听另一个模块的特定事件，这种被动的行为，在<code>Objective-C</code>中有<code>Notification</code>可以使用，但，<code>Notification</code>太弱，类型太弱，需要太多的约定。</p>
+<p>所以，我们有必要自己再造一个轮子，事件总线（<em>Event Bus</em>），更进一步的将模块解耦。这个库我已经放到了 GitHub：</p>
+<p><a href="https://github.com/prinsun/MKXEventBus" target="_blank" rel="external">https://github.com/prinsun/MKXEventBus</a></p>
+<p>这个库支持这样一些特性：</p>
+<ul>
+<li>强类型事件发布</li>
+<li>事件支持合并配置，在符合条件的情况下，多个事件会自动合并成一个事件发布</li>
+<li>事件订阅支持<code>block</code>也支持<code>selector</code></li>
+<li>事件订阅支持指定回调的<code>dispatch_queue</code>（<em>这里用到了上下文</em>）</li>
+<li>事件订阅者通过弱引用自动回收</li>
+</ul>
+<p>具体实现可以看代码，也欢迎大家来发现问题，并贡献代码，下面是一般的使用示例：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发布事件</span></span><br><span class="line"><span class="built_in">MKXLoginSuccessEvent</span> *event = [<span class="built_in">MKXLoginSuccessEvent</span> eventWithAccount:account];</span><br><span class="line">[[<span class="built_in">MKXEventBus</span> sharedBus] publish:event];</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订阅事件</span></span><br><span class="line">[<span class="built_in">MKXEventBus</span> beginSubscribe:<span class="keyword">self</span><span class="variable">.dispatchQueue</span>];</span><br><span class="line">[[<span class="built_in">MKXEventBus</span> sharedBus] subscribe:<span class="built_in">MKXLoginSuccessEvent</span><span class="variable">.class</span> <span class="keyword">for</span>:<span class="keyword">self</span> with:^(<span class="built_in">MKXLoginSuccessEvent</span> *event) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;];</span><br><span class="line">[<span class="built_in">MKXEventBus</span> endSubscribe];</span><br></pre></td></tr></table></figure>
+<p>上面代码中的<code>beginSubscribe</code>和<code>endSubscribe</code>便是一个典型的上下文设计，实现方式也与本文中所描述类似，感兴趣的可以去瞅瞅代码。</p>
+<p>OK，那么这个栗子就举到这里吧！</p>
+<h2 id="接下来该做什么">接下来该做什么</h2><p>看到了这里，我觉得大家可以再深入的去思考下，上下文除了这些简短生命周期的实现外，其实还有很多生命周期是非常长的。比如<strong>应用上下文</strong>、<strong>服务上下文</strong>、<strong>账户上下文</strong>等，上下文的核心设计理念在于<strong>隔离存储</strong>，这是一个非常有用，也非常有意思的东西。</p>
+<p>所以，接下来发挥你的想象，用上下文去创造奇迹吧！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/上下文/" rel="tag">#上下文</a>
+          
+            <a href="/tags/线程本地存储/" rel="tag">#线程本地存储</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/10/11/the-safety-about-ios-you-know-is-wrong/" rel="next">你所认为 iOS 中的安全并不安全</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/16/objc-context-design-pattern/"
+                   data-title="ObjC 基于上下文的设计" data-url="http://blog.makeex.com/2016/03/16/objc-context-design-pattern/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">21</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是上下文"><span class="nav-number">1.</span> <span class="nav-text">什么是上下文</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#嵌套上下文"><span class="nav-number">2.</span> <span class="nav-text">嵌套上下文</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程安全问题"><span class="nav-number">3.</span> <span class="nav-text">线程安全问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现举例_-_事件总线"><span class="nav-number">4.</span> <span class="nav-text">实现举例 - 事件总线</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#接下来该做什么"><span class="nav-number">5.</span> <span class="nav-text">接下来该做什么</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

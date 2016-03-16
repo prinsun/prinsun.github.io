@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2015-10-11T07:00:15.000Z</updated>
+  <updated>2016-03-16T16:02:44.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -13,6 +13,72 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[ObjC 基于上下文的设计]]></title>
+    <link href="http://blog.makeex.com/2016/03/16/objc-context-design-pattern/"/>
+    <id>http://blog.makeex.com/2016/03/16/objc-context-design-pattern/</id>
+    <published>2016-03-16T15:59:57.000Z</published>
+    <updated>2016-03-16T16:02:44.000Z</updated>
+    <content type="html"><![CDATA[<p>春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。</p>
+<p>本篇文章主要介绍了关于上下文（<em>Context</em>）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用<code>Objective-C</code>实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们，会将此推演到更高的境界。</p>
+<p>那么，让我们从一些比较轻松的环节开始吧！</p>
+<a id="more"></a>
+<h2 id="什么是上下文">什么是上下文</h2><p>既然我们要说上下文（<em>Context</em>），那么我们首先应该能够比较清晰的理解，什么是上下文，以及它适用于哪些场景。那么什么是上下文呢？<strong>上下文就是在某个特定的场景里，用于记录该场景特定状态的一种抽象。</strong></p>
+<p>要想解释清楚这样一种抽象的概念，还是比较困难的，不过在我们现实的开发中，其实也已或多或少用到过上下文。这些上下文通常都是以<code>XXXContext</code>来命名，并且通常都有明确的区间分割，比如下面使用<code>UIKit</code>进行绘图的代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">CGImageRef</span> flip(<span class="built_in">CGImageRef</span> im) &#123; </span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGSize</span> sz = <span class="built_in">CGSizeMake</span>(<span class="built_in">CGImageGetWidth</span>(im), <span class="built_in">CGImageGetHeight</span>(im)); </span><br><span class="line"> </span><br><span class="line"><span class="built_in">UIGraphicsBeginImageContextWithOptions</span>(sz, <span class="literal">NO</span>, <span class="number">0</span>);  <span class="comment">// 上下文开始</span></span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGContextDrawImage</span>(<span class="built_in">UIGraphicsGetCurrentContext</span>(), </span><br><span class="line">	<span class="built_in">CGRectMake</span>(<span class="number">0</span>, <span class="number">0</span>, sz<span class="variable">.width</span>, sz<span class="variable">.height</span>), im); </span><br><span class="line"> </span><br><span class="line"><span class="built_in">CGImageRef</span> result = [<span class="built_in">UIGraphicsGetImageFromCurrentImageContext</span>() <span class="built_in">CGImage</span>]; </span><br><span class="line"> </span><br><span class="line"><span class="built_in">UIGraphicsEndImageContext</span>(); <span class="comment">// 上下文结束</span></span><br><span class="line"> </span><br><span class="line"><span class="keyword">return</span> result; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的代码中，<code>ImageContext</code>便是一种上下文，它会记录下在<code>Begin</code>和<code>End</code>区间中的一些信息，并影响这其间其他方法的行为。在广为人知的 <strong>GoF</strong> 设计模式中，解析器模式（<em>Interpreter</em>）的一般实现里，也会有上下文，用于记录解析过程的中间状态。类似的例子还有很多，这里就不一一列出了。</p>
+<p>那么，接下来我们来看看，如果要去实现一个上下文，需要注意哪些问题。</p>
+<h2 id="嵌套上下文">嵌套上下文</h2><p>首先我们需要注意的是，一个健全的上下文必须是需要支持嵌套的，比如这样一段代码片段：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">BeginXXContext();</span><br><span class="line">    <span class="comment">// 区间A</span></span><br><span class="line">    BeginXXContext();</span><br><span class="line">        <span class="comment">// 区间B</span></span><br><span class="line">    EndXXContext();</span><br><span class="line">    <span class="comment">// 区间A</span></span><br><span class="line">EndXXContext();</span><br></pre></td></tr></table></figure>
+<p>理想的情况下，我们在 <strong>区间A</strong> 里所设定的信息应该是不能影响到 <strong>区间B</strong> 的，因为 <strong>区间B</strong> 是一个独立的上下文。这样的设计比起上下文行为继承，我觉得会更加合理，如果 <strong>区间B</strong> 继承 <strong>区间A</strong> 上下文的信息，会导致一些不可预料的后果。比如，整个 <strong>区间B</strong> 是在另一个子函数里，那么就无法确保这个子函数对外能有一个确定的行为表现了。</p>
+<p>那么，我们如何来实现这样的需求呢？其实很简单，我们确保在 <strong>区间A</strong> 里获取到的上下文与在 <strong>区间B</strong> 里获取到的上下文是两个对象即可。这样就需要我们在抽象时，考虑父子关系，下面是简略的代码实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XXContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 父 Context</span></span><br><span class="line">    XXContext *_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> XXContext *sXXContext;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)begin &#123;</span><br><span class="line">    XXContext *parent = sXXContext;</span><br><span class="line">    sXXContext = [XXContext new];</span><br><span class="line">    sXXContext-&gt;_parent = parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当前 Context</span></span><br><span class="line">+ (instancetype)current &#123;</span><br><span class="line">    <span class="keyword">return</span> sXXContext;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)end &#123;</span><br><span class="line">    sXXContext = sXXContext-&gt;_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面的代码还是非常简陋的，未做任何异常处理，但这里只是提供出实现的思路，有兴趣的朋友，可以自己再细化下。</p>
+<p>好的，我们解决了嵌套的问题，那么接下来要谈谈<strong>线程安全</strong>了。</p>
+<h2 id="线程安全问题">线程安全问题</h2><p>上下文的实现中，非常重要的一环就是要考虑上下文的线程安全。考虑一下，上一节代码实现的上下文，在如下的代码中，表现会是怎样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="comment">// 区间A </span></span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br><span class="line">        </span><br><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="comment">// 区间B</span></span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>很明显的可以看出来，如果是之前的实现，在面对这种多线程并发操作的情况下，会有不可预料的结果。上面代码里，<strong>区间A</strong> 或 <strong>区间B</strong> 里获取到的<code>[XXContext current]</code>都是不确定的，因为无法保证代码的执行顺序。那么，我们如果来解决这样的问题呢？</p>
+<p>换个角度来思考下，我们可以确保的是，<code>begin</code>和<code>end</code>中的这段代码肯定是在一个线程里，或者说，上下文是<strong>线程相关</strong>的，一个上下文针对一个线程。所以下面这段代码是不对的（<em>或者说是不允许的</em>）：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">dispatch_async</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">    [XXContext begin];</span><br><span class="line">    <span class="built_in">dispatch_sync</span>(dispatch_get_global_queue(<span class="number">0</span>, <span class="number">0</span>), ^&#123;</span><br><span class="line">        [XXContext current]; <span class="comment">// 获取不到</span></span><br><span class="line">    &#125;);</span><br><span class="line">    [XXContext end];</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>这样分析下来，我们应该能够很容易的想到一个概念：<strong>线程本地存储</strong>，也就是所谓的<strong>TLS</strong>（<em>Thread Local Storage</em>），顾名思义，就是可以针对线程存储一些信息，并且存储的这些信息只有在该线程才可以访问到，与其他线程是隔离的。</p>
+<p>在<code>Objective-C</code>中，<strong>TLS</strong> 的使用非常简单，<code>NSThread</code>中有个<code>threadDictionary</code>属性，用于存储信息，所以，我们可以将上面的实现改成如下这样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">XXContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 父 Context</span></span><br><span class="line">    XXContext *_parent;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 开始一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)begin &#123;</span><br><span class="line">    XXContext *ctx = [XXContext new];</span><br><span class="line">    ctx-&gt;_parent = [<span class="keyword">self</span> current];</span><br><span class="line">    [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>] = ctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 当前 Context</span></span><br><span class="line">+ (instancetype)current &#123;</span><br><span class="line">    <span class="keyword">return</span> [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结束一个上下文</span></span><br><span class="line">+ (<span class="keyword">void</span>)end &#123;</span><br><span class="line">    XXContext *ctx = [<span class="keyword">self</span> current];</span><br><span class="line">    ctx = ctx-&gt;_parent;</span><br><span class="line">    [<span class="built_in">NSThread</span> currentThread]<span class="variable">.threadDictionary</span>[<span class="string">@"xx-ctx"</span>] = ctx;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>上面的改动其实很简单，也就是把原先的<code>sXXContext</code>静态变量，替换成<code>[NSThread currentThread].threadDictionary[@&quot;xx-ctx&quot;]</code>这样一种线程相关的存储方式。经过这样的改造，我们可以轻松面对本节开头的那段代码了，所以，接下来我们可以做一些更有意义的事情。</p>
+<h2 id="实现举例_-_事件总线">实现举例 - 事件总线</h2><p>前先时间，在微信上看到一篇关于<a href="https://mp.weixin.qq.com/s?__biz=MzA3ODg4MDk0Ng==&amp;mid=402696366&amp;idx=1&amp;sn=ba8cbd75849b9657175c4b25bb0ac5b5&amp;scene=2&amp;srcid=0311YoPncvJPZrIVeGFIGtbN&amp;from=timeline&amp;isappinstalled=0&amp;uin=MTcwODQ2NjAwMQ%3D%3D&amp;key=710a5d99946419d9f3292e1b7809aa8ba9c2ff77c4026fd40cdcbb05c14087955671075ca2b03a38b906c3a437a2b7a7&amp;devicetype=iMac+MacBookPro12%2C1+OSX+OSX+10.10.5+build(14F1605)&amp;version=11020201&amp;lang=zh_CN&amp;pass_ticket=bsuXUqOzYRQxfF1HqhcKnsnl1sCfaWp5f2nszKfKRwhXcUSSUVWFkfXzcmbJXr8J" target="_blank" rel="external">蘑菇街组件化的文章</a>（<em>怎么又是蘑菇街？</em>），里面讲到了它们的<a href="https://github.com/mogujie/MGJRouter" target="_blank" rel="external">MGJRouter</a>，用于模块间的解耦。这个库主要都是主动去取另一个模块的数据，但模块间除了这种主动的行为，有时还会需要监听另一个模块的特定事件，这种被动的行为，在<code>Objective-C</code>中有<code>Notification</code>可以使用，但，<code>Notification</code>太弱，类型太弱，需要太多的约定。</p>
+<p>所以，我们有必要自己再造一个轮子，事件总线（<em>Event Bus</em>），更进一步的将模块解耦。这个库我已经放到了 GitHub：</p>
+<p><a href="https://github.com/prinsun/MKXEventBus" target="_blank" rel="external">https://github.com/prinsun/MKXEventBus</a></p>
+<p>这个库支持这样一些特性：</p>
+<ul>
+<li>强类型事件发布</li>
+<li>事件支持合并配置，在符合条件的情况下，多个事件会自动合并成一个事件发布</li>
+<li>事件订阅支持<code>block</code>也支持<code>selector</code></li>
+<li>事件订阅支持指定回调的<code>dispatch_queue</code>（<em>这里用到了上下文</em>）</li>
+<li>事件订阅者通过弱引用自动回收</li>
+</ul>
+<p>具体实现可以看代码，也欢迎大家来发现问题，并贡献代码，下面是一般的使用示例：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 发布事件</span></span><br><span class="line"><span class="built_in">MKXLoginSuccessEvent</span> *event = [<span class="built_in">MKXLoginSuccessEvent</span> eventWithAccount:account];</span><br><span class="line">[[<span class="built_in">MKXEventBus</span> sharedBus] publish:event];</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订阅事件</span></span><br><span class="line">[<span class="built_in">MKXEventBus</span> beginSubscribe:<span class="keyword">self</span><span class="variable">.dispatchQueue</span>];</span><br><span class="line">[[<span class="built_in">MKXEventBus</span> sharedBus] subscribe:<span class="built_in">MKXLoginSuccessEvent</span><span class="variable">.class</span> <span class="keyword">for</span>:<span class="keyword">self</span> with:^(<span class="built_in">MKXLoginSuccessEvent</span> *event) &#123;</span><br><span class="line">    ...</span><br><span class="line">&#125;];</span><br><span class="line">[<span class="built_in">MKXEventBus</span> endSubscribe];</span><br></pre></td></tr></table></figure>
+<p>上面代码中的<code>beginSubscribe</code>和<code>endSubscribe</code>便是一个典型的上下文设计，实现方式也与本文中所描述类似，感兴趣的可以去瞅瞅代码。</p>
+<p>OK，那么这个栗子就举到这里吧！</p>
+<h2 id="接下来该做什么">接下来该做什么</h2><p>看到了这里，我觉得大家可以再深入的去思考下，上下文除了这些简短生命周期的实现外，其实还有很多生命周期是非常长的。比如<strong>应用上下文</strong>、<strong>服务上下文</strong>、<strong>账户上下文</strong>等，上下文的核心设计理念在于<strong>隔离存储</strong>，这是一个非常有用，也非常有意思的东西。</p>
+<p>所以，接下来发挥你的想象，用上下文去创造奇迹吧！</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。</p>
+<p>本篇文章主要介绍了关于上下文（<em>Context</em>）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用<code>Objective-C</code>实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的你们，会将此推演到更高的境界。</p>
+<p>那么，让我们从一些比较轻松的环节开始吧！</p>]]>
+    
+    </summary>
+    
+      <category term="上下文" scheme="http://blog.makeex.com/tags/%E4%B8%8A%E4%B8%8B%E6%96%87/"/>
+    
+      <category term="线程本地存储" scheme="http://blog.makeex.com/tags/%E7%BA%BF%E7%A8%8B%E6%9C%AC%E5%9C%B0%E5%AD%98%E5%82%A8/"/>
+    
+      <category term="iOS" scheme="http://blog.makeex.com/categories/iOS/"/>
+    
+      <category term="Design" scheme="http://blog.makeex.com/categories/iOS/Design/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[你所认为 iOS 中的安全并不安全]]></title>
@@ -1696,49 +1762,6 @@ $ ./copylibs.<span class="keyword">sh</span> arm64
 ]]></content>
     <summary type="html">
     <![CDATA[<p>清明时节雨纷纷啊，本打算回趟老家的，后来想想还是算了，人多，又下雨。闲话不多说了，上一篇中，我们了解了一些基本概念，如Export、Import、Catalog等，本篇就Catalog，进行更加深入的讲解。</p>]]>
-    
-    </summary>
-    
-      <category term="C#" scheme="http://blog.makeex.com/categories/C/"/>
-    
-      <category term="MEF" scheme="http://blog.makeex.com/categories/C/MEF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[MEF核心笔记（1）基础应用]]></title>
-    <link href="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/"/>
-    <id>http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/</id>
-    <published>2013-04-04T15:04:57.000Z</published>
-    <updated>2015-09-29T08:32:49.000Z</updated>
-    <content type="html"><![CDATA[<p>从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。</p>
-<p>题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可惜。的确，这世间就是有太多的可惜，也许，哪天不如意了，我也会离开。当然，这一切都是题外话，偶尔的伤感和牢骚后，我们应该继续向前看，毕竟，向前看脖子才不酸（相比起仰视）。</p>
-<p>废话不多说了，下面，我们进入正题吧。</p>
-<a id="more"></a>
-<h2 id="一、基本概念">一、基本概念</h2><ul>
-<li><strong>MEF</strong>：Managed Extensibility Framework，.NET 4.0中带来的一个基于托管的扩展程序开发框架（挺拗口的，不过只是概念），另外通过强大的百度百科，我们发现MEF还是“小鼠胚胎成纤维细胞”的简称（这货是？）。</li>
-<li><strong>Contract</strong>：契约，即一种约定，具体在代码中表现为接口和抽象类。自从进入.NET 4.0，契约这个单词我们应该不会陌生，WCF中贯穿着各种契约，无论如何，契约就是一种约定。</li>
-<li><strong>Import</strong>：导入，导入契约的实现，说明此处需要一个实现的契约。</li>
-<li><strong>Export</strong>：导出，导出契约的实现，说明相应的类中实现了相应的契约。</li>
-<li><strong>Part</strong>：部件，即实现契约的类。</li>
-<li><strong>Catalog</strong>：目录（我是这样定义的），存放部件的地方，当需要某个部件时，会在目录中寻找。</li>
-<li><strong>Container</strong>：容器，存放目录并进行部件管理，如导出、导入等。</li>
-<li><strong>Compose</strong>：组装，通过容器在目录中寻找到实现了相应契约的部件，进行部件的组装。</li>
-</ul>
-<h2 id="二、框架图示">二、框架图示</h2><p><img src="/images/2013/04/04/001.png" alt="框架图示"></p>
-<p>不是很会作图，上面的图就将就着看吧。一个Component Import了两个Contract，分别是Contract 1和Contract 2，一个Catalog中有两个Part并且Export了上诉的两个Contract，最后，Component通过Container的Compose操作，实例化了两个Contract。（我表述的不是很好，说的很拗口，但MEF是非常简单的框架，坚持看下去，你一定会学会的）</p>
-<h2 id="三、基本使用示例">三、基本使用示例</h2><p>下面到了动手操作的时候了，打开Visual Studio，新建一个.NET 4的控制台项目【MyMEFApplication】，添加对MEF库的引用，即“System.ComponentModel.Composition”。</p>
-<h3 id="1、添加一个契约">1、添加一个契约</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#36825;&#20415;&#26159;&#25105;&#20204;&#30340;&#22865;&#32422; Contract&#10;public interface ICalculator &#123;&#10;&#10;    int Add(int a, int b);&#10;&#10;    int Sub(int a, int b);&#10;&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="2、实现这个契约">2、实现这个契约</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#27492;&#22788;&#25105;&#20204;&#23548;&#20986;&#20102;&#22865;&#32422;&#65292;&#36825;&#23601;&#26159;&#19968;&#20010;&#37096;&#20214;&#10;[Export(typeof(ICalculator))]&#10;public class MyCalculator : ICalculator &#123;&#10;&#10;    public int Add(int a, int b) &#123;&#10;        Console.WriteLine(&#34;Add Invoked&#34;);&#10;        return a + b;&#10;    &#125;&#10;&#10;    public int Sub(int a, int b) &#123;&#10;        Console.WriteLine(&#34;Sub Invoked&#34;);&#10;        return a - b;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="3、完成测试程序">3、完成测试程序</h3><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class Program &#123;&#10;&#10;    private static CompositionContainer _container;&#10;&#10;    static void Main(string[] args) &#123;&#10;        //AssemblyCatalog &#30446;&#24405;&#30340;&#19968;&#31181;&#65292;&#34920;&#31034;&#22312;&#30456;&#24212;&#30340;&#31243;&#24207;&#38598;&#20013;&#25628;&#32034;&#10;        var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;        _container = new CompositionContainer(catalog);&#10;&#10;        MathCompute mathCompute = new MathCompute();&#10;        _container.ComposeParts(mathCompute);//&#32452;&#35013;&#37096;&#20214;&#10;&#10;        Console.WriteLine(mathCompute.Add(1, 3));&#10;        Console.WriteLine(mathCompute.Sub(3, 2));&#10;&#10;        Console.ReadLine();&#10;    &#125;&#10;&#125;&#10;&#10;public class MathCompute &#123;&#10;&#10;    //&#25105;&#20204;&#38656;&#35201;&#23548;&#20837;&#36825;&#20010;&#22865;&#32422;&#23454;&#29616;&#30340;&#37096;&#20214;&#10;    [Import(typeof(ICalculator))]&#10;    private ICalculator _calculator;&#10;&#10;&#10;    public int Add(int a, int b) &#123;&#10;        return _calculator.Add(a, b);&#10;    &#125;&#10;&#10;    public int Sub(int a, int b) &#123;&#10;        return _calculator.Sub(a, b);&#10;    &#125;&#10;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>由于时间仓促，本次示例相当简单，并且无实际意义，接下来的实例，我会尽量弄些有实际意义的东西。</p>
-<h2 id="四、总结">四、总结</h2><p>本篇笔记中，我们大致的了解了MEF的使用，并且完成了一个很无聊的应用程序。我们熟知了什么是导入、导出，什么是契约、容器，这样就够了。</p>
-<p>文中所涉及的源码项目地址：<a href="https://github.com/prinsun/BlogDemo.MEF01" target="_blank" rel="external">https://github.com/prinsun/BlogDemo.MEF01</a></p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。</p>
-<p>题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可惜。的确，这世间就是有太多的可惜，也许，哪天不如意了，我也会离开。当然，这一切都是题外话，偶尔的伤感和牢骚后，我们应该继续向前看，毕竟，向前看脖子才不酸（相比起仰视）。</p>
-<p>废话不多说了，下面，我们进入正题吧。</p>]]>
     
     </summary>
     
