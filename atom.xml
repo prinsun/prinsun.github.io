@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2016-04-30T05:56:02.000Z</updated>
+  <updated>2016-05-22T06:45:34.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -15,11 +15,74 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[从面向对象来理解 Xcode 的项目管理]]></title>
+    <link href="http://blog.makeex.com/2016/05/22/the-oop-thought-of-xcode-project-manage/"/>
+    <id>http://blog.makeex.com/2016/05/22/the-oop-thought-of-xcode-project-manage/</id>
+    <published>2016-05-22T03:30:35.000Z</published>
+    <updated>2016-05-22T06:45:34.000Z</updated>
+    <content type="html"><![CDATA[<p>如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。</p>
+<p>所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己的实际项目管理中。</p>
+<a id="more"></a>
+<h2 id="抽象层级">抽象层级</h2><p>作为一个程序员，你觉得你最擅长的应该是什么？逻辑？算法？还是数据结构？反正肯定不是烹饪。我觉得即使前面所说的你都不擅长，只要你有足够强的“抽象”能力，依然能成为一个很好的程序员。</p>
+<p>万物都可以应用面向对象的思维将其抽象，Xcode 自然也不例外，我们这次只是从项目管理的角度来提取它的抽象，除此之外，从 UI 层级也可以提取出一套抽象，不过这并不是本篇文章所关注的重点。下面是我们所提取出来的抽象类图：</p>
+<p><img src="/images/2016/05/22/01.png" alt="Xcode 项目管理类图"></p>
+<p>这类图相信大家一眼看上去会很熟悉，都是些我们在使用 Xcode 时经常碰到的名词，上面只是将它们的关系理了下。既然我们将其提取成了类，那么每个类都应该有它的职责，下面便是它们的职责划分：</p>
+<h3 id="Workspace">Workspace</h3><p>这是最顶层的类，可以设计成单例，因为整个 Xcode 的生命周期中，只会有一个。workspace，顾名思义是工作空间，内部聚合了多个 project，用于管理 project 与 project 之间的依赖关系。</p>
+<h3 id="Project">Project</h3><p>单个项目，作为一个项目，它拥有一定的独立性，比如两个 app 项目可以放置在一个 workspace 中。project 主要是项目级别的抽象，划分的临界点是复用级别，project 和 project 一般是无法复用到源码文件层次的。</p>
+<h3 id="Configuration">Configuration</h3><p>每个 project 可以对应多个 configuration，也就是配置信息，这些配置信息用于编译器的预处理、编译、链接等过程中使用。</p>
+<h3 id="Scheme">Scheme</h3><p>每个 project 也可以对应多个 scheme，与 configuration 所关注点不同，scheme 关注的是 project 在最终编译、运行、测试、归档等环节的一些选项配置信息，它可以决定在每个环节使用什么 configuration。</p>
+<h3 id="Target">Target</h3><p>每个 project 还可以有个多个 target，并且至少有一个 target。target 代表一个项目的最终输出，它继承了 project 的配置信息。target 与 target 间的联系比起 project 与 project 之间要更加紧密，划分的临界点也是复用级别，target 与 target 是可以复用到单个源码文件的。</p>
+<p>在实际的操作过程中，我们常常需要明确的界定什么时候新建 project，什么时候新建 target，因为大部分时候，它们还是比较类似的。不过，多考虑下 target 的职责，考虑它是继承了 project，考虑它的复用级别，应该还是可以划分清楚的。</p>
+<h2 id="依赖管理">依赖管理</h2><p>上面介绍了 Xcode 项目管理方面的抽象，接下来我们看看 Xcode 对它们之间依赖关系的管理。这里我觉得有两种依赖：<strong>强依赖</strong>、<strong>弱依赖</strong>。强依赖是指 target 与 target 之间的依赖，弱依赖是指 project 与 project 之间的依赖（<em>哈哈，我又创造了两个名词</em>）。在项目配置界面中，选择一个项目中的 target，再选择<code>Build Phases</code>，我们可以看到下面这样的界面：</p>
+<p><img src="/images/2016/05/22/02.png" alt="Target Build Phases"></p>
+<p>上图有两个红色的箭头特别醒目，第一个箭头指向的 <strong>Target Dependencies</strong>，便是我所说的强依赖，这里可以选定一个 target 作为当前 target 的依赖项，这可以保证所依赖的 target 一定是在当前 target 之前编译。</p>
+<p>那么弱依赖是什么呢？你猜的没错，就是第二个红色箭头所指的地方：<strong>Link Binary With Libraries</strong>，这里我们可以选择到其它 project 中的静态库或 framework，当然这也是前提。当我们选择了其它 project 中的 target，这就建立起了弱引用，Xcode 会保证另一个 project 中的 target 在当前 target 之前编译。</p>
+<p>依赖有什么用？依赖在你将项目按照层次划分分别维护时就会非常有用，比如数据访问层库、逻辑层库、公共辅助库、最终应用。它们之间的编译顺序可能需要非常明确的，这就需要关注依赖了。</p>
+<h2 id="Cocoa_Pods_的运作原理">Cocoa Pods 的运作原理</h2><p>稍微大点的项目，或者我们想要方便的使用第三方开源库时，可能都会选择 cocoapods，有了上面基础知识的铺垫，再来看看 cocoapods 的运作原理就不那么复杂了。</p>
+<p>首先 cocoapods 在 workspace 中新建立了一个 project 叫 <strong>Pods</strong>，每当我们引入一个第三方库，这个 project 中就会多出一个 target，类型为静态库。这个 project 中有一个固定的 target 叫 <strong>Pods</strong>，类型也是静态库，这个可以看做是 Pods 这个 project 的默认 target，它强依赖了所有其他 target，但它并不会链接其它 target，为了使这个 target 能够正常编译，它内部只有一个空的类实现：<code>Pods-dummy</code>。</p>
+<p>所以，如果想要编译 <strong>Pods</strong> 这个 target，会预先编译其它所有 target，也就是我们真正需要使用的第三方库。</p>
+<p>除了新建了一个项目，cocoapods，还将一系列的配置信息，也就是 configuraion 写入了不同的<code>.xcconfig</code>文件中，主体项目中，每个 configuration 都会对应一个这样的文件。然后，我们在 Podfile 中指定的 target（<em>主应用</em>）会弱依赖 <strong>Pods</strong> 这个 target，也就是会链接一个叫<code>libPods.a</code>的文件。前面说过了，这个静态库内部其实只有一个<code>Pods-dummy</code>的类，它只是作为一个跳板，让我们主体项目依赖的第三方库能在主体项目前编译，真正使用第三方库的地方写在了<code>.xcconfig</code>文件中，也就是<code>OTHER_LDFLAGS</code>这个关键的配置信息。</p>
+<p>上面介绍了 cocoapods 的核心运作原理，还有些细节也都是建立在这样的模式之下的，就不作过多详细解释了。所以，cocoapods 最终可以提供这样的项目管理能力：</p>
+<ol>
+<li>不同的 project 可以指定链接不同的或相同的的第三方库</li>
+<li>不同的 target 可以指定链接不同的或相同的第三方库</li>
+<li>不同的 target 可以指定不同的 configuration</li>
+<li>不同的 configuration（<em>Debug，Release，Custom</em>）可以指定链接不同的或相同的第三方库</li>
+</ol>
+<p>从项目管理的角度来说，cocoapods 还是很不错的将 Xcode 项目管理的灵活性都保留了下来，并且大多都是通过<code>.xcconfig</code>文件来实现，侵入性也不大，还是非常值得使用的。</p>
+<h2 id="自己动手">自己动手</h2><p>本篇到这里也就差不多了，那么给大家留一个小实验：</p>
+<ol>
+<li>在一个 workspace 中建立两个 project，一个是 app，一个是 static library。</li>
+<li>app 新建一个 configuration 叫 inhouse。</li>
+<li>要求 app 只在 inhouse 配置下链接并使用 static library。</li>
+</ol>
+<p><strong>提示</strong>：static library 项目中也需要建立一个 inhouse 的 configuration 哦，否则若依赖建立不起来。</p>
+<p>那么，无论你自己愿不愿意动手实验，应该都可以愉快的使用 Xcode 配置项目玩耍了吧。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。</p>
+<p>所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己的实际项目管理中。</p>]]>
+    
+    </summary>
+    
+      <category term="Cocoa Pods" scheme="http://blog.makeex.com/tags/Cocoa-Pods/"/>
+    
+      <category term="Xcode" scheme="http://blog.makeex.com/tags/Xcode/"/>
+    
+      <category term="面向对象" scheme="http://blog.makeex.com/tags/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/"/>
+    
+      <category term="Xcode" scheme="http://blog.makeex.com/categories/Xcode/"/>
+    
+      <category term="Design" scheme="http://blog.makeex.com/categories/Xcode/Design/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[最浪漫的抽象 Promise & Future]]></title>
     <link href="http://blog.makeex.com/2016/04/30/best-romantic-abstract-promise-and-future/"/>
     <id>http://blog.makeex.com/2016/04/30/best-romantic-abstract-promise-and-future/</id>
     <published>2016-04-30T03:30:35.000Z</published>
-    <updated>2016-04-30T05:56:02.000Z</updated>
+    <updated>2016-04-30T05:56:06.000Z</updated>
     <content type="html"><![CDATA[<p>这个世界不乏浪漫之人，但在我们程序设计的圈子里，能将代码写得像诗般的人，还是凤毛麟角的。本篇文章要介绍的 Promise&amp;Future 便是我觉得非常浪漫的一种抽象思维，无论是它的命名、实际解决的问题，还是它最终的代码风格，都让我们向诗人更近了一步。</p>
 <p>当然，我本就是一名诗人。</p>
 <a id="more"></a>
@@ -1727,70 +1790,6 @@ $ ./copylibs.<span class="keyword">sh</span> arm64
 ]]></content>
     <summary type="html">
     <![CDATA[<p>最近事情很多，有烦恼，有悲伤，不过，一切想通后，感觉其实也没什么。毕竟，这是每个人都要经历了，那么恭喜自己，就要当爸爸了，一个程序员爸爸。</p>]]>
-    
-    </summary>
-    
-      <category term="C#" scheme="http://blog.makeex.com/categories/C/"/>
-    
-      <category term="MEF" scheme="http://blog.makeex.com/categories/C/MEF/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[MEF核心笔记（4）细说MEF中的Attribute [下]]]></title>
-    <link href="http://blog.makeex.com/2013/04/09/mef-core-note-attribute-part-b/"/>
-    <id>http://blog.makeex.com/2013/04/09/mef-core-note-attribute-part-b/</id>
-    <published>2013-04-09T13:30:41.000Z</published>
-    <updated>2015-09-29T08:33:08.000Z</updated>
-    <content type="html"><![CDATA[<p>今天，我们继续MEF的学习记录，这次内容感觉比较重要，所以，特别放到单独一篇来说，这也是MEF很有特色的地方，相信这其中的亮点，会让你感触良多的。</p>
-<a id="more"></a>
-<h2 id="一、部件的创建规则">一、部件的创建规则</h2><p>我们知道，在目前主流的IoC框架里，注入对象的创建都可以进行个性化配置，例如是否以单例方式创建（也就是共享一个对象，给所有需要注入的地方调用），不仅如此，如果熟悉<code>Remoting</code>技术的朋友应该也会接触到服务对象的实例创建规则，另外WCF服务对象也亦是如此，他们都有各自的创建规则。同样，MEF的部件也有它的创建规则。</p>
-<p>涉及到MEF部件的创建规则，首先我们要看下<code>PartCreationPolicyAttribute</code>这个特性，因为部件创建的规则，主要是靠该特性来控制的。该特性只有一个属性<code>CreationPolicy</code>，类型为<code>System.ComponentModel.Composition.CreationPolicy</code>的枚举：</p>
-<p><img src="/images/2013/04/09/01.png" alt="CreationPolicy枚举"></p>
-<p>对应的<code>ImportAttribute</code>、<code>ImportManyAttribute</code>，都有一个<code>RequiredCreationPolicy</code>的属性，类型也是此枚举。从这里我们就不难看出，使用<code>PartCreationPolicyAttribute</code>我们可以指定导出部件的创建规则，通过导入的<code>RequiredCreationPolicy</code>的属性我们可以设定导入类型的创建规则。</p>
-<p>根据<code>CreationPolicy</code>枚举的值，我们很容易就能看出其代表的意义，<code>Shared</code>代表共享部件，即单例，所有的导入都使用一个实例，如果组合引擎中没有该实例，则会创建，一旦有了，就不会再创建；<code>NonShared</code>和<code>Shared</code>相对应，即每次导入都创建一个新的实例，所有导入的实例都拥有自己唯一的状态，数据不共享；<code>Any</code>只是为了匹配导入导出，有下面一张匹配表：</p>
-<table>
-<thead>
-<tr>
-<th>导出的CreationPolicy</th>
-<th>导入的CreationPolicy</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Any</td>
-<td>Any、NonShared、Shared</td>
-</tr>
-<tr>
-<td>NoneShared</td>
-<td>NoneShared、Any</td>
-</tr>
-<tr>
-<td>Shared</td>
-<td>Shared、Any</td>
-</tr>
-</tbody>
-</table>
-<p>只有满足上面这张表，导入导出才会匹配，下面我们做一个很简单的示例：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">namespace MEFTest &#123;&#10;&#10;    class Program &#123;&#10;&#10;        private static CompositionContainer _container;&#10;        static void Main(string[] args) &#123;&#10;&#10;            var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;            _container = new CompositionContainer(catalog);&#10;&#10;            var studentManager1 = _container.GetExportedValue&#60;StudentManager&#62;();&#10;            var studentManager2 = _container.GetExportedValue&#60;StudentManager&#62;();&#10;&#10;            Console.WriteLine(object.ReferenceEquals(studentManager1, studentManager2));&#10;            Console.WriteLine(object.ReferenceEquals(studentManager1.Student, &#10;                studentManager2.Student));&#10;&#10;            while (true) &#123;&#10;                Console.ReadLine();&#10;            &#125;&#10;&#10;        &#125;&#10;    &#125;&#10;&#10;    //&#21333;&#20363;&#23548;&#20986;&#10;    [Export, PartCreationPolicy(CreationPolicy.Shared)]&#10;    public class Student &#123;&#10;        public string Name &#123; get; set; &#125;&#10;        public int Age &#123; get; set; &#125;&#10;    &#125;&#10;&#10;    //&#38750;&#21333;&#20363;&#23548;&#20986;&#10;    [Export, PartCreationPolicy(CreationPolicy.NonShared)]&#10;    public class StudentManager &#123;&#10;        //&#40664;&#35748;&#30340;&#26159; Any&#10;        [Import]&#10;        public Student Student &#123; get; set; &#125;&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>最后输出的是一个<code>false</code>和<code>true</code>，看懂了这个示例，你就看懂整个创建规则了，如果没有看懂，抱歉，只能说明，我的示例写得太烂了。</p>
-<p>此外，我们可以预先在容器中定义导出，这样的定义不需要<code>Export</code>特性描述类型，并且这样输出的永远是单例：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_container.ComposeExportedValue&#60;DateTime&#62;(DateTime.Now);&#10;Console.WriteLine(_container.GetExportedValue&#60;DateTime&#62;());</span><br></pre></td></tr></table></figure>
-<h2 id="二、元数据和元数据视图">二、元数据和元数据视图</h2><p>在MEF中，我们可以在导出部件时附加一些数据，而这些附加导出的数据就是元数据，附加导出数据的结构就是元数据视图，这是我觉得MEF中，最令人激动的功能。</p>
-<p>导出元数据，我们使用<code>ExportMetadata</code>特性，设置该特性的<code>Name</code>和<code>Value</code>，即可导出对应的元数据，我们以示例来说：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class Program &#123;&#10;&#10;    private static CompositionContainer _container;&#10;    static void Main(string[] args) &#123;&#10;&#10;        var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;        _container = new CompositionContainer(catalog);&#10;&#10;        var studentManager = _container.GetExportedValue&#60;StudentManager&#62;();&#10;        Console.WriteLine(studentManager.Student.Metadata.ClassName);&#10;&#10;        while (true) &#123;&#10;            Console.ReadLine();&#10;        &#125;&#10;&#10;    &#125;&#10;&#125;&#10;&#10;public interface IClassMetadata &#123;&#10;    string ClassName &#123; get; &#125;&#10;&#10;    [DefaultValue(&#34;&#34;)]&#10;    string OtherInfo &#123; get; &#125;&#10;&#125;&#10;&#10;[Export]&#10;[ExportMetadata(&#34;ClassName&#34;, &#34;&#19968;&#24180;&#32423;&#19977;&#29677;&#34;)]&#10;public class Student &#123;&#10;    public string Name &#123; get; set; &#125;&#10;    public int Age &#123; get; set; &#125;&#10;&#125;&#10;&#10;[Export]&#10;public class StudentManager &#123;&#10;&#10;    [Import]&#10;    public Lazy&#60;Student, IClassMetadata&#62; Student &#123; get; set; &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>在该示例中，<code>IClassMetadata</code>即是元数据视图，我们导出的元数据必须满足该接口格式，否则<code>StudentManager</code>的<code>Improt</code>就会失败。我们在<code>Student</code>类上只导出了<code>ClassName</code>，而我们的元数据视图中还有一个<code>OtherInfo</code>的属性，这里需要注意一下，如果要提供默认值，必须标记上<code>DefaultValue</code>，否则如果不赋值（导出）的话，就匹配不了该元数据视图，也就是说，如果我们将<code>DefaultValue</code>去掉，该程序就不会正确执行了（<code>StudentManager</code>的<code>Improt</code>会失败）。</p>
-<p>除了使用<code>ExportMetadata</code>特性导出元数据外，我们还可定义自己的导出特性来导出元数据，我们可以继承<code>ExportAttribute</code>，并且一定要有<code>MetadataAttribute</code>特性，以上的示例，我们可以改成这样：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public interface IClassMetadata &#123;&#10;    string ClassName &#123; get; &#125;&#10;    string OtherInfo &#123; get; &#125;&#10;&#125;&#10;&#10;[MetadataAttribute]&#10;[AttributeUsage(AttributeTargets.Class)]&#10;public class ExportStudent : ExportAttribute, IClassMetadata &#123;&#10;    public ExportStudent()&#10;        : base() &#123; &#125;&#10;    public ExportStudent(string contractName)&#10;        : base(contractName) &#123; &#125;&#10;    public ExportStudent(Type contractType)&#10;        : base(contractType) &#123; &#125;&#10;    public ExportStudent(string contractName, Type contractType)&#10;        : base(contractName, contractType) &#123; &#125;&#10;&#10;    public string ClassName &#123; get; set; &#125;&#10;&#10;    //&#22914;&#26524;&#21487;&#36873;&#65292;&#24517;&#39035;&#35201;&#21152;&#19978;&#10;    [DefaultValue(&#34;&#34;)]&#10;    public string OtherInfo &#123; get; set; &#125;&#10;&#10;&#125;&#10;&#10;[ExportStudent(ClassName = &#34;&#19968;&#24180;&#32423;&#19977;&#29677;&#34;)]&#10;public class Student &#123;&#10;    public string Name &#123; get; set; &#125;&#10;    public int Age &#123; get; set; &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>通过继承<code>ExportAttribute</code>，我们可以实现比较强类型的编程，再也不怕字符串拼错，不过相比与<code>ExportMetadata</code>似乎是麻烦了一点点。</p>
-<h2 id="三、部件组装通知">三、部件组装通知</h2><p>这是个比较简单，但又很有用的功能，特别是在我们需要完成一些自动化的操作时（例如日志）。部件组装通知，就是当某个组件引用的部件都能满足导入，在返回已经组装完成的组件之前，先通知该组件。</p>
-<p>若要得到通知，我们只要实现<code>IPartImportsSatisfiedNotification</code>接口即可，该接口有一个<code>OnImportsSatisfied</code>的方法，即通知组件部件组装的地方。请看简单的示例：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">class Program &#123;&#10;&#10;    private static CompositionContainer _container;&#10;    static void Main(string[] args) &#123;&#10;&#10;        var catalog = new AssemblyCatalog(typeof(Program).Assembly);&#10;        _container = new CompositionContainer(catalog);&#10;&#10;        var studentManager = _container.GetExportedValue&#60;MyComponent&#62;();&#10;&#10;        while (true) &#123;&#10;            Console.ReadLine();&#10;        &#125;&#10;&#10;    &#125;&#10;&#125;&#10;&#10;[Export]&#10;class MyComponent : IPartImportsSatisfiedNotification &#123;&#10;    public void OnImportsSatisfied() &#123;&#10;        Console.WriteLine(&#34;OK!~&#34;);&#10;    &#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
-<p>该示例很简单，但也将<code>IPartImportsSatisfiedNotification</code>淋漓尽致的体现了，由于<code>MyComponent</code>满足了组装条件，所以该通知一定能得到执行。</p>
-<h2 id="四、总结">四、总结</h2><p>这一篇和前一篇是MEF非常核心的内容，了解到这里，我们基本上已经完全可以胜任MEF的开发使用了。后续打算开发一个程序，来深入体会MEF具体使用，以及设计层面上的思想，大家一起期待吧。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>今天，我们继续MEF的学习记录，这次内容感觉比较重要，所以，特别放到单独一篇来说，这也是MEF很有特色的地方，相信这其中的亮点，会让你感触良多的。</p>]]>
     
     </summary>
     

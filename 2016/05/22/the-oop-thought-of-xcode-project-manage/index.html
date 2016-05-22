@@ -1,0 +1,712 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Cocoa Pods,Xcode,面向对象," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。
+所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从面向对象来理解 Xcode 的项目管理">
+<meta property="og:url" content="http://blog.makeex.com/2016/05/22/the-oop-thought-of-xcode-project-manage/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。
+所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/05/22/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/05/22/02.png">
+<meta property="og:updated_time" content="2016-05-22T06:45:34.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从面向对象来理解 Xcode 的项目管理">
+<meta name="twitter:description" content="如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。
+所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 从面向对象来理解 Xcode 的项目管理 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              从面向对象来理解 Xcode 的项目管理
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-05-22T11:30:35+08:00" content="2016-05-22">
+            2016-05-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/" itemprop="url" rel="index">
+                  <span itemprop="name">Xcode</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/22/the-oop-thought-of-xcode-project-manage/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/22/the-oop-thought-of-xcode-project-manage/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。</p>
+<p>所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己的实际项目管理中。</p>
+<a id="more"></a>
+<h2 id="抽象层级">抽象层级</h2><p>作为一个程序员，你觉得你最擅长的应该是什么？逻辑？算法？还是数据结构？反正肯定不是烹饪。我觉得即使前面所说的你都不擅长，只要你有足够强的“抽象”能力，依然能成为一个很好的程序员。</p>
+<p>万物都可以应用面向对象的思维将其抽象，Xcode 自然也不例外，我们这次只是从项目管理的角度来提取它的抽象，除此之外，从 UI 层级也可以提取出一套抽象，不过这并不是本篇文章所关注的重点。下面是我们所提取出来的抽象类图：</p>
+<p><img src="/images/2016/05/22/01.png" alt="Xcode 项目管理类图"></p>
+<p>这类图相信大家一眼看上去会很熟悉，都是些我们在使用 Xcode 时经常碰到的名词，上面只是将它们的关系理了下。既然我们将其提取成了类，那么每个类都应该有它的职责，下面便是它们的职责划分：</p>
+<h3 id="Workspace">Workspace</h3><p>这是最顶层的类，可以设计成单例，因为整个 Xcode 的生命周期中，只会有一个。workspace，顾名思义是工作空间，内部聚合了多个 project，用于管理 project 与 project 之间的依赖关系。</p>
+<h3 id="Project">Project</h3><p>单个项目，作为一个项目，它拥有一定的独立性，比如两个 app 项目可以放置在一个 workspace 中。project 主要是项目级别的抽象，划分的临界点是复用级别，project 和 project 一般是无法复用到源码文件层次的。</p>
+<h3 id="Configuration">Configuration</h3><p>每个 project 可以对应多个 configuration，也就是配置信息，这些配置信息用于编译器的预处理、编译、链接等过程中使用。</p>
+<h3 id="Scheme">Scheme</h3><p>每个 project 也可以对应多个 scheme，与 configuration 所关注点不同，scheme 关注的是 project 在最终编译、运行、测试、归档等环节的一些选项配置信息，它可以决定在每个环节使用什么 configuration。</p>
+<h3 id="Target">Target</h3><p>每个 project 还可以有个多个 target，并且至少有一个 target。target 代表一个项目的最终输出，它继承了 project 的配置信息。target 与 target 间的联系比起 project 与 project 之间要更加紧密，划分的临界点也是复用级别，target 与 target 是可以复用到单个源码文件的。</p>
+<p>在实际的操作过程中，我们常常需要明确的界定什么时候新建 project，什么时候新建 target，因为大部分时候，它们还是比较类似的。不过，多考虑下 target 的职责，考虑它是继承了 project，考虑它的复用级别，应该还是可以划分清楚的。</p>
+<h2 id="依赖管理">依赖管理</h2><p>上面介绍了 Xcode 项目管理方面的抽象，接下来我们看看 Xcode 对它们之间依赖关系的管理。这里我觉得有两种依赖：<strong>强依赖</strong>、<strong>弱依赖</strong>。强依赖是指 target 与 target 之间的依赖，弱依赖是指 project 与 project 之间的依赖（<em>哈哈，我又创造了两个名词</em>）。在项目配置界面中，选择一个项目中的 target，再选择<code>Build Phases</code>，我们可以看到下面这样的界面：</p>
+<p><img src="/images/2016/05/22/02.png" alt="Target Build Phases"></p>
+<p>上图有两个红色的箭头特别醒目，第一个箭头指向的 <strong>Target Dependencies</strong>，便是我所说的强依赖，这里可以选定一个 target 作为当前 target 的依赖项，这可以保证所依赖的 target 一定是在当前 target 之前编译。</p>
+<p>那么弱依赖是什么呢？你猜的没错，就是第二个红色箭头所指的地方：<strong>Link Binary With Libraries</strong>，这里我们可以选择到其它 project 中的静态库或 framework，当然这也是前提。当我们选择了其它 project 中的 target，这就建立起了弱引用，Xcode 会保证另一个 project 中的 target 在当前 target 之前编译。</p>
+<p>依赖有什么用？依赖在你将项目按照层次划分分别维护时就会非常有用，比如数据访问层库、逻辑层库、公共辅助库、最终应用。它们之间的编译顺序可能需要非常明确的，这就需要关注依赖了。</p>
+<h2 id="Cocoa_Pods_的运作原理">Cocoa Pods 的运作原理</h2><p>稍微大点的项目，或者我们想要方便的使用第三方开源库时，可能都会选择 cocoapods，有了上面基础知识的铺垫，再来看看 cocoapods 的运作原理就不那么复杂了。</p>
+<p>首先 cocoapods 在 workspace 中新建立了一个 project 叫 <strong>Pods</strong>，每当我们引入一个第三方库，这个 project 中就会多出一个 target，类型为静态库。这个 project 中有一个固定的 target 叫 <strong>Pods</strong>，类型也是静态库，这个可以看做是 Pods 这个 project 的默认 target，它强依赖了所有其他 target，但它并不会链接其它 target，为了使这个 target 能够正常编译，它内部只有一个空的类实现：<code>Pods-dummy</code>。</p>
+<p>所以，如果想要编译 <strong>Pods</strong> 这个 target，会预先编译其它所有 target，也就是我们真正需要使用的第三方库。</p>
+<p>除了新建了一个项目，cocoapods，还将一系列的配置信息，也就是 configuraion 写入了不同的<code>.xcconfig</code>文件中，主体项目中，每个 configuration 都会对应一个这样的文件。然后，我们在 Podfile 中指定的 target（<em>主应用</em>）会弱依赖 <strong>Pods</strong> 这个 target，也就是会链接一个叫<code>libPods.a</code>的文件。前面说过了，这个静态库内部其实只有一个<code>Pods-dummy</code>的类，它只是作为一个跳板，让我们主体项目依赖的第三方库能在主体项目前编译，真正使用第三方库的地方写在了<code>.xcconfig</code>文件中，也就是<code>OTHER_LDFLAGS</code>这个关键的配置信息。</p>
+<p>上面介绍了 cocoapods 的核心运作原理，还有些细节也都是建立在这样的模式之下的，就不作过多详细解释了。所以，cocoapods 最终可以提供这样的项目管理能力：</p>
+<ol>
+<li>不同的 project 可以指定链接不同的或相同的的第三方库</li>
+<li>不同的 target 可以指定链接不同的或相同的第三方库</li>
+<li>不同的 target 可以指定不同的 configuration</li>
+<li>不同的 configuration（<em>Debug，Release，Custom</em>）可以指定链接不同的或相同的第三方库</li>
+</ol>
+<p>从项目管理的角度来说，cocoapods 还是很不错的将 Xcode 项目管理的灵活性都保留了下来，并且大多都是通过<code>.xcconfig</code>文件来实现，侵入性也不大，还是非常值得使用的。</p>
+<h2 id="自己动手">自己动手</h2><p>本篇到这里也就差不多了，那么给大家留一个小实验：</p>
+<ol>
+<li>在一个 workspace 中建立两个 project，一个是 app，一个是 static library。</li>
+<li>app 新建一个 configuration 叫 inhouse。</li>
+<li>要求 app 只在 inhouse 配置下链接并使用 static library。</li>
+</ol>
+<p><strong>提示</strong>：static library 项目中也需要建立一个 inhouse 的 configuration 哦，否则若依赖建立不起来。</p>
+<p>那么，无论你自己愿不愿意动手实验，应该都可以愉快的使用 Xcode 配置项目玩耍了吧。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Cocoa-Pods/" rel="tag">#Cocoa Pods</a>
+          
+            <a href="/tags/Xcode/" rel="tag">#Xcode</a>
+          
+            <a href="/tags/面向对象/" rel="tag">#面向对象</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/04/30/best-romantic-abstract-promise-and-future/" rel="next">最浪漫的抽象 Promise & Future</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/05/22/the-oop-thought-of-xcode-project-manage/"
+                   data-title="从面向对象来理解 Xcode 的项目管理" data-url="http://blog.makeex.com/2016/05/22/the-oop-thought-of-xcode-project-manage/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">14</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#抽象层级"><span class="nav-number">1.</span> <span class="nav-text">抽象层级</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Workspace"><span class="nav-number">1.1.</span> <span class="nav-text">Workspace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Project"><span class="nav-number">1.2.</span> <span class="nav-text">Project</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Configuration"><span class="nav-number">1.3.</span> <span class="nav-text">Configuration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scheme"><span class="nav-number">1.4.</span> <span class="nav-text">Scheme</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Target"><span class="nav-number">1.5.</span> <span class="nav-text">Target</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#依赖管理"><span class="nav-number">2.</span> <span class="nav-text">依赖管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cocoa_Pods_的运作原理"><span class="nav-number">3.</span> <span class="nav-text">Cocoa Pods 的运作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自己动手"><span class="nav-number">4.</span> <span class="nav-text">自己动手</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

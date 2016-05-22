@@ -178,6 +178,113 @@
           
           
             
+              <a class="post-title-link" href="/2015/06/13/the-architecture-of-telegram-mtprotokit/" itemprop="url">
+                Telegram 之 MTProtoKit 架构分析
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-06-13T22:33:48+08:00" content="2015-06-13">
+            2015-06-13
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/" itemprop="url" rel="index">
+                  <span itemprop="name">OSX</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/OSX/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/06/13/the-architecture-of-telegram-mtprotokit/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/13/the-architecture-of-telegram-mtprotokit/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：<strong>MTProtoKit</strong>，我发现这个项目和Mac客户端项目完全是两个水准，所以，我决定单独把它拿出来做次分析。</p>
+<p>首先，你应该要知道什么是Telegram，它和TeamTalk一样，都是开源的IM，百度搜索一下会有一些关于它的介绍。以下是和本篇博客有关的地址链接：</p>
+<ul>
+<li><a href="https://github.com/overtake/telegram">Telegram Mac 客户端源码仓库</a></li>
+<li><a href="https://github.com/peter-iakovlev/MtProtoKit">MTProtoKit 源码仓库</a></li>
+<li><a href="https://core.telegram.org/mtproto">MTProto 官方文档</a></li>
+</ul>
+<p>我说过，要想提高自身的设计能力，阅读开源项目是很好的途径。在分析别人源码的过程中，我们可以汲取到一些其它的思想，架构设计这条路是没有止境的，我们唯有不断<strong>学习，才能成为更好的自己</strong>！那么，我们开始本次的分析之旅吧！</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2015/06/13/the-architecture-of-telegram-mtprotokit/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2015/05/30/the-architecture-of-teamtalk-mac-client/" itemprop="url">
                 TeamTalk 之 Mac 客户端架构分析
               </a>
@@ -1066,106 +1173,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2013/04/09/mef-core-note-attribute-part-b/" itemprop="url">
-                MEF核心笔记（4）细说MEF中的Attribute [下]
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于
-          <time itemprop="dateCreated" datetime="2013-04-09T21:30:41+08:00" content="2013-04-09">
-            2013-04-09
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; 分类于
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/C/" itemprop="url" rel="index">
-                  <span itemprop="name">C#</span>
-                </a>
-              </span>
-
-              
-              
-                ， 
-              
-
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/C/MEF/" itemprop="url" rel="index">
-                  <span itemprop="name">MEF</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2013/04/09/mef-core-note-attribute-part-b/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2013/04/09/mef-core-note-attribute-part-b/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>今天，我们继续MEF的学习记录，这次内容感觉比较重要，所以，特别放到单独一篇来说，这也是MEF很有特色的地方，相信这其中的亮点，会让你感触良多的。</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2013/04/09/mef-core-note-attribute-part-b/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1204,21 +1211,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">21</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>

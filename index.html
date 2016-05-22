@@ -178,6 +178,107 @@
           
           
             
+              <a class="post-title-link" href="/2016/05/22/the-oop-thought-of-xcode-project-manage/" itemprop="url">
+                从面向对象来理解 Xcode 的项目管理
+              </a>
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-05-22T11:30:35+08:00" content="2016-05-22">
+            2016-05-22
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/" itemprop="url" rel="index">
+                  <span itemprop="name">Xcode</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/Design/" itemprop="url" rel="index">
+                  <span itemprop="name">Design</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/05/22/the-oop-thought-of-xcode-project-manage/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/22/the-oop-thought-of-xcode-project-manage/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        
+          <p>如果是做 OSX 或 iOS 下的应用开发，我相信 Xcode 是大家再熟悉不过的 IDE 了，有句话是这么说的：工欲善其事，必先利其器。那么，我觉得在整个项目开发的过程中，了解 Xcode 的项目管理思维还是非常必要的，但实际的工作过程中，我发现很多人都忽视了这块。</p>
+<p>所以，本篇文章以大家最熟悉的面向对象思维来分析 Xcode 的项目管理方式，希望能让大家知其然，更能知其所以然，并能将其应用到自己的实际项目管理中。</p>
+          <div class="post-more-link text-center">
+            <a class="btn" href="/2016/05/22/the-oop-thought-of-xcode-project-manage/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
               <a class="post-title-link" href="/2016/04/30/best-romantic-abstract-promise-and-future/" itemprop="url">
                 最浪漫的抽象 Promise & Future
               </a>
@@ -1065,113 +1166,6 @@
 
 
     
-      
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-
-      
-      
-        <h1 class="post-title" itemprop="name headline">
-          
-          
-            
-              <a class="post-title-link" href="/2015/06/13/the-architecture-of-telegram-mtprotokit/" itemprop="url">
-                Telegram 之 MTProtoKit 架构分析
-              </a>
-            
-          
-        </h1>
-      
-
-      <div class="post-meta">
-        <span class="post-time">
-          发表于
-          <time itemprop="dateCreated" datetime="2015-06-13T22:33:48+08:00" content="2015-06-13">
-            2015-06-13
-          </time>
-        </span>
-
-        
-          <span class="post-category" >
-            &nbsp; | &nbsp; 分类于
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/OSX/" itemprop="url" rel="index">
-                  <span itemprop="name">OSX</span>
-                </a>
-              </span>
-
-              
-              
-                ， 
-              
-
-            
-              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                <a href="/categories/OSX/Design/" itemprop="url" rel="index">
-                  <span itemprop="name">Design</span>
-                </a>
-              </span>
-
-              
-              
-
-            
-          </span>
-        
-
-        
-          
-            <span class="post-comments-count">
-              &nbsp; | &nbsp;
-              <a href="/2015/06/13/the-architecture-of-telegram-mtprotokit/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/06/13/the-architecture-of-telegram-mtprotokit/" itemprop="commentsCount"></span>
-              </a>
-            </span>
-          
-        
-      </div>
-    </header>
-
-    <div class="post-body">
-
-      
-      
-
-      
-        
-          <p>上回我们对TeamTalk做了一个比较详细的架构分析，并得到了蘑菇街的官方回复，这种态度还是值得很多公司技术运营学习的。本打算对Telegram的Mac客户端也做一次架构分析的，但发现它的源码比较杂乱，里面混合很多有用没用的文件，另外它的抽象方式也是非常奇怪，继承体系也不是很合理，大致看了下，我就决定放弃了。而无意间却让我点开了它里面所依赖的一个Sub Module：<strong>MTProtoKit</strong>，我发现这个项目和Mac客户端项目完全是两个水准，所以，我决定单独把它拿出来做次分析。</p>
-<p>首先，你应该要知道什么是Telegram，它和TeamTalk一样，都是开源的IM，百度搜索一下会有一些关于它的介绍。以下是和本篇博客有关的地址链接：</p>
-<ul>
-<li><a href="https://github.com/overtake/telegram">Telegram Mac 客户端源码仓库</a></li>
-<li><a href="https://github.com/peter-iakovlev/MtProtoKit">MTProtoKit 源码仓库</a></li>
-<li><a href="https://core.telegram.org/mtproto">MTProto 官方文档</a></li>
-</ul>
-<p>我说过，要想提高自身的设计能力，阅读开源项目是很好的途径。在分析别人源码的过程中，我们可以汲取到一些其它的思想，架构设计这条路是没有止境的，我们唯有不断<strong>学习，才能成为更好的自己</strong>！那么，我们开始本次的分析之旅吧！</p>
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/06/13/the-architecture-of-telegram-mtprotokit/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1210,21 +1204,21 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
 
           <div class="site-state-item site-state-categories">
             <a href="/categories">
-              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-count">14</span>
               <span class="site-state-item-name">分类</span>
               </a>
           </div>
 
           <div class="site-state-item site-state-tags">
             <a href="/tags">
-              <span class="site-state-item-count">21</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">标签</span>
               </a>
           </div>
