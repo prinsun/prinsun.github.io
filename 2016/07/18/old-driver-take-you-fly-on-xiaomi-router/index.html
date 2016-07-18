@@ -1,0 +1,789 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Node,Openwrt,小米路由3," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（后来忘了这茬），看来梦想终是破灭了。
+于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了小米路由3。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="老司机带你玩转小米路由">
+<meta property="og:url" content="http://blog.makeex.com/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（后来忘了这茬），看来梦想终是破灭了。
+于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了小米路由3。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐了，">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/03.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/04.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/05.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/06.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/07.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/08.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/09.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/10.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/11.png">
+<meta property="og:updated_time" content="2016-07-18T17:33:05.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="老司机带你玩转小米路由">
+<meta name="twitter:description" content="前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（后来忘了这茬），看来梦想终是破灭了。
+于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了小米路由3。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐了，">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 老司机带你玩转小米路由 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              老司机带你玩转小米路由
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-07-18T22:13:25+08:00" content="2016-07-18">
+            2016-07-18
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Cross-Compile/" itemprop="url" rel="index">
+                  <span itemprop="name">Cross Compile</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Cross-Compile/Openwrt/" itemprop="url" rel="index">
+                  <span itemprop="name">Openwrt</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/18/old-driver-take-you-fly-on-xiaomi-router/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（<em>后来忘了这茬</em>），看来梦想终是破灭了。</p>
+<p>于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了<a href="http://item.jd.com/2713336.html" target="_blank" rel="external">小米路由3</a>。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐了，而老司机我这次却坐不住了。</p>
+<p>这一次，一定要抽空把玩下这货，以免人生再留下遗憾啊！</p>
+<a id="more"></a>
+<h2 id="开启_SSH">开启 SSH</h2><p>一转眼几周过去了，老司机觉得时机已经成熟，可以对它动手了。而这首当其冲的，是需要我们去剥开它的外衣，直入主题。开启 SSH 后，才可以让我们对它一览无遗，而要开启小米路由3的 SSH，首先我们要升级它的 ROM，稳定版是不能开启的。</p>
+<h3 id="升级为开发版_ROM">升级为开发版 ROM</h3><p>升级很简单，我们进入这个网址：</p>
+<p><a href="http://www1.miwifi.com/miwifi_download.html" target="_blank" rel="external">http://www1.miwifi.com/miwifi_download.html</a></p>
+<p>选择 ROM 标签，然后下载小米路由3的开发版 ROM，<strong>注意不要选错路由器哦</strong>。我目前下载到的版本是<code>2.13.33</code>，然后进入小米路由器管理界面：<a href="http://192.168.31.1" target="_blank" rel="external">http://192.168.31.1</a> ，进入 <strong>[常用设置]</strong> -&gt; <strong>[系统状态]</strong>，点击 <strong>[手动升级]</strong> ，然后选择你下载的 ROM，一段时间的等待后，再进入系统状态查看就已经是你升级的开发版啦。</p>
+<h3 id="官方工具开启_SSH">官方工具开启 SSH</h3><p>有了开发版这个前提，老司机可以带你用官方工具来开启 SSH 了，进入官方的这个地址：</p>
+<p><a href="http://www1.miwifi.com/miwifi_open.html" target="_blank" rel="external">http://www1.miwifi.com/miwifi_open.html</a></p>
+<p>滚动到 <strong>开启SSH工具</strong> 这里：</p>
+<p><img src="/images/2016/07/18/01.png" alt=""></p>
+<p>点击进入，这里会显示你 root 的密码，赶快用个小本子记下来吧：</p>
+<p><img src="/images/2016/07/18/02.png" alt=""></p>
+<p>点击下载工具包，然后按照官方的步骤如下：</p>
+<blockquote>
+<ol>
+<li>请将下载的工具包bin文件复制到U盘（FAT/FAT32格式）的根目录下，保证文件名为miwifi_ssh.bin；</li>
+<li>断开小米路由器的电源，将U盘插入 USB 接口；</li>
+<li>按住 reset 按钮之后重新接入电源，指示灯变为黄色闪烁状态即可松开 reset 键；</li>
+<li>等待3-5秒后安装完成之后，小米路由器会自动重启，之后您就可以尽情折腾啦 ：）</li>
+</ol>
+</blockquote>
+<p>不过这里老司机要提醒下，如果你的路由没有固定，那么想一个人完成这整个动作有点困难，对于老司机我，当然就轻车熟路了。</p>
+<h3 id="初尝_SSH_连接">初尝 SSH 连接</h3><p>一切完毕后，等这一刻是不是已经很久了，那么赶快进入主题吧：</p>
+<pre><code>ssh root@<span class="number">192.168</span><span class="number">.31</span><span class="number">.1</span>
+</code></pre><p>输入你刚刚记在小本子上的密码，进入后可以看到震撼的欢迎界面：</p>
+<p><img src="/images/2016/07/18/03.png" alt=""></p>
+<p>顿时<a href="http://www.iqiyi.com/w_19rtkzkp3d.html" target="_blank" rel="external">雷总被鬼畜后</a>那魔性的声音在我脑海中旋转起来，老司机欣然的笑了笑，这工程师文化，牛逼！来不及多想，试验了几个命令，发现<code>opkg</code>都没有了，看来小米对 openwrt 做了些阉割。扫了扫几个 bin 目录，发现工具还是挺多的，包括一个简化版的 vi。然后再扫了扫 lib 目录，发现里面集成的库还是很多的，值得注意的是 C 标准库用的是<code>uClibc</code>。</p>
+<p>这时候，如果你想在 /root 目录下建立文件，肯定会报只读的错误，没关系，我们重新挂载下 /root，按下面命令执行：</p>
+<pre><code><span class="preprocessor"># cd /data</span>
+<span class="preprocessor"># mkdir -p diy/root</span>
+<span class="preprocessor"># mount diy/root/ /root</span>
+</code></pre><p>这时候再进入 /root 目录下，就可以进行读写操作了，从现在开始，我们可以做一些更有趣的事情，比如写一个小程序玩玩。</p>
+<h2 id="交叉编译环境搭建">交叉编译环境搭建</h2><p>小米路由官方提供了<a href="http://dev.xiaomi.com/docs/routerplugin/user_guide/" target="_blank" rel="external">插件开发文档</a>，但这种受限且无趣的扩展，老司机是一点都提不起精神，甚至连试都懒得去试。我们需要一些更加激进的玩法，需要更大的掌控权利，所以开发完全原生的应用是个不错的选择。</p>
+<p>开发原生应用，那就不得不搭建一个交叉编译环境了，在这之前首先我们要清楚小米路由的 CPU 是什么架构的：</p>
+<pre><code><span class="title">uname</span> -m
+</code></pre><p>输出了<code>mips</code>，呃，<code>mips</code>还有大端<code>mipsbe</code>和小端<code>mipsel</code>区分，这个在没有法写程序的情况下，还真不好区分。没关系，我们先去官方找找看，有没有现成的交叉环境。</p>
+<p>进入刚刚下载开启 SSH 工具的地址：<a href="http://www1.miwifi.com/miwifi_open.html" target="_blank" rel="external">http://www1.miwifi.com/miwifi_open.html</a></p>
+<p>选择 <strong>小米路由器插件开发文档</strong>，下载下来是一个 sdk_package.zip 文件，解压后看到了 toolchain 目录：</p>
+<p><img src="/images/2016/07/18/04.png" alt=""></p>
+<p>什么鬼？怎么这些 toolchain 都是 arm 架构的，完全不符合情理，老司机都不镇定了。用<code>file</code>看了下，这些都是 linux 下的二进制文件，作为有追求的 mac 党，果断删、删、删。</p>
+<p>于是，抱着好奇的态度，点了旁边 <strong>小米路由Mini插件开发文档</strong>，下载下来是一个 sdk_package_r1c.zip 文件，解压后看到了 toolchain 目录：</p>
+<p><img src="/images/2016/07/18/05.png" alt=""></p>
+<p>这下 CPU 架构对了，看来是小端<code>mipsel</code>无疑了，但是老司机怒了，原来这小米路由3就是小米路由mini的升级版啊！没有追求的人可以直接开 linux 虚拟机用这 toolchain 去玩耍了，但老司机是绝对不会做这事。既然官方没有提供 mac 下的 toolchain，老司机决定自己去编译一个。</p>
+<h3 id="环境准备">环境准备</h3><p>要在 mac 上编译 openwrt，需要有些准备工作，首先用<code>brew</code>安装一些依赖库，逐条执行：</p>
+<pre><code><span class="keyword">brew </span>tap homebrew/dupes
+<span class="keyword">brew </span>install coreutils findutils gawk gnu-getopt gnu-tar grep wget quilt xz
+<span class="keyword">brew </span>ln gnu-getopt --force
+</code></pre><p>依赖库安装完后，我们需要导一下环境变量：</p>
+<pre><code><span class="built_in">export</span> PATH=<span class="string">"/usr/local/opt/coreutils/libexec/gnubin:<span class="variable">$PATH</span>"</span>
+</code></pre><p>其次，mac 的文件系统默认是大小写不明感的（<em>Case-insensitive</em>），而 openwrt 必须在大小写敏感的（<em>Case-sensitive</em>）文件系统上编译，这点也不难，我们创建一个即可：</p>
+<pre><code>hdiutil <span class="operator"><span class="keyword">create</span> -<span class="keyword">size</span> <span class="number">10</span><span class="keyword">g</span> -<span class="keyword">type</span> <span class="keyword">SPARSE</span> -fs <span class="string">"Case-sensitive HFS+"</span> -volname OpenWrt OpenWrt.sparseimage
+hdiutil attach OpenWrt.sparseimage</span>
+</code></pre><p>创建完毕并附加成功后，我们切入到这个盘中：</p>
+<pre><code><span class="built_in">cd</span> /Volumes/OpenWrt
+</code></pre><p>接下来就是下载源码了，进入 openwrt 的官方 git 仓库：<a href="http://git.openwrt.org" target="_blank" rel="external">http://git.openwrt.org</a> ，我们发现最新的稳定版是<code>15.05</code>，那我们就选择这个版本。</p>
+<pre><code>git clone <span class="string">git:</span><span class="comment">//git.openwrt.org/15.05/openwrt.git</span>
+</code></pre><p>等待克隆完毕，老司机就可以带你编译了！</p>
+<h3 id="开始编译">开始编译</h3><p>克隆完毕后，我们需要更新和安装下 openwrt 的包列表，执行下面命令：</p>
+<pre><code>scripts/feeds update -<span class="literal">a</span>
+scripts/feeds install -<span class="literal">a</span>
+</code></pre><p>等待执行完毕后，开始我们的定制化编译配置了，openwrt 这块做得还是非常人性化的，执行<code>make menuconfig</code>之后，我们看见一个命令行下的图形化配置界面：</p>
+<p><img src="/images/2016/07/18/06.png" alt=""></p>
+<p>这个界面有点酷啊，注意图中老司机的红色箭头标注，这里选择了系统架构和要构建 toolchain，按两次 ESC，保存后，我们就可以开始编译了。</p>
+<pre><code>make toolchain/<span class="keyword">install</span>
+</code></pre><p>这个要耗蛮久的时间，老司机转身就出门抽烟去了，大概 20 多分钟后它才编译完成，这时候新鲜出炉的 toolchain 就在 staging_dir 目录下了：</p>
+<p><img src="/images/2016/07/18/07.png" alt=""></p>
+<h2 id="久违的_Hello_World">久违的 Hello World</h2><p>这一刻我们已经等得太久了，mac 下的 toolchain 在老司机的轻车熟路下很快就构建了出来，那么我们试试写一个经典的<code>Hello World</code>吧！</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"Hello World"</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译前，我们需要指定<code>STAGING_DIR</code>到 openwrt 编译好的 staging_dir，依次执行如下：</p>
+<pre><code><span class="keyword">export</span> STAGING_DIR=/Volumes/OpenWrt/openwrt/staging_dir
+<span class="keyword">export</span> CXX=/Volumes/OpenWrt/openwrt/staging_dir/toolchain-mipsel_mips32_gcc-<span class="number">4.8</span>-linaro_uClibc-<span class="number">0.9</span><span class="number">.33</span><span class="number">.2</span>/bin/mipsel-openwrt-linux-g++
+$CXX helloworld.cpp -o helloworld
+</code></pre><p>正确的生成了 helloworld 文件，我们用<code>file</code>命令看一下：</p>
+<pre><code>helloworld: ELF <span class="number">32</span>-<span class="typename">bit</span> LSB executable, MIPS, MIPS32 version <span class="number">1</span>, dynamically linked (uses <span class="keyword">shared</span> libs), <span class="keyword">with</span> unknown capability <span class="number">0</span>xf41 = <span class="number">0</span>x756e6700, <span class="keyword">with</span> unknown capability <span class="number">0</span>x70100 = <span class="number">0</span>x3040000, <span class="keyword">not</span> stripped
+</code></pre><p>现在放到小米路由上试试吧：</p>
+<pre><code>scp helloworld root<span class="variable">@192</span>.<span class="number">168.31</span>.<span class="number">1</span><span class="symbol">:/root/</span>
+</code></pre><p>结果如下图：</p>
+<p><img src="/images/2016/07/18/08.png" alt=""></p>
+<p>这个<code>Hello World</code>可真是久违了，那么再来一个更加现代化的<code>Hello World</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span> </span>&#123;</span><br><span class="line">    [](<span class="keyword">const</span> <span class="built_in">std</span>::<span class="built_in">string</span> &amp;input) &#123;</span><br><span class="line">       <span class="built_in">cout</span> &lt;&lt; input &lt;&lt; endl; </span><br><span class="line">    &#125;(<span class="string">"Hello World!"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用如下命令编译：</p>
+<pre><code><span class="variable">$CXX</span> -std=c++<span class="number">11</span> helloworld.cpp -o helloworld2
+</code></pre><p>拷贝、执行，完全没问题！你以为这样的 Hello World 就算结束了么？真正的大招现在才开始呢！</p>
+<h2 id="放大招，上_Node">放大招，上 Node</h2><p>Node JS 可以说在跨平台这一块算是做得非常出色的，而在 openwrt 平台上编译 Node JS 也并非难事，最新的非稳定吧 openwrt 中已经包含了 Node 包了，但遗憾的是，最新的 openwrt 使用的是<code>musl-libc</code>实现，这个 C 标准库与<code>uClibc</code>二进制不兼容，所以编译的二进制文件小米路由3是无法使用的。</p>
+<p>老司机灵机一动，想到一个最简单的编译方式，把最新版 openwrt 的  Node 包拷贝到<code>15.05</code>中，用<code>15.05</code>来编译，如此一来少了很多麻烦的参数配置。于是乎：</p>
+<pre><code>cd <span class="regexp">/Volumes/</span>OpenWrt
+
+# 克隆最新版到 openwrt_dev
+git clone git:<span class="comment">//git.openwrt.org/openwrt.git openwrt_dev</span>
+
+# 拷贝最新版的 feeds 包
+cd <span class="regexp">/Volumes/</span>OpenWrt<span class="regexp">/openwrt/</span><span class="keyword">package</span>
+cp -rf ..<span class="regexp">/../</span>openwrt_dev<span class="regexp">/package/</span>feeds .
+</code></pre><p>这些都执行完毕后，我们再回到 openwrt 根目录<code>make menuconfig</code>：<br><img src="/images/2016/07/18/09.png" alt=""></p>
+<p>注意上图中的层次，保存好后，我们直接<code>make -j2</code>，漫长的等待之后，在下面的目录中产生了编译好的 Node：</p>
+<pre><code>/Volumes/OpenWrt/openwrt/build_dir/target-mipsel_mips32_uClibc-<span class="number">0.9</span><span class="number">.33</span><span class="number">.2</span>/node-v4<span class="number">.4</span><span class="number">.5</span>/out/Release
+</code></pre><p>我们拷贝到路由上，再次写一个<code>Hello World</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span> : <span class="string">'text/plain'</span>&#125;);</span><br><span class="line">  res.end(<span class="string">'Hello World!\n'</span>);</span><br><span class="line">&#125;).listen(<span class="number">8080</span>, <span class="string">'0.0.0.0'</span>);</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'server running at http://0.0.0.0:8080/'</span>);</span><br></pre></td></tr></table></figure>
+<p>路由器上跑起来，完全没问题：</p>
+<p><img src="/images/2016/07/18/10.png" alt=""></p>
+<p>本地访问起来，也完全没问题：</p>
+<p><img src="/images/2016/07/18/11.png" alt=""></p>
+<h2 id="还能怎么玩">还能怎么玩</h2><p>折腾下来，发现 openwrt 的可定制程度还是相当高的，小米路由3嘛，就是一个弱鸡！老司机觉得，接下来可以折腾、折腾小米硬件相关的 API 使用了（<em>libroutermain\libxmrouter</em>）。</p>
+<p>当然，永远相信，美好的事情即将发生！</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Node/" rel="tag">#Node</a>
+          
+            <a href="/tags/Openwrt/" rel="tag">#Openwrt</a>
+          
+            <a href="/tags/小米路由3/" rel="tag">#小米路由3</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/05/22/the-oop-thought-of-xcode-project-manage/" rel="next">从面向对象来理解 Xcode 的项目管理</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/07/18/old-driver-take-you-fly-on-xiaomi-router/"
+                   data-title="老司机带你玩转小米路由" data-url="http://blog.makeex.com/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">25</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">16</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">27</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#开启_SSH"><span class="nav-number">1.</span> <span class="nav-text">开启 SSH</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#升级为开发版_ROM"><span class="nav-number">1.1.</span> <span class="nav-text">升级为开发版 ROM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#官方工具开启_SSH"><span class="nav-number">1.2.</span> <span class="nav-text">官方工具开启 SSH</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#初尝_SSH_连接"><span class="nav-number">1.3.</span> <span class="nav-text">初尝 SSH 连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#交叉编译环境搭建"><span class="nav-number">2.</span> <span class="nav-text">交叉编译环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#环境准备"><span class="nav-number">2.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开始编译"><span class="nav-number">2.2.</span> <span class="nav-text">开始编译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#久违的_Hello_World"><span class="nav-number">3.</span> <span class="nav-text">久违的 Hello World</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#放大招，上_Node"><span class="nav-number">4.</span> <span class="nav-text">放大招，上 Node</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#还能怎么玩"><span class="nav-number">5.</span> <span class="nav-text">还能怎么玩</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
