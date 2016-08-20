@@ -1,0 +1,755 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="ReactJS,Redux,Webpack," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="前端，是一个经常会被小觑的技术领域，在大多不明所以的人眼里，前端不过是排排版、布布局，甚至是一些前端的新手也会这样认为（这里的前端并不特指 Web 前端，移动端也可归结为前端）。那么前端真的就如此无趣且一成不变么？
+之所以本系列取名为 Thinking in FE，是因为 Thinking 让人沉静、不浮躁，就该用这种心态来面对前端。作为本系列的第一篇，我觉得是很有必要把 Web 前端拿出来说说，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thinking in FE 更现代的 Web 开发">
+<meta property="og:url" content="http://blog.makeex.com/2016/08/19/thinking-in-fe-the-more-modern-web-develop/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="前端，是一个经常会被小觑的技术领域，在大多不明所以的人眼里，前端不过是排排版、布布局，甚至是一些前端的新手也会这样认为（这里的前端并不特指 Web 前端，移动端也可归结为前端）。那么前端真的就如此无趣且一成不变么？
+之所以本系列取名为 Thinking in FE，是因为 Thinking 让人沉静、不浮躁，就该用这种心态来面对前端。作为本系列的第一篇，我觉得是很有必要把 Web 前端拿出来说说，">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/08/19/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/08/19/02.png">
+<meta property="og:updated_time" content="2016-08-20T11:25:57.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thinking in FE 更现代的 Web 开发">
+<meta name="twitter:description" content="前端，是一个经常会被小觑的技术领域，在大多不明所以的人眼里，前端不过是排排版、布布局，甚至是一些前端的新手也会这样认为（这里的前端并不特指 Web 前端，移动端也可归结为前端）。那么前端真的就如此无趣且一成不变么？
+之所以本系列取名为 Thinking in FE，是因为 Thinking 让人沉静、不浮躁，就该用这种心态来面对前端。作为本系列的第一篇，我觉得是很有必要把 Web 前端拿出来说说，">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Thinking in FE 更现代的 Web 开发 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Thinking in FE 更现代的 Web 开发
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-08-19T22:01:28+08:00" content="2016-08-19">
+            2016-08-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Thinking-in-FE/" itemprop="url" rel="index">
+                  <span itemprop="name">Thinking in FE</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/08/19/thinking-in-fe-the-more-modern-web-develop/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/19/thinking-in-fe-the-more-modern-web-develop/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>前端，是一个经常会被小觑的技术领域，在大多不明所以的人眼里，前端不过是排排版、布布局，甚至是一些前端的新手也会这样认为（<em>这里的前端并不特指 Web 前端，移动端也可归结为前端</em>）。那么前端真的就如此无趣且一成不变么？</p>
+<p>之所以本系列取名为 Thinking in FE，是因为 Thinking 让人沉静、不浮躁，就该用这种心态来面对前端。作为本系列的第一篇，我觉得是很有必要把 Web 前端拿出来说说，这几年 Web 前端变革得太快，如果你还是以为吃透了 float 就吃透了整个布局，搞定了 css + div 就能纵横 Web FE 的话，本篇就是为你而准备的。</p>
+<a id="more"></a>
+<h2 id="开发模式的变革">开发模式的变革</h2><p>前几年，当我还奋战在 Web 前端开发的第一线时，那时候的项目开发模式是简单但容易出问题的。当时后端主要使用的技术是微软的 WebAPI，前端的 IDE 自然就被 Visual Studio 包揽了（<em>当然那时 WebStorm、PhpStorm 也都在不同项目中承担着 IDE 的角色</em>）。IDE 倒不是什么问题，当时主要的问题在于前端第三方库依赖的管理，基本上都是手动引用，长时间后会连一些库的具体版本都忘记了。这在多人协作开发时很容易出问题，也不利于项目的持续和快速发展，久而久之一个项目会变得陈旧、死气沉沉。</p>
+<p>现在的开发模式，悄然变得更轻却又更重了。更轻的是 IDE，我们开始倾向于使用像 Sublime、Atom、VSCode 这种轻量级的文本编辑器，再配合一些日常需要的小插件；而更重的是项目的依赖管理和构建方式，依赖管理已经被 NodeJS 的包管理工具<code>npm</code>包揽了，基本上我们需要什么样的库，只要简单的<code>npm install</code>一下就可以了，而构建工具很多，比如 Webpack、Gulp、Grunt、Yeoman 等，但也慢慢的有被 Webpack 一统江湖的趋势。</p>
+<p>有了依赖管理、构建工具，并且可以通过<code>npm</code>配合其他工具来执行单元测试，我们便可以很容易的将项目进行持续集成。这才是更加现代化的开发模式，而整个 Web 前端的生态也趋向完整了。</p>
+<h2 id="百花齐放的开发语言">百花齐放的开发语言</h2><p>作为一个站在时代前沿的 Web 前端开发者，可能会是所有开发工种中接触开发语言最多的一个，至少你需要掌握三门语言：html、css、javascript，这是最终的宿主，也就是浏览器所原生支持的三种语言，分别用于：结构、样式、交互。但如果你真的只会这三种语言，那你肯定算不上一个合格的 Web 前端开发者，随着广大先驱者的智慧凝结，这三种基础的语言衍化出了很多独立的语言，而这些衍化的产物已经越来越被现代化的 Web 前端所广泛使用。</p>
+<p>从 html 所衍化出来的是各种模板语言，比如 backbone、angular 所提供的。模板的作用是将结构高度抽象，从而避免很多不必要的重复工作，并且使得前端页面更加动态化。html 本身是静态的描述语言，有了模板的支持，我们可以像下面这样来让其动态化：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[#if condition]</span><br><span class="line"><span class="tag">&lt;<span class="title">div</span>&gt;</span>true<span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">[#end]</span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">ul</span>&gt;</span></span><br><span class="line">[#foreach item in list]</span><br><span class="line">	<span class="tag">&lt;<span class="title">li</span>&gt;</span>[#item]<span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br><span class="line">[#end]</span><br><span class="line"><span class="tag">&lt;/<span class="title">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>从 css 所衍化出来的，便是和样式相关的语言了，与 html 语言一样，css 也是一种静态的描述语言，本身不支持变量和条件分支。作为对 css 的扩充，市面上出现了像 less、sass 这样一些语言，它们使得样式的描述更加<strong>结构化</strong>，并且可以通过变量很方面的来修改和维护，这对需要提供样式定制化的第三方组件而言还是非常有用的。下面是 sass 的变量和嵌套示例：</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$primaryColor</span><span class="value">: <span class="hexcolor">#333</span>;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">nav</span> &#123;</span><br><span class="line">  <span class="tag">ul</span> &#123;</span><br><span class="line">    <span class="attribute">margin</span><span class="value">: <span class="number">0</span>;</span></span><br><span class="line">    <span class="attribute">padding</span><span class="value">: <span class="number">0</span>;</span></span><br><span class="line">    <span class="attribute">list-style</span><span class="value">: none;</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">li</span> &#123; <span class="attribute">display</span><span class="value">: inline-block;</span> &#125;</span><br><span class="line"></span><br><span class="line">  <span class="tag">a</span> &#123;</span><br><span class="line">    <span class="attribute">color</span><span class="value">: <span class="variable">$primaryColor</span>;</span></span><br><span class="line">    <span class="attribute">display</span><span class="value">: block;</span></span><br><span class="line">    <span class="attribute">padding</span><span class="value">: <span class="number">6px</span> <span class="number">12px</span>;</span></span><br><span class="line">    <span class="attribute">text-decoration</span><span class="value">: none;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后从 javascript 中衍化出来的，便是很多对 javascript 特性进行补充的语言了。javascript 本身是基于原型的语言，自身也有一些设计上的缺陷，最常见的便是变量的作用域问题，也就是所谓的<code>变量提升</code>问题。不过在 ES6 出来后，javascript 得到了质的提升，而在这之前，出现了 javascript 的替代语言，以 typescript 和 coffeescript 最为常用，并且现在还被广泛使用着。无论是 typescript 还是 coffeescript，它们都是对 javascript 的补充，而 coffeescript 更像是一门新的语言。它们使得 javascript 更加的面向对象，并引入了更多函数式语言的特性，让书写更加优雅、舒适，下面一段 coffeescript（<em>摘自Coffee-Script中文网</em>），大家感受下：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 赋值:</span></span><br><span class="line">number   = <span class="number">42</span></span><br><span class="line">opposite = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 条件:</span></span><br><span class="line">number = -<span class="number">42</span> <span class="keyword">if</span> opposite</span><br><span class="line"></span><br><span class="line"><span class="comment"># 函数:</span></span><br><span class="line"><span class="function"><span class="title">square</span> = <span class="params">(x)</span> -&gt;</span> x * x</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数组:</span></span><br><span class="line">list = [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]</span><br><span class="line"></span><br><span class="line"><span class="comment"># 对象:</span></span><br><span class="line">math =</span><br><span class="line">  <span class="attribute">root</span>:   Math.sqrt</span><br><span class="line">  <span class="attribute">square</span>: square</span><br><span class="line">  <span class="attribute">cube</span>:   <span class="function"><span class="params">(x)</span> -&gt;</span> x * square x</span><br><span class="line"></span><br><span class="line"><span class="comment"># Splats:</span></span><br><span class="line"><span class="function"><span class="title">race</span> = <span class="params">(winner, runners...)</span> -&gt;</span></span><br><span class="line">  <span class="built_in">print</span> winner, runners</span><br><span class="line"></span><br><span class="line"><span class="comment"># 存在性:</span></span><br><span class="line">alert <span class="string">"I knew it!"</span> <span class="keyword">if</span> elvis?</span><br><span class="line"></span><br><span class="line"><span class="comment"># 数组 推导 (comprehensions):</span></span><br><span class="line">cubes = (math.cube num <span class="keyword">for</span> num <span class="keyword">in</span> list)</span><br></pre></td></tr></table></figure>
+<p>自 ES6 出来并受到很多工具的支持后，已经更加推荐直接使用 ES6 来编写项目了，ES6 弥补了 javascript 之前一直缺乏的<strong>原生</strong>模块化支持（<em>这里说的是原生，排除 CommonJS、AMD、CMD 规范的第三方实现</em>），对面向对象也有了更好的支持，并且明确了<strong>变量</strong>、<strong>作用域</strong>，也引入了很多函数式编程的概念。最重要的是在2013年 ES6 标准就已经确定了，对于新的提案 TC39 只会往 ES7 纳入，所以在项目中使用不会面临像使用 Swift 一样不断变更的窘境。</p>
+<p>上面说过了，浏览器原生只支持最基本的那三种语言，那么如果想使用这些衍化出来的语言或者是现在还不被很好支持的ES6、ES7，我们需要相应的转换工具。而这些转换操作都可以非常简单的使用 webpack 对应的 loader 来完成。不得不说 webpack 已经成为了 Web 前端构建的一站式工具，通过组合不同的 loader，我们可以完成<code>转换-&gt;合并-&gt;压缩-&gt;打包</code>等一系列中间过程。</p>
+<h2 id="React_的颠覆">React 的颠覆</h2><p>如果要论这几年来，对 Web 前端思想产生颠覆性的框架，那应该是非 React 莫属了。Facebook 在2013年开源了这个框架，由此引发了一系列的变革。React 的核心思想是组件化，化整为零，分而治之。而 React 出现的原因，也正是因为 Facebook 对当时市面上所有的前端框架都不满意，既然不满意，他们就立马自己做了一个。</p>
+<p>在 React 出来之前，市面上使用较多的都是一些<code>MV*</code>系列的框架，比较有代表性的应该算是谷歌的 Angular 了。但这类框架的学习曲线还是比较高的，最重要的是，对于一般人而言它们所表述的意图不够直观。从视图到模型，虽然力求低耦合，但还是不得不进行约定、依赖，因为最终视图和模型需要绑定，那无论如何解耦都不可能做到干净利落，约定只会徒增维护的复杂度。</p>
+<p>对此，React 提出了组件的概念（<em>当然这个概念在其它领域早就有过</em>)，一个组件就是一个高内聚的封装。对外部而言组件的输入是<strong>属性</strong>（<em>props</em>），输出是最终的视图，属性是恒定的，也就是说外部输入之后，就不会被改变了。而让组件改变的是<strong>状态</strong>（<em>state</em>），对于 React 而言，状态是由组件内部进行维护的，这种思想让组件变得更加内聚、可控。下面是一个非常简单的 React 组件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> HelloWorld = React.createClass(&#123;</span><br><span class="line">  getInitialState: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;hidden: <span class="literal">false</span>&#125;;</span><br><span class="line">  &#125;,</span><br><span class="line">  render: <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      <span class="xml"><span class="tag">&lt;<span class="title">div</span>&gt;</span></span><br><span class="line">        &#123;this.state.hidden ? <span class="tag">&lt;<span class="title">span</span>&gt;</span>***<span class="tag">&lt;/<span class="title">span</span>&gt;</span> : <span class="tag">&lt;<span class="title">span</span>&gt;</span>Hello World<span class="tag">&lt;/<span class="title">span</span>&gt;</span>&#125;</span><br><span class="line">      <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">    )</span>;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>上面这个组件拥有一个<code>hidden</code>的状态，而<code>render</code>方法中的内容也是让人一目了然（<em>JSX语法让组件更加内聚</em>）。通过界面交互或其它一些手段我们可以改变<code>hidden</code>的值，而这会实时体现到<code>render</code>方法中。React 自己维护了一套虚拟 DOM，一般情况下我们不必刻意考虑渲染性能问题，但如果你想自己控制是否重绘的话，React 的组件也给你提供了这样的控制能力。</p>
+<p>React 的组件除了内聚之外，还可以进行组合，一个组件可以嵌入其它多个组件。这使得我们在进行实际开发之前，需要对即将完成的内容进行组件划分，在<strong>通用</strong>和<strong>简单</strong>两方面来作权衡。也就是说，React 的思想已经颠覆了我们思考问题的方式，而它给我们带来的收获是组件的不断积累，以及开发速度和可维护性的提高。</p>
+<h2 id="单项数据流_Flux">单项数据流 Flux</h2><p>在绝大数<code>MV*</code>系列架构的框架中，视图 DOM 和视图模型之间是进行双向绑定的，这种强绑定的情形在很多复杂的场景下会带来让人无法维护的问题。当这样的情况越来越普遍时，Facebook 提出了单向数据流的概念，并把这种思想称之为<code>Flux</code>，且推出了官方实现<code>flux</code>。不得不说 Facebook 是个了不起的公司，也不得不说 Web 前端一直是这些新思维的探路者。不过<code>flux</code>很快就被另一个开源项目慢慢取代了，也就是社区中非常火爆的<code>redux</code>，但思想还是一致的。</p>
+<p>这里有必要解释一下<strong>单向</strong>的概念，整个 Flux 的数据流如下：</p>
+<p><img src="/images/2016/08/19/01.png" alt=""></p>
+<ol>
+<li>用户触发 View 的某个操作，View 向 Dispatcher 发出一个 Action</li>
+<li>Dispatcher 收到 Action 后，对 Store 进行更新</li>
+<li>Store 更新后，发出事件通知 View</li>
+<li>View 收到事件后，进行页面更新</li>
+</ol>
+<p>这里整个数据流都是单向流动的（<em>概念抽象中没有双向箭头</em>），所有状态都维护在 Store 之中，这让我们对状态变更进行追踪变得非常简单。在<code>redux</code>的实现中，从 Dispatcher 到 Store 之间，我们还可以安装很多自定义的中间件，来进行一些切面处理，比如日志、授权、统计等。</p>
+<p>Facebook 的 React 仅仅是提供了组件化的构建方案，而对于组件所构成的模块并没有提供更多架构上的支持，这点基于 Flux 思想的<code>redux</code>刚好可以对其进行补充。在解释如何让它们衔接之前，我们有必要先看点其它内容。</p>
+<h2 id="异步任务编织">异步任务编织</h2><p>所有的项目开发中，为了追求更好的用户体验，我们不可避免的要面对<strong>异步</strong>问题。同步操作下，我们对流程管理和安排非常简单清晰，相比之下，异步就没有那么容易去维护了。</p>
+<p>而在 Web 前端，很长一段时间里，ajax 几乎就成了异步的代名词，因为在实际开发中，80%以上的异步都来自于异步网络请求。时至今日，我觉得需要重新定义下异步在 Web 前端中的定位了，特别是在使用了<code>redux</code>之后。从最初的<code>action</code>派发，到最终的状态变更，以及状态变更后引发的视图渲染，这一系列的步骤，我们都应该将其视为异步（<em>参考上文 Flux 的图片</em>）。</p>
+<p>众所周知，javascript 处于一个单线程的运行环境中，但异步的引入使得我们也需要面临一些多线程下才存在的问题。并且我们重新定义了<strong>并发</strong>的概念，在 javascript 中，并发指的是一个异步任务尚未完成，同时又产生了其它异步任务。比如，我们同时发出了两个 ajax 请求，那么我们就必须要面对这两个请求返回时间、顺序不确定性的结果。</p>
+<p>在 ES6 的语言标准中，引入了<code>Promise</code>概念，可以方便我们对异步任务进行链式编排，并且可以统一进行错误处理，下面是一个简单的例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">getJSON(<span class="string">"/post/1.json"</span>).then(<span class="function"><span class="keyword">function</span>(<span class="params">post</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> getJSON(post.commentURL);</span><br><span class="line">&#125;).then(<span class="function"><span class="keyword">function</span>(<span class="params">comments</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 返回其它 Promise</span></span><br><span class="line">&#125;).catch(<span class="function"><span class="keyword">function</span>(<span class="params">error</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 处理前面三个 Promise 产生的错误</span></span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>虽然这种链式调用从某种程度上让代码更加清晰，但在对异步返回数据需要进行条件分支判断，或者一些更加复杂的逻辑操作时，<code>Promise</code>也就显得有些力不从心了。在 ES6 中还引入了另外一个概念，叫<code>Generator</code>，与之对应的关键字是<code>yield</code>，<code>Generator</code>的特性是函数内部维护了上一次执行到的位置，而在外部调用<code>next()</code>控制它进一步执行（<em>关于这方面更多的知识，请参考相关ES6手册</em>）。其实这点无疑是走了微软 C# 的老路，并且在 ES7 中引入的<code>async</code>和<code>await</code>也是与 C# 同出一辙，在 C# 推出<code>yield</code>关键字后，社区也有达人以此实现了一套异步任务编织的框架，那么 Web 前端自然也不例外了。</p>
+<p>这里不得不说一下<code>redux</code>的一个中间件<code>redux-saga</code>，它是完全基于<code>Generator</code>特性实现的一套异步任务编织框架，并且非常强大。一个<code>saga</code>对应一个<code>Generator</code>函数，并且<code>saga</code>分为两种：</p>
+<ol>
+<li>watcher saga: 负责监控 redux 的 action，并且对任务进行具体编排</li>
+<li>worker saga: 处理由<code>watcher saga</code>编排的具体任务</li>
+</ol>
+<p>如果想要了解更多关于<code>redux-saga</code>的内容，还是建议去翻阅下官方文档，这里给出一个简单的示例，一睹它的威力（<em>摘自saga文档</em>）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">authorize</span>(<span class="params">user, password</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> token = <span class="keyword">yield</span> call(Api.authorize, user, password)</span><br><span class="line">    <span class="keyword">yield</span> put(&#123;type: <span class="string">'LOGIN_SUCCESS'</span>, token&#125;)</span><br><span class="line">    <span class="keyword">return</span> token</span><br><span class="line">  &#125; <span class="keyword">catch</span>(error) &#123;</span><br><span class="line">    <span class="keyword">if</span>(!isCancelError(error))</span><br><span class="line">      <span class="keyword">yield</span> put(&#123;type: <span class="string">'LOGIN_ERROR'</span>, error&#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span>* <span class="title">loginFlow</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;user, password&#125; = <span class="keyword">yield</span> take(<span class="string">'LOGIN_REQUEST'</span>)</span><br><span class="line">    <span class="keyword">const</span> task = <span class="keyword">yield</span> fork(authorize, user, password)</span><br><span class="line">    <span class="keyword">const</span> action = <span class="keyword">yield</span> take([<span class="string">'LOGOUT'</span>, <span class="string">'LOGIN_ERROR'</span>])</span><br><span class="line">    <span class="keyword">if</span> (action.type === <span class="string">'LOGOUT'</span>)</span><br><span class="line">      <span class="keyword">yield</span> cancel(task)</span><br><span class="line">    <span class="keyword">yield</span> call(Api.clearItem, <span class="string">'token'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的示例中有两个<code>saga</code>，其中<code>loginFlow</code>为 <strong>watcher</strong> 而<code>authorize</code>为 <strong>worker</strong>。在<code>loginFlow</code>中，当我们收到<code>LOGIN_REQUEST</code>的<code>action</code>时，取出其中的<code>user</code>和<code>password</code>状态，非阻塞的去调用<code>authorize</code>，并且开始监控<code>LOGOUT</code>和<code>LOGIN_ERROR</code>两个<code>action</code>，当收到的<code>action</code>为<code>LOGOUT</code>，此时前一个<code>LOGIN_REQUEST</code>可能并未执行完成，所以我们需要取消它，在这一切完成后，我们调用<code>clearItem</code>来清空本地存储的<code>token</code>，再次回归到监控<code>LOGIN_REQUEST</code>。而<code>authorize</code>这个<code>saga</code>中的流程也相对简单明了，这里就不作更多的阐述了。</p>
+<p>通过<code>saga</code>的实现，可以与<code>Promise</code>进行对比，不难发现它更加的<strong>同步化</strong>，所有的代码完全看不出异步的影子，所以在进行复杂的异步任务编排和分支控制时，会非常的简洁明了。</p>
+<h2 id="项目的最佳实践">项目的最佳实践</h2><p>上面说到了项目构建工具、各种新兴的开发语言、React、Redux 以及 Redux-saga，那么在一个实际的项目中，我们如何将它们融合起来，进行更加现代化的 Web 开发呢？其实很简单，我们可以通过<code>npm</code>来进行项目包依赖管理，并且通过<code>webpack</code>来将它们全部串联起来。</p>
+<p>对于<code>webpack</code>，我们需要安装一系列的<code>loader</code>并且在<code>webpack.config.js</code>中进行配置，大概会用到下面这些<code>loader</code>：</p>
+<ul>
+<li>babel-loader：用于转换 ES6、ES7、JSX 语法</li>
+<li>file-loader：用于简单的文件拷贝</li>
+<li>css-loader：用户 CSS 的压缩，打包</li>
+<li>less-loader：用户 LESS 的转换</li>
+<li>url-loader：用户图片资源的转换、打包</li>
+<li>html-loader：用户 HTML 文件的链接替换、打包</li>
+<li>html-minify-loader：用于 HTML 文件的压缩</li>
+</ul>
+<p>具体的配置需要根据项目本身而定，详细的细节可以参考<code>webpack</code>的官方文档。当我们把<code>webpack</code>这些<code>loader</code>配置完毕后，可以按照一些我们需要的框架和中间件了，大体应该如下：</p>
+<ul>
+<li>react：react 组件化的核心库</li>
+<li>react-dom：react 提供的一些 DOM 操作辅助方法库，用于在 DOM 上渲染 react 组件</li>
+<li>react-router：使用 react 开发单页应用时，这个库是必须的，提供了基于 react 组件化思路的路由解决方案</li>
+<li>redux：redux 库，上文中已经有所解释，这里就不多说了</li>
+<li>redux-actions：方便在 redux 中 action 和对应的<code>state</code>进行管理</li>
+<li>redux-saga：redux 的中间件，用于异步任务编织</li>
+<li>react-router-redux：redux 的中间件，用于同步 redux 中的路由状态，可以通过 redux 的 ation 来控制路由</li>
+<li>reselect：在较大型项目中使用，用于react和redux连接时<code>connect</code>中<code>map</code>参数的管理，可以有效减少状态变更，减少组件渲染的次数</li>
+</ul>
+<p>有了上面的这些组件，我们基本上可以愉快的进行项目开发了，那么在整个项目的流程中，它们是如何进行协作的呢？可以参考下图：</p>
+<p><img src="/images/2016/08/19/02.png" alt=""></p>
+<p>可以看到，贯穿其中最多的便是<code>action</code>和<code>state</code>，而<code>redux</code>显然是整个项目连接起来的枢纽，<code>saga</code>则是用于封装了所有的异步网络请求（<em>封装成更加业务化的任务</em>）。这里举一条比较常见的流程：用户从界面上点击了某个按钮，然后发送了网络请求，以及请求响应后对界面的更新：</p>
+<ol>
+<li>首先从 react 组件的 <strong>View</strong> 上派发了一个 <code>action</code> 到 <strong>Redux</strong></li>
+<li><strong>Redux</strong> 的中间件 <strong>Saga</strong> 会监控这个 <code>action</code> 并作出网络请求</li>
+<li>响应回来后，<strong>Saga</strong> 会通过 <code>put</code> 将响应的 <code>action</code> 派发到 <strong>Redux</strong></li>
+<li><strong>Redux</strong> 接收到这个 <code>action</code> 对相应状态作出变更</li>
+<li>react 连接到（<em>connect</em>）这个状态的相应组件会收到状态变更，重新渲染 <strong>View</strong></li>
+</ol>
+<p>似乎看起来比较复杂，但在了解透彻相应组件的职责后，其实并没那么复杂。为了让开发过程中调试更加快捷，我们还可以安装一些开发中需要用到的工具模块。这里推荐使用 dora，配合<code>dora-plugin-proxy</code>我们可以在开发过程中模拟后端响应数据，再配合<code>dora-plugin-webpack-hmr</code>可以实现开发过程中，模块的热加载，让我们无需不断刷新浏览器就能看到最新的界面效果，当然选择还有很多，dora 只是我觉得比较好用的一款。</p>
+<h2 id="Thinking">Thinking</h2><p>本篇带着大家走马观花的将现代化的 Web 前端看了个大概，这其中更多的是在阐述思想和理念，随着时代的发展，Web 前端并不是大多数人们眼中的“做做网页而已”，它的理念走在了时代的前言，它的生态也比很多其它方向丰富、健全。</p>
+<p>不小看、自以为是，要永远抱着敬畏的态度，这是成长的基础，也是我们作为技术人员该有的素质。</p>
+<h2 id="参考">参考</h2><ul>
+<li>Webpack: <a href="https://webpack.github.io" target="_blank" rel="external">https://webpack.github.io</a></li>
+<li>dora-js: <a href="https://github.com/dora-js" target="_blank" rel="external">https://github.com/dora-js</a></li>
+<li>React: <a href="https://facebook.github.io/react/index.html" target="_blank" rel="external">https://facebook.github.io/react/index.html</a></li>
+<li>Redux 中文文档: <a href="http://cn.redux.js.org/" target="_blank" rel="external">http://cn.redux.js.org/</a></li>
+<li>React-Router: <a href="https://github.com/reactjs/react-router" target="_blank" rel="external">https://github.com/reactjs/react-router</a></li>
+<li>reselect: <a href="https://github.com/reactjs/reselect" target="_blank" rel="external">https://github.com/reactjs/reselect</a></li>
+<li>Redux-Sage: <a href="http://yelouafi.github.io/redux-saga/index.html" target="_blank" rel="external">http://yelouafi.github.io/redux-saga/index.html</a></li>
+<li>Flux: <a href="http://reactjs.cn/react/docs/flux-overview.html" target="_blank" rel="external">http://reactjs.cn/react/docs/flux-overview.html</a></li>
+<li>ECMAScript 6 中文文档: <a href="http://es6.ruanyifeng.com" target="_blank" rel="external">http://es6.ruanyifeng.com</a></li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ReactJS/" rel="tag">#ReactJS</a>
+          
+            <a href="/tags/Redux/" rel="tag">#Redux</a>
+          
+            <a href="/tags/Webpack/" rel="tag">#Webpack</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/" rel="next">老司机带你玩转小米路由</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/08/19/thinking-in-fe-the-more-modern-web-develop/"
+                   data-title="Thinking in FE 更现代的 Web 开发" data-url="http://blog.makeex.com/2016/08/19/thinking-in-fe-the-more-modern-web-develop/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">30</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#开发模式的变革"><span class="nav-number">1.</span> <span class="nav-text">开发模式的变革</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#百花齐放的开发语言"><span class="nav-number">2.</span> <span class="nav-text">百花齐放的开发语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React_的颠覆"><span class="nav-number">3.</span> <span class="nav-text">React 的颠覆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#单项数据流_Flux"><span class="nav-number">4.</span> <span class="nav-text">单项数据流 Flux</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#异步任务编织"><span class="nav-number">5.</span> <span class="nav-text">异步任务编织</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#项目的最佳实践"><span class="nav-number">6.</span> <span class="nav-text">项目的最佳实践</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Thinking"><span class="nav-number">7.</span> <span class="nav-text">Thinking</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">8.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"makeex"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
