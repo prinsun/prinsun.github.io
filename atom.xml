@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2016-08-20T11:25:57.000Z</updated>
+  <updated>2016-08-20T11:28:10.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://blog.makeex.com/2016/08/19/thinking-in-fe-the-more-modern-web-develop/"/>
     <id>http://blog.makeex.com/2016/08/19/thinking-in-fe-the-more-modern-web-develop/</id>
     <published>2016-08-19T14:01:28.000Z</published>
-    <updated>2016-08-20T11:25:57.000Z</updated>
+    <updated>2016-08-20T11:28:10.000Z</updated>
     <content type="html"><![CDATA[<p>前端，是一个经常会被小觑的技术领域，在大多不明所以的人眼里，前端不过是排排版、布布局，甚至是一些前端的新手也会这样认为（<em>这里的前端并不特指 Web 前端，移动端也可归结为前端</em>）。那么前端真的就如此无趣且一成不变么？</p>
 <p>之所以本系列取名为 Thinking in FE，是因为 Thinking 让人沉静、不浮躁，就该用这种心态来面对前端。作为本系列的第一篇，我觉得是很有必要把 Web 前端拿出来说说，这几年 Web 前端变革得太快，如果你还是以为吃透了 float 就吃透了整个布局，搞定了 css + div 就能纵横 Web FE 的话，本篇就是为你而准备的。</p>
 <a id="more"></a>

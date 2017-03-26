@@ -232,7 +232,9 @@
             <span class="post-comments-count">
               &nbsp; | &nbsp;
               <a href="/2015/05/24/start-using-autolayout-in-your-app/#comments" itemprop="discussionUrl">
-                <span class="post-comments-count ds-thread-count" data-thread-key="2015/05/24/start-using-autolayout-in-your-app/" itemprop="commentsCount"></span>
+                
+                 <span id = "changyan_count_unit" class = "post-comments-count" itemprop="commentsCount">0</span>条评论
+                
               </a>
             </span>
           
@@ -367,9 +369,7 @@
         
           <div class="comments" id="comments">
             
-              <div class="ds-thread" data-thread-key="2015/05/24/start-using-autolayout-in-your-app/"
-                   data-title="开始使用AutoLayout" data-url="http://blog.makeex.com/2015/05/24/start-using-autolayout-in-your-app/">
-              </div>
+              <div id="SOHUCS" sid="2015/05/24/start-using-autolayout-in-your-app/"></div>
             
           </div>
         
@@ -484,7 +484,7 @@
       <div class="footer-inner"> <div class="copyright" >
   
   &copy; &nbsp;  2013 - 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="icon-next-heart"></i>
   </span>
@@ -517,24 +517,26 @@
     
 
   
-    
+    <script type="text/javascript">
+    (function(){
+    var appid = "cysUqkOiV";
+    var conf = "prod_4974dcf40c81d099877e8ff0fb6d499d";
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js">
+    </script>
   
 
-  <script type="text/javascript">
-    var duoshuoQuery = {short_name:"makeex"};
-    (function() {
-      var ds = document.createElement('script');
-      ds.type = 'text/javascript';ds.async = true;
-      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
-      ds.charset = 'UTF-8';
-      (document.getElementsByTagName('head')[0]
-      || document.getElementsByTagName('body')[0]).appendChild(ds);
-    })();
-  </script>
-    
-     
+
 
     
+    
+
+  
+
+
   
   
   <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
