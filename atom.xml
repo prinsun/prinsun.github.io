@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2016-08-20T11:28:10.000Z</updated>
+  <updated>2017-04-06T16:14:35.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -13,6 +13,75 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Thinking in FE 更好用的 UIWebView]]></title>
+    <link href="http://blog.makeex.com/2017/04/06/thinking-in-fe-how-to-enhance-the-uiwebview/"/>
+    <id>http://blog.makeex.com/2017/04/06/thinking-in-fe-how-to-enhance-the-uiwebview/</id>
+    <published>2017-04-06T13:56:15.000Z</published>
+    <updated>2017-04-06T16:14:35.000Z</updated>
+    <content type="html"><![CDATA[<p>继上一篇 Thinking 以来过去太久时间了，这些日子里一直在疲于奔命，无论如何繁忙，静下来写写博客还是一件非常值得的事情。</p>
+<p>本篇我们来谈谈<code>UIWebView</code>，虽然在 iOS 8.0 之后更加推荐使用<code>WKWebView</code>，但在你没放弃 iOS 7.0 之前，不妨看看如何让这陈旧的<code>UIWebView</code>更加好用些，当然这里的一些思想同样可以迁移到<code>WKWebView</code>中。</p>
+<a id="more"></a>
+<h2 id="用_WebView_的动机">用 WebView 的动机</h2><p>在深入这个话题之前，我们先静下心来想想，一般在什么情况下我们会想到使用<code>WebView</code>？作为大前端名副其实的粘合剂，<code>WebView</code>无疑是移动端和触屏端最直接的连接方式。那么这个答案就很简单了，我们要接入触屏页面（<em>HTML5</em>），那为什么我们要接入触屏页面呢？或许是因为下面这些点：</p>
+<ul>
+<li>跨平台，减少开发资源</li>
+<li>热更新，避免发版等待</li>
+<li>多团队研发，集成成本低</li>
+<li>作为平台扩展，开发者门槛低</li>
+</ul>
+<p>作为一个能够将触屏页很好的嵌入的<code>WebView</code>而言，并非简单的加载一个<code>URL</code>就足够的，我们一直都在致力于将触屏的体验和原生拉进，所以，原生和触屏之间的交互必不可少。</p>
+<h2 id="浅谈_JS_&amp;&amp;_Native_交互">浅谈 JS &amp;&amp; Native 交互</h2><p>如何在<code>UIWebView</code>实现<code>Javascript</code>和<code>Native</code>的相互调用呢？目前大致有两种方案：<strong>JSBridge</strong>、<strong>JSCore</strong>。</p>
+<h3 id="JSBridge">JSBridge</h3><p><code>JSBridge</code>实现的原理其实很简单，核心依赖于<code>UIWebView</code>和<code>UIWebViewDelegate</code>的两个方法：</p>
+<ol>
+<li><code>stringByEvaluatingJavaScriptFromString:</code></li>
+<li><code>webView:shouldStartLoadWithRequest:navigationType:</code></li>
+</ol>
+<p>第一个方法用于<code>Native</code>调用<code>Javascript</code>方法，实现了原生调用触屏这一条道路。那么触屏如果想调用原生，可以使用<code>iframe</code>构建一个<code>load</code>请求，原生端通过第二个回调方法进行拦截，根据<code>URL</code>中所传递的信息重定向到特定的原生方法，虽然有点绕，但这条道路依然是行通了。</p>
+<p>对于此方法，已经有相关比较好的开源库，比如 <a href="https://github.com/marcuswestin/WebViewJavascriptBridge" target="_blank" rel="external">WebViewJavascriptBridge</a>。</p>
+<h3 id="JSCore">JSCore</h3><p><code>JSCore</code>也就是<code>WebKit</code>中的<code>JavascriptCore</code>，这是一个非常直接的互通方式。最核心的类是<code>JSContext</code>，通过这个上下文，我们可以注入一个 OC 对象到 JS 的运行环境中，我们也可以通过这个上下文直接调用 JS 方法。具体就不展开，可以参考<code>JavascriptCore</code>的 API 文档。</p>
+<h2 id="如何组织好代码">如何组织好代码</h2><p>在给<code>UIWebView</code>增加了很多业务相关功能后，常常会发现这个<code>Controller</code>会变得很庞大，又或是出现了很多类似的<code>Controller</code>，这通常会给后续的维护带来困扰。那么如何更好的来组织这些代码呢？</p>
+<p>在面向对象的程序设计里，针对结构优化上通常有两个方向的思维：<strong>提取间接层</strong>和<strong>拆解再组合</strong>，当然这是我总结出来的思维方式。提取间接层是一种纵向的维度，通常包括：</p>
+<ul>
+<li>提取公共基类</li>
+<li>增加 Mediator，隔离依赖</li>
+</ul>
+<p>而“拆解再组合”是一种横向的维度，将一个大的代码结构进行模块划分，最后再进行组合。可以看我之前的这篇文章：<a href="http://blog.makeex.com/2016/04/23/the-design-pattern-of-composite/">《组合化繁为简的力量》</a>。</p>
+<p>面对不同的结构问题，不同的人优化的方式也会有所不同，我更加倾向于“拆解再组合”。过多的层次很容易导致调用路劲过长，我觉得这并不易于理解，另外面向对象中常说<strong>组合胜于继承</strong>，这其中的缘由也就不展开了。</p>
+<h2 id="一个轻量、无侵入的方案">一个轻量、无侵入的方案</h2><p>KakiWebView，一个简单易读的封装，核心思想便是采用了<strong>拆解再组合</strong>，以下是我设计的初衷：</p>
+<ul>
+<li>对于现有的<code>UIWebView</code>无侵入性的使用</li>
+<li>可扩展性强，可实现自定义扩展</li>
+<li>简单易用，学习成本低</li>
+</ul>
+<p><strong>项目地址</strong>：<a href="https://github.com/prinsun/KakiWebView" target="_blank" rel="external">https://github.com/prinsun/KakiWebView</a> </p>
+<p>无论你现在的<code>UIWebView</code>是以何种方式使用的，都可以轻而易举的使用<code>KakiWebView</code>来获得扩展能力，该项目中已经内置了一些<code>Plugin</code>：</p>
+<ul>
+<li>KakiJavascriptCorePlugin：可注入 OC 对象到<code>Javascript</code>环境中，使用上<code>JSCore</code>的交互方式</li>
+<li>KakiProgressPlugin：基于<code>NJKWebViewProgress</code>的一个进度条插件，安装该插件后<code>UIWebView</code>加载页面时将会带有进度显示</li>
+<li>KakiPopGesturePlugin：屏幕边缘侧滑返回的插件，模仿 Safari 的回退效果</li>
+<li>KakiTitleObserverPlugin：监控网页 Title 变化的插件，可以实时获取到网页标题变化</li>
+</ul>
+<p>这些内置的插件非常通用，也是大多项目中所需要的，使用的方式非常简单：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 启用 Kaki</span></span><br><span class="line">[<span class="keyword">self</span><span class="variable">.webView</span> setEnableKakiPlugins:<span class="literal">YES</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 安装 Kaki 插件</span></span><br><span class="line">[<span class="keyword">self</span><span class="variable">.webView</span> installKakiPlugin:[KakiProgressPlugin<span class="variable">.alloc</span> init]];</span><br><span class="line">[<span class="keyword">self</span><span class="variable">.webView</span> installKakiPlugin:[KakiPopGesturePlugin<span class="variable">.alloc</span> init]];</span><br><span class="line">[<span class="keyword">self</span><span class="variable">.webView</span> installKakiPlugin:[KakiTitleObserverPlugin<span class="variable">.alloc</span> init]];</span><br><span class="line"></span><br><span class="line"><span class="comment">// 配置插件</span></span><br><span class="line">__<span class="keyword">weak</span> __<span class="keyword">typeof</span>(<span class="keyword">self</span>) wself = <span class="keyword">self</span>;</span><br><span class="line">[<span class="keyword">self</span><span class="variable">.webView</span><span class="variable">.titleObserverPlugin</span> setOnTitleChanged:^(<span class="built_in">NSString</span> *title) &#123;</span><br><span class="line">    wself<span class="variable">.titleLabel</span><span class="variable">.text</span> = title;</span><br><span class="line">&#125;];</span><br><span class="line"><span class="keyword">self</span><span class="variable">.webView</span><span class="variable">.progressPlugin</span><span class="variable">.progressColor</span> = [<span class="built_in">UIColor</span> redColor];</span><br></pre></td></tr></table></figure>
+<p>内置的这些插件是你学习如何自定义插件的很好示例，详细请阅读源码。</p>
+<h2 id="构建适合你的容器">构建适合你的容器</h2><p>当然 KakiWebView 绝对不能满足你所有的业务需求，而这个项目的初衷也并不是要完成一个大而全的万能<code>WebView</code>，正确的定位是<strong>一个提供了扩展<code>UIWebView</code>能力的基础组件</strong>。通过这样一个基础组件，自定义符合你业务需求的<code>Plugin</code>，从而构建一个真正符合你所期望的容器。</p>
+<p>如果你并不喜欢<code>JSCore</code>的交互方式，你完全可以自定义一个<code>Plugin</code>来实现<code>JSBridge</code>的交互方式。另外可以通过自定义一个<code>Plugin</code>配合<code>NSURLProtocol</code>，实现离线浏览这样的功能。总而言之，有了这样的一个基础组件，无论是从代码的组织还是后续的扩展，都有很大的帮助。</p>
+<p>那么，放飞思想，重构又或是去构建一个更强大的 Web 容器吧！</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>继上一篇 Thinking 以来过去太久时间了，这些日子里一直在疲于奔命，无论如何繁忙，静下来写写博客还是一件非常值得的事情。</p>
+<p>本篇我们来谈谈<code>UIWebView</code>，虽然在 iOS 8.0 之后更加推荐使用<code>WKWebView</code>，但在你没放弃 iOS 7.0 之前，不妨看看如何让这陈旧的<code>UIWebView</code>更加好用些，当然这里的一些思想同样可以迁移到<code>WKWebView</code>中。</p>]]>
+    
+    </summary>
+    
+      <category term="Kaki" scheme="http://blog.makeex.com/tags/Kaki/"/>
+    
+      <category term="UIWebView" scheme="http://blog.makeex.com/tags/UIWebView/"/>
+    
+      <category term="Thinking in FE" scheme="http://blog.makeex.com/categories/Thinking-in-FE/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Thinking in FE 更现代的 Web 开发]]></title>
@@ -1764,79 +1833,6 @@ cp -rf ..<span class="regexp">/../</span>openwrt_dev<span class="regexp">/packag
 ]]></content>
     <summary type="html">
     <![CDATA[<p>上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。</p>]]>
-    
-    </summary>
-    
-      <category term="iOS" scheme="http://blog.makeex.com/categories/iOS/"/>
-    
-      <category term="pjsip" scheme="http://blog.makeex.com/categories/iOS/pjsip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[pjsip for iOS：编译多平台支持的静态库]]></title>
-    <link href="http://blog.makeex.com/2014/06/28/pjsip-for-ios-build-mutil-target-support/"/>
-    <id>http://blog.makeex.com/2014/06/28/pjsip-for-ios-build-mutil-target-support/</id>
-    <published>2014-06-28T08:16:39.000Z</published>
-    <updated>2015-09-29T08:33:49.000Z</updated>
-    <content type="html"><![CDATA[<p>好久没有写博客了，这也算是我步入新工作后的第一篇技术博文吧。在进入新公司前，早就有了技术层进入下一个迭代的准备，但很多事情是意想不到的，就像我以C#程序员的身份面试入职的，而今却是一个全职的iOS开发。从C#到Objective-C的切换，还是有不少成本的，加上今年又推出了Swift，以后要学习的路是漫长的，其实，学习的路本身就是漫长的，不应该满足于一个阶段和特定领域。对我而言，语言的切换，已经太常见了，学习一门语言是很容易的事情，但，完全的掌握它，却不是易事，就像去摸清一个陌生人的脾气一样。有点扯远了，还是进入今天的正题吧！</p>
-<a id="more"></a>
-<p>pjsip，如果你不知道它是什么，那么说明你无需使用它，那也就没必要继续看我的这篇文章了。由于项目中需要使用到VOIP，而对比下来，使用SIP实现的代价是相对小的，在Android里，谷歌内置了对SIP的支持，IOS中就没这么好运了，于是乎找到了pjsip，这是一个纯C的库，实现的相当漂亮。在网络上找了很久，也没有找到适合我这种的入门级教程，在我的摸索和努力下，终于搞出点名堂来了。那么，恭喜你，你不用走我走过的弯路了。</p>
-<p>下面正式开始，一步步来：</p>
-<h2 id="第一步：下载">第一步：下载</h2><p>首先，去<a href="http://www.pjsip.org/download.htm" target="_blank" rel="external">官网</a>下载源代码，这里推荐下载.tar.bz2的包，下载完成后，找到对应的目录，用<code>tar</code>命令或者图形化操作来解压，这里我用命令行的方式来操作：</p>
-<pre><code>$ tar -jxvf pjproject-<span class="number">2.2</span>.<span class="number">1</span><span class="class">.tar</span><span class="class">.bz2</span>
-</code></pre><h2 id="第二步：编译">第二步：编译</h2><p>首先，要在pjlib/include/pj/目录下，建立一个config_site.h的文件，切换到该目录下，用<code>vi</code>或者<code>touch</code>一个文件：</p>
-<pre><code><span class="variable">$ </span>cd pjlib/<span class="keyword">include</span>/pj/
-<span class="variable">$ </span>vi config_site.h
-</code></pre><p>按照官方的<a href="http://trac.pjsip.org/repos/wiki/Getting-Started/iPhone" target="_blank" rel="external">说明文档</a>，我们文件内容定义如下：</p>
-<pre><code><span class="hexcolor">#def</span>ine PJ_CONFIG_IPHONE <span class="number">1</span>
-<span class="id">#include</span> &lt;pj/config_site_sample.h&gt;
-</code></pre><p>OK，保存，切换回主目录下（也就是有pjlib、pjmedia、pjnath等目录的文件夹），这时候我们就可以编译了，还有个前提，你必须安装了XCode的Command Line Tools（XCode –&gt; Preferences –&gt;Downloads）。</p>
-<h3 id="i386">i386</h3><p>首先编译模拟器平台的静态库，依次执行下面这三句：</p>
-<pre><code><span class="variable">$ </span>export <span class="constant">DEVPATH</span>=<span class="regexp">/Applications/</span><span class="constant">Xcode</span>.app/<span class="constant">Contents</span>/<span class="constant">Developer</span>/<span class="constant">Platforms</span>/iPhoneSimulator.platform/<span class="constant">Developer</span>
-<span class="variable">$ </span><span class="constant">ARCH</span>=<span class="string">"-arch i386"</span> <span class="constant">CFLAGS</span>=<span class="string">"-O2 -m32 -mios-simulator-version-min=5.0"</span> <span class="constant">LDFLAGS</span>=<span class="string">"-O2 -m32 -mios-simulator-version-min=5.0"</span> ./configure-iphone
-<span class="variable">$ </span>make dep &amp;&amp; make clean &amp;&amp; make
-</code></pre><p>OK，没有什么问题的话，你模拟器版本的静态库就编译完成了，它们存在于：</p>
-<ul>
-<li>pjlib/lib</li>
-<li>pjlib-util/lib</li>
-<li>pjmedia/lib</li>
-<li>pjnath/lib</li>
-<li>pjsip/lib</li>
-<li>third_party/lib</li>
-</ul>
-<p>这些，是在以后的SIP开发中，必须要使用到的静态库，目前该库只支持模拟器（可使用<code>lipo -info</code>命令来查看，只支持i386），所以，我们将其拷贝出来，当然，我已经为你写好拷贝的脚本了：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span><br><span class="line"></span></span><br><span class="line">PJLIB_PATH=<span class="string">"./lib/<span class="variable">$1</span>/pjlib"</span></span><br><span class="line">PJLIB_UTIL_PATH=<span class="string">"./lib/<span class="variable">$1</span>/pjlib-util"</span></span><br><span class="line">PJMEDIA_PATH=<span class="string">"./lib/<span class="variable">$1</span>/pjmedia"</span></span><br><span class="line">PJNATH_PATH=<span class="string">"./lib/<span class="variable">$1</span>/pjnath"</span></span><br><span class="line">PJSIP_PATH=<span class="string">"./lib/<span class="variable">$1</span>/pjsip"</span></span><br><span class="line">THIRD_PARTY=<span class="string">"./lib/<span class="variable">$1</span>/third_party"</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"start coping to <span class="variable">$1</span>"</span></span><br><span class="line"></span><br><span class="line">rm -rf <span class="variable">$PJLIB_PATH</span></span><br><span class="line">rm -rf <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line">rm -rf <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line">rm -rf <span class="variable">$PJNATH_PATH</span></span><br><span class="line">rm -rf <span class="variable">$PJSIP_PATH</span></span><br><span class="line">rm -rf <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line">mkdir -p <span class="variable">$PJLIB_PATH</span></span><br><span class="line">mkdir -p <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line">mkdir -p <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line">mkdir -p <span class="variable">$PJNATH_PATH</span></span><br><span class="line">mkdir -p <span class="variable">$PJSIP_PATH</span></span><br><span class="line">mkdir -p <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line">cp -r ./pjlib/lib/ <span class="variable">$PJLIB_PATH</span></span><br><span class="line">cp -r ./pjlib-util/lib/ <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line">cp -r ./pjmedia/lib/ <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line">cp -r ./pjnath/lib/ <span class="variable">$PJNATH_PATH</span></span><br><span class="line">cp -r ./pjsip/lib/ <span class="variable">$PJSIP_PATH</span></span><br><span class="line">cp -r ./third_party/lib/ <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"copy done"</span></span><br></pre></td></tr></table></figure>
-<p>将该脚本保存为copylibs.sh存放到主目录下（你应该知道主目录在哪吧！），然后执行：</p>
-<pre><code>$ ./copylibs<span class="class">.sh</span> i386
-</code></pre><p>如果提示权限不够，那么使用<code>chmod 777 copylibs.sh</code>来赋予该文件最大的访问权限，执行完后，所有生成的静态库，都被拷贝到主目录下lib目录中的对应位置。</p>
-<h3 id="armv7">armv7</h3><p>下面继续编译armv7版的库，关闭刚刚的那个控制台，注意，是全部关闭后再进入，然后到主目录依次执行下面的命令：</p>
-<pre><code>$ ARCH=<span class="string">'-arch armv7'</span> ./configure-iphone
-$ <span class="keyword">make</span> dep &amp;&amp; <span class="keyword">make</span> clean &amp;&amp; <span class="keyword">make</span>
-$ ./copylibs.<span class="keyword">sh</span> armv7
-</code></pre><h3 id="armv7s">armv7s</h3><p>现在编译armv7s版本的库，这次不用关闭控制台了，直接依次执行下面的命令（有报错误，但都是示例项目编译出错，和静态链接库文件没关系）：</p>
-<pre><code>$ ARCH=<span class="string">'-arch armv7s'</span> ./configure-iphone
-$ <span class="keyword">make</span> dep &amp;&amp; <span class="keyword">make</span> clean &amp;&amp; <span class="keyword">make</span>
-$ ./copylibs.<span class="keyword">sh</span> armv7s
-</code></pre><h3 id="arm64">arm64</h3><p>最后，我们完成arm64版本库的编译：</p>
-<pre><code>$ ARCH=<span class="string">'-arch arm64'</span> ./configure-iphone
-$ <span class="keyword">make</span> dep &amp;&amp; <span class="keyword">make</span> clean &amp;&amp; <span class="keyword">make</span>
-$ ./copylibs.<span class="keyword">sh</span> arm64
-</code></pre><h2 id="第三步：合并静态链接库">第三步：合并静态链接库</h2><p>好了，现在我们需要的库都已经被拷贝到lib目录下了，它目前应该是这样的：</p>
-<p><img src="/images/2014/06/28/01.png" alt="目录截图"></p>
-<p>对的，这底下有一个mix.sh，当然，这也是我为你写好的脚本：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span><br><span class="line"></span></span><br><span class="line">OUPUT_PATH=<span class="string">"./mixed/"</span></span><br><span class="line">XLIPO=<span class="string">"/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo"</span>  </span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> dir <span class="keyword">in</span> armv7/*</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    LIB_NAME=<span class="variable">$&#123;dir##*/&#125;</span></span><br><span class="line">    LIB_OUTPUT=<span class="variable">$&#123;OUPUT_PATH&#125;</span><span class="variable">$LIB_NAME</span></span><br><span class="line"></span><br><span class="line">    rm -rf <span class="variable">$LIB_OUTPUT</span></span><br><span class="line">    mkdir -p <span class="variable">$LIB_OUTPUT</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> subdir <span class="keyword">in</span> <span class="variable">$&#123;dir&#125;</span>/*</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">        AFILE=<span class="variable">$&#123;subdir##*/&#125;</span></span><br><span class="line">        ARMV7_FILE=<span class="string">"./armv7/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>"</span></span><br><span class="line">        ARMV7S_FILE=<span class="string">"./armv7s/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>"</span></span><br><span class="line">        ARM64_FILE=<span class="string">"./arm64/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>"</span></span><br><span class="line">        I386_FILE=<span class="string">"./i386/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>"</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">"start mixing file: <span class="variable">$AFILE</span>"</span></span><br><span class="line">        </span><br><span class="line">        <span class="variable">$&#123;XLIPO&#125;</span> -arch armv7 <span class="variable">$ARMV7_FILE</span> -arch armv7s <span class="variable">$ARMV7S_FILE</span> -arch arm64 <span class="variable">$ARM64_FILE</span> -arch i386 <span class="variable">$I386_FILE</span> -create -output <span class="variable">$&#123;LIB_OUTPUT&#125;</span>/<span class="variable">$AFILE</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">"all mixed done"</span></span><br></pre></td></tr></table></figure>
-<p>将上面的脚本，保存到lib目录下mix.sh中，控制台中，<code>cd</code>切换到lib目录下，然后执行：</p>
-<pre><code>./mix<span class="class">.sh</span> 
-</code></pre><p>OK，现在一切都完成了，在lib目录下会多出个mixed目录，该目录底下的所有库，都是包含了上诉各种架构版本信息的，可以使用<code>lipo</code>来验证下：</p>
-<p><img src="/images/2014/06/28/02.png" alt="lipo截图"></p>
-<p>注意，无论是合并还是查看，都要使用Xcode下的lipo，mac自带的那个lipo可能版本很低。</p>
-<p>如果你觉得，亲自动手太麻烦的话，那么这里有一个已经帮你编译好的版本，直接下载使用即可：</p>
-<p><a href="https://github.com/chebur/pjsip" target="_blank" rel="external">https://github.com/chebur/pjsip</a></p>
-<p>不过，我还是推荐你自己动手来一遍，自己弄出来的，使用起来才更有意思嘛，呵呵~</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>好久没有写博客了，这也算是我步入新工作后的第一篇技术博文吧。在进入新公司前，早就有了技术层进入下一个迭代的准备，但很多事情是意想不到的，就像我以C#程序员的身份面试入职的，而今却是一个全职的iOS开发。从C#到Objective-C的切换，还是有不少成本的，加上今年又推出了Swift，以后要学习的路是漫长的，其实，学习的路本身就是漫长的，不应该满足于一个阶段和特定领域。对我而言，语言的切换，已经太常见了，学习一门语言是很容易的事情，但，完全的掌握它，却不是易事，就像去摸清一个陌生人的脾气一样。有点扯远了，还是进入今天的正题吧！</p>]]>
     
     </summary>
     
