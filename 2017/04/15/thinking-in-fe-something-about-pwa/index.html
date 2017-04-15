@@ -1,0 +1,711 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Offline Web,PWA,Service Worker," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Sun.Makee" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。
+近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（Cordova、ionic），到一些大厂成熟的 Web 容器（微信、支付宝），再到最近">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thinking in FE 谈谈 PWA 的那些事">
+<meta property="og:url" content="http://blog.makeex.com/2017/04/15/thinking-in-fe-something-about-pwa/index.html">
+<meta property="og:site_name" content="Sun.Makee">
+<meta property="og:description" content="Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。
+近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（Cordova、ionic），到一些大厂成熟的 Web 容器（微信、支付宝），再到最近">
+<meta property="og:image" content="http://blog.makeex.com/images/2017/04/15/01.png">
+<meta property="og:updated_time" content="2017-04-15T18:27:26.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Thinking in FE 谈谈 PWA 的那些事">
+<meta name="twitter:description" content="Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。
+近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（Cordova、ionic），到一些大厂成熟的 Web 容器（微信、支付宝），再到最近">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Thinking in FE 谈谈 PWA 的那些事 | Sun.Makee </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Sun.Makee</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Thinking in FE 谈谈 PWA 的那些事
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2017-04-15T22:06:24+08:00" content="2017-04-15">
+            2017-04-15
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Thinking-in-FE/" itemprop="url" rel="index">
+                  <span itemprop="name">Thinking in FE</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2017/04/15/thinking-in-fe-something-about-pwa/#comments" itemprop="discussionUrl">
+                
+                 <span id = "changyan_count_unit" class = "post-comments-count" itemprop="commentsCount">0</span>条评论
+                
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。</p>
+<p>近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（<em>Cordova、ionic</em>），到一些大厂成熟的 Web 容器（<em>微信、支付宝</em>），再到最近的微信小程序，甚至是 react-native、weex，都在不断将 Web 前端推向更高的高度。</p>
+<p>或许真有那么一天，iOS 开发没人要了，当然 Android 也只能被“呵呵”了，所以，趁着骨骼惊奇赶快撸一把 Web 前端吧，本篇我们来谈谈 PWA 的那些个<del>破</del>事。</p>
+<a id="more"></a>
+<h2 id="PWA_简介">PWA 简介</h2><p>什么是 PWA？英文全称是<code>Progressive Web Apps</code>，也就是所谓的<strong>渐进式增强的 Web App</strong>，这个名词最早应该是在 2015 年被谷歌的 Alex Russell 在<a href="https://infrequently.org/2015/06/progressive-apps-escaping-tabs-without-losing-our-soul/" target="_blank" rel="external">《Progressive Web Apps: Escaping Tabs Without Losing Our Soul》</a>这篇文章中提出来，GitHub 上的 awesome 系列也有一个 <a href="https://github.com/hemanth/awesome-pwa" target="_blank" rel="external">awesome-pwa</a>，其中便收录了这篇文章。要了解 PWA，最核心的便是<code>Progressive</code>，也就是<strong>渐进式</strong>，一个 Web 页面应该是可以按照用户的选择，渐进地增强为一个 App，而非一开始就运行与受限的环境中（<em>Hybrid</em>）。</p>
+<p>所以，一个 PWA 应该是可以良好的运行在浏览器里，随着用户的选择，逐渐贴近于原生的体验。这听起来似乎很酷，也与现在多数 Web 前端大一统思想大相径庭，但这并不是一个新的概念，或许只是创造了一个新的名词。</p>
+<h2 id="创造了一个新名词">创造了一个新名词</h2><p>PWA 给用户最直观的表现，便是从一个浏览器上浏览的页面，变成一个可以从桌面上打开的 App，但这其实并不是啥新鲜事。早在 2009 年，微软发布的<code>Silverlight 3</code>中便增加了一条新功能：<strong>允许在浏览器之外运行</strong>。用户在浏览器打开 Silverlight 页面时，如果开发者有针对桌面端做支持，可以右键选择添加到桌面，这样 Silverlight 便脱离了浏览器，运行在 OOB 模式下（<em>Out Of Brower</em>），同时也获得了访问本地文件系统的能力。看！虽然不是移动环境中，但这不正是一个非常<code>Progressive</code>的表现么？</p>
+<p>另外，如果说在移动环境中，那么 PWA 最直观的表现，便是添加一个网页的图标到桌面，然后能全屏运行，所以下面的图中（<em>摘自网络</em>）的某人笑了：</p>
+<p><img src="/images/2017/04/15/01.png" alt=""></p>
+<p>也就是说，PWA 并不是一个新的概念，只是被人有意地总结了出来，从而创造了这样的名词。名词的好处在于方便传播，当然传播并不限于技术圈，而名词的制定者通常会有更大的话语权。</p>
+<h2 id="一个合格的_PWA">一个合格的 PWA</h2><p>虽然说 PWA 并不是什么新鲜概念，但既然谷歌制定了这样一个名词，便会有更加详细、严谨的解释。那么一个合格的 PWA 应该具备哪些个特征呢？官方给出了这样 10 条描述：</p>
+<blockquote>
+<ul>
+<li><strong>Progressive</strong> - Works for every user, regardless of browser choice because it’s built with progressive enhancement as a core tenet.</li>
+<li><strong>Responsive</strong> - Fits any form factor: desktop, mobile, tablet, or whatever is next.</li>
+<li><strong>Connectivity independent</strong> - Enhanced with service workers to work offline or on low-quality networks.</li>
+<li><strong>App-like</strong> - Feels like an app to the user with app-style interactions and navigation because it’s built on the app shell model.</li>
+<li><strong>Fresh</strong> - Always up-to-date thanks to the service worker update process.</li>
+<li><strong>Safe</strong> - Served via HTTPS to prevent snooping and to ensure content hasn’t been tampered with.</li>
+<li><strong>Discoverable</strong> - Is identifiable as an “application” thanks to W3C manifest and service worker registration scope, allowing search engines to find it.</li>
+<li><strong>Re-engageable</strong> - Makes re-engagement easy through features like push notifications.</li>
+<li><strong>Installable</strong> - Allows users to “keep” apps they find most useful on their home screen without the hassle of an app store.</li>
+<li><strong>Linkable</strong> - Easily share via URL, does not require complex installation.</li>
+</ul>
+</blockquote>
+<p>总结下来，差不多也就是：渐进式、响应式、可离线、可全屏、可更新、安全、易发现、可推送、可安装、可分享。无论你用怎样的技术手段，只要满足了谷歌所说的这些条件，也就是一个合格的 PWA 了。似乎 PWA 与具体技术无关，只是一种表象，但配合它的表象，谷歌的确出现了一些新的技术，其中非常核心的便是<code>Service Worker</code>。</p>
+<h2 id="实践一下">实践一下</h2><p>既然有新的技术引入，那么实践是用来学习的最佳途径，在我们动手之前，不妨先来探讨下面几个小问题。</p>
+<h3 id="Javascript_的线程">Javascript 的线程</h3><p>如果你面试过 Web 前端，可能会被面试官问到这样的问题：Javascript 是单线程还是多线程？这时候一些同学可能想也没想，就直接回答道：“单线程！”，另一些稍微狡诈点的同学可能会回答：“应该是多线程吧！”。其实我想说的是，这个题目本身就不够严谨，作为一门编程语言，和是否多线程并没有太多必然的联系，最简单的，我们可以通过<code>JavascriptCore</code>来实现一个 Javascript 的运行宿主，并且可以给它提供多线程相关的能力。所以这个题目应该需要一个前提，比如：在浏览器中，Javascript 是单线程还是多线程？</p>
+<p>答案依旧不是“单线程”，所以单线程的同学，要注意了。在 HTML5 中，有个很有用的技术叫<code>Web Worker</code>，并且现在市面上大多数浏览器都已经支持，Web Worker 使得 Web 前端可以在另外一个线程中处理一些比较耗时的操作，自然也就是支持<strong>多线程</strong>了。</p>
+<p>那么随着 PWA 的到来，一个名称非常类似的技术也随之诞生，也就是<code>Service Worker</code>。与 Web Worker 类似，Service Worker 也是在另一个线程中，但它的生命周期并非页面级的，而是会一直运行在浏览器中，作用于多个页面，并且，它拥有了更多更强大的能力。</p>
+<h3 id="Web_前端缓存">Web 前端缓存</h3><p>为了能够提供更加良好的用户体验，Web 前端在缓存这块也是煞费苦心，目前用于缓存的手段大约有下面这些：</p>
+<ul>
+<li>Cookie</li>
+<li>Web Storage（Local Storage / Session Storage）</li>
+<li>IndexedDB</li>
+</ul>
+<p>这些缓存手段都是用来存储从服务端获取到的数据，避免每次请求带来的延迟问题，但如果要想能够在完全脱离网络环境的情况下浏览页面，光有这些还是不够方便的。所以，HTML5 中有一个叫<code>Application Cache</code>的设计，允许通过配置一个<code>Manifest</code>来指定缓存哪些页面，以便在离线时提供降级服务，但<code>Application Cache</code>在使用起来还是有诸多的问题，比如：</p>
+<ul>
+<li>动态页面无法很好缓存</li>
+<li>缓存更新不够方便</li>
+<li>不够安全</li>
+<li>…</li>
+</ul>
+<p>对于 Application Cache 的缺陷，<a href="https://alistapart.com/article/application-cache-is-a-douchebag" target="_blank" rel="external">《Application Cache is a Douchebag》</a>这篇文章做了一个很详细的吐槽。为此 Service Worker 出现的另一目的就是要废弃掉 Application Cache，Service Worker 拥有拦截页面请求的的能力，在不同的网络环境或者出错失败的情况下，可以决定是否返回已缓存的内容来进行降级。相比于 Application Cache，Service Worker 在很多方面都更加可控，将缓存逻辑交给了开发者而非为浏览器制定默认行为，这是一个更加明智的决定。</p>
+<h3 id="亲自试一下">亲自试一下</h3><p>完成一个 PWA 的核心基本都是围绕着 Service Worker 来展开的，所以掌握了 Service Worker，基本上完成一个 PWA 也就没有太多问题了。除了 Service Worker，还要顺带着去熟悉下 Notification、Push、Fetch，这些也都不过是些 API，实践下基本也就都能搞清楚了。</p>
+<p>如果你已经准备好了，不妨按照官网 <a href="https://codelabs.developers.google.com/codelabs/your-first-pwapp" target="_blank" rel="external">Your First Progressive Web App</a> 来一步步的去实现吧！</p>
+<h2 id="未来还是未来">未来还是未来</h2><p>PWA 给 Web 前端的大一统计划又多了一条选择，但这个选择从当下看来还是非常遥远，毕竟 Safari 目前还尚未支持 Service Worker，也就是说，iOS 还没有买 PWA 的单。大一统这条路注定是艰辛的，但随着硬件设施的越来越强悍，以及 Web 前端技术不断翻新的情况下，这条路似乎注定是最终唯一的选择。现在的 Javascript 都开始支持<code>byte code</code>了，也就是说浏览器已经承担了编译器的相关职责，你说在这群执念深刻的人推动下，这样的未来还有多远呢？</p>
+<p>或许 Web 前端与你目前而言无法学以致用，但作为基层开发者的我们，学学忘忘，这其实很正常，有过痛苦才知道众生真正的痛苦，有过执着，才能放下执着，有过牵挂，了无牵挂。把一件事情放到不同的高度去看，心境和心态也会完全不同，回望你这一路走来，难道那些被你遗忘的，就真的对你没有任何潜移默化的影响么？</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Offline-Web/" rel="tag">#Offline Web</a>
+          
+            <a href="/tags/PWA/" rel="tag">#PWA</a>
+          
+            <a href="/tags/Service-Worker/" rel="tag">#Service Worker</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/06/thinking-in-fe-how-to-enhance-the-uiwebview/" rel="next">Thinking in FE 更好用的 UIWebView</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div id="SOHUCS" sid="2017/04/15/thinking-in-fe-something-about-pwa/"></div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">28</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">17</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#PWA_简介"><span class="nav-number">1.</span> <span class="nav-text">PWA 简介</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#创造了一个新名词"><span class="nav-number">2.</span> <span class="nav-text">创造了一个新名词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一个合格的_PWA"><span class="nav-number">3.</span> <span class="nav-text">一个合格的 PWA</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实践一下"><span class="nav-number">4.</span> <span class="nav-text">实践一下</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Javascript_的线程"><span class="nav-number">4.1.</span> <span class="nav-text">Javascript 的线程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Web_前端缓存"><span class="nav-number">4.2.</span> <span class="nav-text">Web 前端缓存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#亲自试一下"><span class="nav-number">4.3.</span> <span class="nav-text">亲自试一下</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#未来还是未来"><span class="nav-number">5.</span> <span class="nav-text">未来还是未来</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    <script type="text/javascript">
+    (function(){
+    var appid = "cysUqkOiV";
+    var conf = "prod_4974dcf40c81d099877e8ff0fb6d499d";
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js">
+    </script>
+  
+
+
+
+    
+    
+
+  
+
+
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>

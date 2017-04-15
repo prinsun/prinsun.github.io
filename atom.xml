@@ -4,7 +4,7 @@
   
   <link href="/atom.xml" rel="self"/>
   <link href="http://blog.makeex.com/"/>
-  <updated>2017-04-06T16:14:35.000Z</updated>
+  <updated>2017-04-15T18:27:26.000Z</updated>
   <id>http://blog.makeex.com/</id>
   
   <author>
@@ -15,11 +15,83 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
+    <title><![CDATA[Thinking in FE 谈谈 PWA 的那些事]]></title>
+    <link href="http://blog.makeex.com/2017/04/15/thinking-in-fe-something-about-pwa/"/>
+    <id>http://blog.makeex.com/2017/04/15/thinking-in-fe-something-about-pwa/</id>
+    <published>2017-04-15T14:06:24.000Z</published>
+    <updated>2017-04-15T18:27:26.000Z</updated>
+    <content type="html"><![CDATA[<p>Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。</p>
+<p>近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（<em>Cordova、ionic</em>），到一些大厂成熟的 Web 容器（<em>微信、支付宝</em>），再到最近的微信小程序，甚至是 react-native、weex，都在不断将 Web 前端推向更高的高度。</p>
+<p>或许真有那么一天，iOS 开发没人要了，当然 Android 也只能被“呵呵”了，所以，趁着骨骼惊奇赶快撸一把 Web 前端吧，本篇我们来谈谈 PWA 的那些个<del>破</del>事。</p>
+<a id="more"></a>
+<h2 id="PWA_简介">PWA 简介</h2><p>什么是 PWA？英文全称是<code>Progressive Web Apps</code>，也就是所谓的<strong>渐进式增强的 Web App</strong>，这个名词最早应该是在 2015 年被谷歌的 Alex Russell 在<a href="https://infrequently.org/2015/06/progressive-apps-escaping-tabs-without-losing-our-soul/" target="_blank" rel="external">《Progressive Web Apps: Escaping Tabs Without Losing Our Soul》</a>这篇文章中提出来，GitHub 上的 awesome 系列也有一个 <a href="https://github.com/hemanth/awesome-pwa" target="_blank" rel="external">awesome-pwa</a>，其中便收录了这篇文章。要了解 PWA，最核心的便是<code>Progressive</code>，也就是<strong>渐进式</strong>，一个 Web 页面应该是可以按照用户的选择，渐进地增强为一个 App，而非一开始就运行与受限的环境中（<em>Hybrid</em>）。</p>
+<p>所以，一个 PWA 应该是可以良好的运行在浏览器里，随着用户的选择，逐渐贴近于原生的体验。这听起来似乎很酷，也与现在多数 Web 前端大一统思想大相径庭，但这并不是一个新的概念，或许只是创造了一个新的名词。</p>
+<h2 id="创造了一个新名词">创造了一个新名词</h2><p>PWA 给用户最直观的表现，便是从一个浏览器上浏览的页面，变成一个可以从桌面上打开的 App，但这其实并不是啥新鲜事。早在 2009 年，微软发布的<code>Silverlight 3</code>中便增加了一条新功能：<strong>允许在浏览器之外运行</strong>。用户在浏览器打开 Silverlight 页面时，如果开发者有针对桌面端做支持，可以右键选择添加到桌面，这样 Silverlight 便脱离了浏览器，运行在 OOB 模式下（<em>Out Of Brower</em>），同时也获得了访问本地文件系统的能力。看！虽然不是移动环境中，但这不正是一个非常<code>Progressive</code>的表现么？</p>
+<p>另外，如果说在移动环境中，那么 PWA 最直观的表现，便是添加一个网页的图标到桌面，然后能全屏运行，所以下面的图中（<em>摘自网络</em>）的某人笑了：</p>
+<p><img src="/images/2017/04/15/01.png" alt=""></p>
+<p>也就是说，PWA 并不是一个新的概念，只是被人有意地总结了出来，从而创造了这样的名词。名词的好处在于方便传播，当然传播并不限于技术圈，而名词的制定者通常会有更大的话语权。</p>
+<h2 id="一个合格的_PWA">一个合格的 PWA</h2><p>虽然说 PWA 并不是什么新鲜概念，但既然谷歌制定了这样一个名词，便会有更加详细、严谨的解释。那么一个合格的 PWA 应该具备哪些个特征呢？官方给出了这样 10 条描述：</p>
+<blockquote>
+<ul>
+<li><strong>Progressive</strong> - Works for every user, regardless of browser choice because it’s built with progressive enhancement as a core tenet.</li>
+<li><strong>Responsive</strong> - Fits any form factor: desktop, mobile, tablet, or whatever is next.</li>
+<li><strong>Connectivity independent</strong> - Enhanced with service workers to work offline or on low-quality networks.</li>
+<li><strong>App-like</strong> - Feels like an app to the user with app-style interactions and navigation because it’s built on the app shell model.</li>
+<li><strong>Fresh</strong> - Always up-to-date thanks to the service worker update process.</li>
+<li><strong>Safe</strong> - Served via HTTPS to prevent snooping and to ensure content hasn’t been tampered with.</li>
+<li><strong>Discoverable</strong> - Is identifiable as an “application” thanks to W3C manifest and service worker registration scope, allowing search engines to find it.</li>
+<li><strong>Re-engageable</strong> - Makes re-engagement easy through features like push notifications.</li>
+<li><strong>Installable</strong> - Allows users to “keep” apps they find most useful on their home screen without the hassle of an app store.</li>
+<li><strong>Linkable</strong> - Easily share via URL, does not require complex installation.</li>
+</ul>
+</blockquote>
+<p>总结下来，差不多也就是：渐进式、响应式、可离线、可全屏、可更新、安全、易发现、可推送、可安装、可分享。无论你用怎样的技术手段，只要满足了谷歌所说的这些条件，也就是一个合格的 PWA 了。似乎 PWA 与具体技术无关，只是一种表象，但配合它的表象，谷歌的确出现了一些新的技术，其中非常核心的便是<code>Service Worker</code>。</p>
+<h2 id="实践一下">实践一下</h2><p>既然有新的技术引入，那么实践是用来学习的最佳途径，在我们动手之前，不妨先来探讨下面几个小问题。</p>
+<h3 id="Javascript_的线程">Javascript 的线程</h3><p>如果你面试过 Web 前端，可能会被面试官问到这样的问题：Javascript 是单线程还是多线程？这时候一些同学可能想也没想，就直接回答道：“单线程！”，另一些稍微狡诈点的同学可能会回答：“应该是多线程吧！”。其实我想说的是，这个题目本身就不够严谨，作为一门编程语言，和是否多线程并没有太多必然的联系，最简单的，我们可以通过<code>JavascriptCore</code>来实现一个 Javascript 的运行宿主，并且可以给它提供多线程相关的能力。所以这个题目应该需要一个前提，比如：在浏览器中，Javascript 是单线程还是多线程？</p>
+<p>答案依旧不是“单线程”，所以单线程的同学，要注意了。在 HTML5 中，有个很有用的技术叫<code>Web Worker</code>，并且现在市面上大多数浏览器都已经支持，Web Worker 使得 Web 前端可以在另外一个线程中处理一些比较耗时的操作，自然也就是支持<strong>多线程</strong>了。</p>
+<p>那么随着 PWA 的到来，一个名称非常类似的技术也随之诞生，也就是<code>Service Worker</code>。与 Web Worker 类似，Service Worker 也是在另一个线程中，但它的生命周期并非页面级的，而是会一直运行在浏览器中，作用于多个页面，并且，它拥有了更多更强大的能力。</p>
+<h3 id="Web_前端缓存">Web 前端缓存</h3><p>为了能够提供更加良好的用户体验，Web 前端在缓存这块也是煞费苦心，目前用于缓存的手段大约有下面这些：</p>
+<ul>
+<li>Cookie</li>
+<li>Web Storage（Local Storage / Session Storage）</li>
+<li>IndexedDB</li>
+</ul>
+<p>这些缓存手段都是用来存储从服务端获取到的数据，避免每次请求带来的延迟问题，但如果要想能够在完全脱离网络环境的情况下浏览页面，光有这些还是不够方便的。所以，HTML5 中有一个叫<code>Application Cache</code>的设计，允许通过配置一个<code>Manifest</code>来指定缓存哪些页面，以便在离线时提供降级服务，但<code>Application Cache</code>在使用起来还是有诸多的问题，比如：</p>
+<ul>
+<li>动态页面无法很好缓存</li>
+<li>缓存更新不够方便</li>
+<li>不够安全</li>
+<li>…</li>
+</ul>
+<p>对于 Application Cache 的缺陷，<a href="https://alistapart.com/article/application-cache-is-a-douchebag" target="_blank" rel="external">《Application Cache is a Douchebag》</a>这篇文章做了一个很详细的吐槽。为此 Service Worker 出现的另一目的就是要废弃掉 Application Cache，Service Worker 拥有拦截页面请求的的能力，在不同的网络环境或者出错失败的情况下，可以决定是否返回已缓存的内容来进行降级。相比于 Application Cache，Service Worker 在很多方面都更加可控，将缓存逻辑交给了开发者而非为浏览器制定默认行为，这是一个更加明智的决定。</p>
+<h3 id="亲自试一下">亲自试一下</h3><p>完成一个 PWA 的核心基本都是围绕着 Service Worker 来展开的，所以掌握了 Service Worker，基本上完成一个 PWA 也就没有太多问题了。除了 Service Worker，还要顺带着去熟悉下 Notification、Push、Fetch，这些也都不过是些 API，实践下基本也就都能搞清楚了。</p>
+<p>如果你已经准备好了，不妨按照官网 <a href="https://codelabs.developers.google.com/codelabs/your-first-pwapp" target="_blank" rel="external">Your First Progressive Web App</a> 来一步步的去实现吧！</p>
+<h2 id="未来还是未来">未来还是未来</h2><p>PWA 给 Web 前端的大一统计划又多了一条选择，但这个选择从当下看来还是非常遥远，毕竟 Safari 目前还尚未支持 Service Worker，也就是说，iOS 还没有买 PWA 的单。大一统这条路注定是艰辛的，但随着硬件设施的越来越强悍，以及 Web 前端技术不断翻新的情况下，这条路似乎注定是最终唯一的选择。现在的 Javascript 都开始支持<code>byte code</code>了，也就是说浏览器已经承担了编译器的相关职责，你说在这群执念深刻的人推动下，这样的未来还有多远呢？</p>
+<p>或许 Web 前端与你目前而言无法学以致用，但作为基层开发者的我们，学学忘忘，这其实很正常，有过痛苦才知道众生真正的痛苦，有过执着，才能放下执着，有过牵挂，了无牵挂。把一件事情放到不同的高度去看，心境和心态也会完全不同，回望你这一路走来，难道那些被你遗忘的，就真的对你没有任何潜移默化的影响么？</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Web 前端是一个发展迅速，更新频繁，充满野心的领域。一群开发者，以及浏览器甚至操作系统的产商都在思考着，如何让 Web 前端统一整个大前端，这一天似乎很遥远，却又感觉一天天的在接近。</p>
+<p>近几年，随着 HTLM5 在移动端上的盛行，出现的各种技术、框架、解决方案，无一不是在向这样的目标前行。从 Hybrid 框架（<em>Cordova、ionic</em>），到一些大厂成熟的 Web 容器（<em>微信、支付宝</em>），再到最近的微信小程序，甚至是 react-native、weex，都在不断将 Web 前端推向更高的高度。</p>
+<p>或许真有那么一天，iOS 开发没人要了，当然 Android 也只能被“呵呵”了，所以，趁着骨骼惊奇赶快撸一把 Web 前端吧，本篇我们来谈谈 PWA 的那些个<del>破</del>事。</p>]]>
+    
+    </summary>
+    
+      <category term="Offline Web" scheme="http://blog.makeex.com/tags/Offline-Web/"/>
+    
+      <category term="PWA" scheme="http://blog.makeex.com/tags/PWA/"/>
+    
+      <category term="Service Worker" scheme="http://blog.makeex.com/tags/Service-Worker/"/>
+    
+      <category term="Thinking in FE" scheme="http://blog.makeex.com/categories/Thinking-in-FE/"/>
+    
+  </entry>
+  
+  <entry>
     <title><![CDATA[Thinking in FE 更好用的 UIWebView]]></title>
     <link href="http://blog.makeex.com/2017/04/06/thinking-in-fe-how-to-enhance-the-uiwebview/"/>
     <id>http://blog.makeex.com/2017/04/06/thinking-in-fe-how-to-enhance-the-uiwebview/</id>
     <published>2017-04-06T13:56:15.000Z</published>
-    <updated>2017-04-06T16:14:35.000Z</updated>
+    <updated>2017-04-06T16:14:38.000Z</updated>
     <content type="html"><![CDATA[<p>继上一篇 Thinking 以来过去太久时间了，这些日子里一直在疲于奔命，无论如何繁忙，静下来写写博客还是一件非常值得的事情。</p>
 <p>本篇我们来谈谈<code>UIWebView</code>，虽然在 iOS 8.0 之后更加推荐使用<code>WKWebView</code>，但在你没放弃 iOS 7.0 之前，不妨看看如何让这陈旧的<code>UIWebView</code>更加好用些，当然这里的一些思想同样可以迁移到<code>WKWebView</code>中。</p>
 <a id="more"></a>
@@ -1781,58 +1853,6 @@ cp -rf ..<span class="regexp">/../</span>openwrt_dev<span class="regexp">/packag
     <summary type="html">
     <![CDATA[<p>又是时隔一年了，时间过得可真快，也完全没想到我会在携程没呆满一年就急匆匆的想出来，回头想想这小一年里发生的一切，颇具戏剧性，虽然大家都公认我们的开发主管是个奇葩，但，有时候我会不禁的去想，或许他是对的，我们都错了呢？</p>
 <p>携程的岁月里，虽然没有被我们开发主管认可，虽然我们理念上不合，但，通过不断的跟进和学习，也使得我在iOS这个平台上散发出了自己的光和热。今天的博文是继续说一说pjsip，原因是收到了不少网友的邮件来向我咨询这方面的问题，我也希望通过这样一个小小的示例，能真真切切的帮助到大家。</p>]]>
-    
-    </summary>
-    
-      <category term="iOS" scheme="http://blog.makeex.com/categories/iOS/"/>
-    
-      <category term="pjsip" scheme="http://blog.makeex.com/categories/iOS/pjsip/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[pjsip for iOS：iPJSUA的简单使用]]></title>
-    <link href="http://blog.makeex.com/2014/06/28/pjsip-for-ios-using-pjsua/"/>
-    <id>http://blog.makeex.com/2014/06/28/pjsip-for-ios-using-pjsua/</id>
-    <published>2014-06-28T13:08:22.000Z</published>
-    <updated>2015-09-29T08:33:58.000Z</updated>
-    <content type="html"><![CDATA[<p>上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。</p>
-<a id="more"></a>
-<p>首先，要确保你的pjsip的库和你即将要编译的平台对应，或者你直接使用上一篇博文最后链接下载的库，那样不用做任何配置，因为它相应的lib文件夹中的库，都是支持多平台的。</p>
-<p>打开位于：pjsip-apps/src/pjsua/ios/下的 ipjsua.xcodeproj，command + r，运行该项目，如果编译不成功，请参看我上面说的那句话；如果提示缺少 ”libmilenage-arm-apple-darwin9.a“，删除项目Libraries文件夹中，对应的该文件：</p>
-<p><img src="/images/2014/06/28/03.png" alt="项目文件列表"></p>
-<p>再次<code>command + r</code>，应该不会出什么问题了，那么你将看见如下的界面：</p>
-<p><img src="/images/2014/06/28/04.png" alt="pjsua主界面"></p>
-<p>很直观的一个界面，它叫你<code>telnet</code>到一个指定的地址和端口，那么从你的mac或者其它能和你电脑通讯的机器上<code>telnet</code>相应的地址即可。进去后，就可以参考<a href="http://trac.pjsip.org/repos/wiki/PJSUA-CLI" target="_blank" rel="external">PJSUA-CLI</a>中的指令来进行相应操作了。</p>
-<p>由于我的mac是安装在虚拟机中的（真屌丝。。。），宿主系统是win7，那么我在我的win7中搭建一个SIP服务器，和添加一个SIP客户端，来做一个最基本的使用演示。这里使用miniSIPServer和miniSIPPhone来作演示，从<a href="http://www.myvoipapp.com/download/index.html" target="_blank" rel="external">这里</a>下载试用版：</p>
-<p><img src="/images/2014/06/28/05.png" alt="下载miniSIP"></p>
-<p>下载后，安装，打开即可：</p>
-<p><img src="/images/2014/06/28/06.png" alt="配置服务端"></p>
-<p>SIP帐号和密码，对应着分机里面的设定，默认它已经给我们建立了几个，账户和密码一样，以下是 SIPPhone 客户端帐号配置（<em>账户名、密码：101，对应分机配置</em>）：</p>
-<p><img src="/images/2014/06/28/07.png" alt="配置客户端"></p>
-<p>这样我们的服务器搭建好了，并且有这么一个客户端，这样就可以在mac中与该服务器和客户端进行通讯了，大家可以看到，我这里主系统的IP为192.168.1.100，那么你们要视自己实际情况而定了。</p>
-<p>首先从mac系统的终端中telnet模拟器中提示的地址和端口，进入后，我们参考文档上，注册一个账户（<em>类似于登录到服务器上，并不是新增加一个帐号，也就是说该账户服务器上必须要有</em>）的命令是：<code>acc add</code>，这里有个技巧，当我们不知道后面怎么输入参数时，就按tab键，它会给我们提示。这里我们输入<code>acc add</code>然后按tab键（<em>一次没反应，就再按一次</em>）：</p>
-<p><img src="/images/2014/06/28/08.png" alt=""></p>
-<p>它提示要我们输入SIP URL，然后我们输入sip:102@192.168.1.100 ，再按tab它又会提示输入SIP注册服务器的地址，当然熟悉了之后，并不需要这样一直按tab，直接如下：</p>
-<p><img src="/images/2014/06/28/09.png" alt="登记账户完整命令"></p>
-<p>参数的意义分别是： 用户的SIP地址，注册服务器地址，<a href="http://blog.sina.com.cn/s/blog_4b839a1b01000bqq.html" target="_blank" rel="external">Realm</a>，用户名，密码，回车后，显示注册成功，这时候，我们看下miniSIPServer的分机列表：</p>
-<p><img src="/images/2014/06/28/10.png" alt="分机列表"></p>
-<p>此时 102 分机已经在线了，现在对 101 发起一次呼叫：</p>
-<pre><code>call <span class="keyword">new</span> sip:<span class="number">101</span>@<span class="number">192.168</span><span class="number">.1</span><span class="number">.100</span>
-</code></pre><p>OK，这时听到 miniSIPPhone 振铃了，我们点击接听即可接通：</p>
-<p><img src="/images/2014/06/28/11.png" alt="通话状态"></p>
-<p>上图为分机在通话中的状态，我们挂断它，终端输入：</p>
-<pre><code><span class="built_in">call</span> hangup
-</code></pre><p>这时我们的通话被终结了，最后，我们来接一通电话，从miniSIPPhone中，直接呼叫102：</p>
-<p><img src="/images/2014/06/28/12.png" alt="呼叫102"></p>
-<p>这时候，我们在mac的telnet终端中输入<code>call list</code>, 会看到一个状态为incoming的呼叫：</p>
-<p><img src="/images/2014/06/28/13.png" alt="呼叫列表"></p>
-<p>我们输入 ：<code>call answer 200</code>，即可接入，其中200为状态码（和http的状态码类似）。</p>
-<p><img src="/images/2014/06/28/14.png" alt="呼叫应答"></p>
-<p>OK，到这里，这个<strong>iPJSUA</strong>，你应该知道怎么玩了吧~~ 其实很简单的嘛~</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>上一篇在编译完之后，就很不负责的结束了，本篇就对pjsip库中提供的一个示例iPJSUA的使用，做一个简单的介绍。也能解除很多人对官方文档的一个困扰，起码我是被困扰过了。</p>]]>
     
     </summary>
     
