@@ -1,0 +1,699 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS." />
+
+
+
+  <meta name="keywords" content="Makee,iOS,Design" />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Makeex" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.png?v=0.4.5.1" />
+
+
+<meta name="description" content="好久没有写博客了，有一年多了吧，想想那些能够安心码字的日子还甚是怀念，于是今晚无论外界条件怎样的恶劣，这一篇是一定要更新的。
+想必 CocoaPods 和 Carthage 对于 iOS 开发者而言都不会陌生，今天的这一篇我们就来看看混合使用这两者，以及多个 .xcassets 的情况下，一些莫名其妙的问题。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CocoaPods 对 Xcode Assets 打包的诡异问题">
+<meta property="og:url" content="http://blog.makeex.com/2019/02/19/the-story-about-cocoapods-and-xcode-asset/index.html">
+<meta property="og:site_name" content="Makeex">
+<meta property="og:description" content="好久没有写博客了，有一年多了吧，想想那些能够安心码字的日子还甚是怀念，于是今晚无论外界条件怎样的恶劣，这一篇是一定要更新的。
+想必 CocoaPods 和 Carthage 对于 iOS 开发者而言都不会陌生，今天的这一篇我们就来看看混合使用这两者，以及多个 .xcassets 的情况下，一些莫名其妙的问题。">
+<meta property="og:updated_time" content="2019-02-19T14:35:47.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CocoaPods 对 Xcode Assets 打包的诡异问题">
+<meta name="twitter:description" content="好久没有写博客了，有一年多了吧，想想那些能够安心码字的日子还甚是怀念，于是今晚无论外界条件怎样的恶劣，这一篇是一定要更新的。
+想必 CocoaPods 和 Carthage 对于 iOS 开发者而言都不会陌生，今天的这一篇我们就来看看混合使用这两者，以及多个 .xcassets 的情况下，一些莫名其妙的问题。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> CocoaPods 对 Xcode Assets 打包的诡异问题 | Makeex </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">Makeex</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              CocoaPods 对 Xcode Assets 打包的诡异问题
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2019-02-19T22:03:00+08:00" content="2019-02-19">
+            2019-02-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/" itemprop="url" rel="index">
+                  <span itemprop="name">Xcode</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/Xcode/Tools/" itemprop="url" rel="index">
+                  <span itemprop="name">Tools</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2019/02/19/the-story-about-cocoapods-and-xcode-asset/#comments" itemprop="discussionUrl">
+                
+                 <span id = "changyan_count_unit" class = "post-comments-count" itemprop="commentsCount">0</span>条评论
+                
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>好久没有写博客了，有一年多了吧，想想那些能够安心码字的日子还甚是怀念，于是今晚无论外界条件怎样的恶劣，这一篇是一定要更新的。</p>
+<p>想必 CocoaPods 和 Carthage 对于 iOS 开发者而言都不会陌生，今天的这一篇我们就来看看混合使用这两者，以及多个 <code>.xcassets</code> 的情况下，一些莫名其妙的问题。</p>
+<a id="more"></a>
+<h2 id="问题的出现">问题的出现</h2><p>去年下半年，我们内部搭建了一个私有的 CI 平台，主要用于跑一些自动化和日常的测试打包。由于机器性能很强悍，很快成了大家构建新包的首选，原本应该是个愉快的事情，可是在系统这样跑了几个月后，恼人的问题突然就出现了：大家在自己的机器上编译没任何问题，而在 CI 里发起构建，每次都会失败在 <code>Build Phases</code> 中的 <code>[CP] Copy Pods Resources</code> 这一步，查看详细日志的话，主要是下面的这段错误:</p>
+<pre><code>error: None <span class="operator">of</span> <span class="operator">the</span> input catalogs contained <span class="operator">a</span> matching stickers icon <span class="built_in">set</span> <span class="operator">or</span> app icon <span class="built_in">set</span> named  <span class="string">"AppIcon"</span>.
+</code></pre><p>我们的主工程比较大，代码和资源文件都很多，技术选型上是采用了 CocoaPods (<em>1.5.x 版本</em>) 来做模块化，模块拥有各自的 <code>.xcassets</code> 来存放资源，所以会有多个 <code>.xcassets</code> 文件。在此基础上，我们还依赖了一些 Swift 开源库，所以也使用了 Carthage 来管理依赖。</p>
+<h2 id="第一次解决问题">第一次解决问题</h2><p>问题必须解决，但我们的 <code>.xcassets</code> 中，肯定是有一个含有 “AppIcon” 的，于是我找了一个时间，仔细分析了下错误的详细日志，发现里面有几处这样的警告：</p>
+<pre><code>warning: The app icon <span class="operator"><span class="keyword">set</span> <span class="keyword">name</span> <span class="string">"AppIcon"</span> <span class="keyword">is</span> used <span class="keyword">by</span> multiple app icon <span class="keyword">sets</span>.</span>
+</code></pre><p>这个警告提示我们 “AppIcon” 冲突了，然后看了下冲突的路劲，尽然都是在 Carthage/Checkouts 目录下。由于我们依赖的 Carthage 库是以源码编译成 Framework 的，而这些源码中有示例和测试项目，其中包括了一些<code>.xcassets</code>，最主要的是 CocoaPods 把这些目录下的 <code>.xcassets</code> 都编译到了最终输出的目标中。</p>
+<p>相关 issue: <a href="https://github.com/CocoaPods/CocoaPods/issues/6159#issuecomment-296698412" target="_blank" rel="external">https://github.com/CocoaPods/CocoaPods/issues/6159#issuecomment-296698412</a></p>
+<p>不查不知道，一查吓一跳啊，有种“我们 App 被偷偷植入了一些莫名其妙的资源”的感觉，也很庆幸以往的 AppIcon 能正常显示，甚至是很意外它尽然能正常显示。与此同时，错误日志中还有一些其他资源名称冲突的警告，我把这些资源名称和它对应的 <code>.xcassets</code> 名称一一对应的提取了出来，然后在模块间查找、对比，发现尽然存在名称一致但长相完全不同的图片，庆幸的是较新的图片得到了显示。捏了一把冷汗，在手动处理完所有名称冲突后，我把 CI 服务中的构建脚本修改了下，在编译前执行了下面命令：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rm -rf Carthage/Checkouts/**/*.xcassets || :</span><br></pre></td></tr></table></figure>
+<p>删除了这些不相干、也没任何作用的 <code>.xcassets</code>。做完这一切，我在 CI 上发起了一个构建，然后真的就成功了。可这没法解释为啥原先本地没问题，隐隐觉得还没有找到问题的主线，这次只是完成了一个支线任务。</p>
+<p>大家又开始愉快地使用 CI 了。</p>
+<h2 id="第二次解决问题">第二次解决问题</h2><p>时间飞快，好景不长，过了一个月左右，相同的问题、相同的错误信息再一次出现在我面前，而我再一次翻起那详细日志时，里面已没有了任何重复冲突的警告。这一次，我开始认真思考：本地发起构建和通过 CI 发起构建到执行 <code>[CP] Copy Pods Resources</code> 这一步，到底有什么区别？通过一系列测试，发现 Shell 的环境不同，但无法确定环境中哪些会影响到这一步执行，没办法，只能细看下 CocoaPods 这一步自动生成的脚本了：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 其中 #&#123;Target Name&#125; 为主工程输出目标名称</span></span><br><span class="line">Pods/Target Support Files/Pods-<span class="comment">#&#123;Target Name&#125;/Pods-#&#123;Target Name&#125;-resources.sh</span></span><br></pre></td></tr></table></figure>
+<p>这个脚本主要就是拷贝和编译通过 CocoaPods 所依赖的资源文件，和 <code>.xcassets</code> 相关的主要是 <code>XCASSET_FILES</code> 这个变量，以及最后的这段脚本：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> [ -z <span class="variable">$&#123;ASSETCATALOG_COMPILER_APPICON_NAME+x&#125;</span> ]; <span class="keyword">then</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">"%s\0"</span> <span class="string">"<span class="variable">$&#123;XCASSET_FILES[@]&#125;</span>"</span> | xargs -<span class="number">0</span> xcrun actool --output-format human-readable-text --notices --warnings --platform <span class="string">"<span class="variable">$&#123;PLATFORM_NAME&#125;</span>"</span> --minimum-deployment-target <span class="string">"<span class="variable">$&#123;!DEPLOYMENT_TARGET_SETTING_NAME&#125;</span>"</span> <span class="variable">$&#123;TARGET_DEVICE_ARGS&#125;</span> --compress-pngs --compile <span class="string">"<span class="variable">$&#123;BUILT_PRODUCTS_DIR&#125;</span>/<span class="variable">$&#123;UNLOCALIZED_RESOURCES_FOLDER_PATH&#125;</span>"</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">"%s\0"</span> <span class="string">"<span class="variable">$&#123;XCASSET_FILES[@]&#125;</span>"</span> | xargs -<span class="number">0</span> xcrun actool --output-format human-readable-text --notices --warnings --platform <span class="string">"<span class="variable">$&#123;PLATFORM_NAME&#125;</span>"</span> --minimum-deployment-target <span class="string">"<span class="variable">$&#123;!DEPLOYMENT_TARGET_SETTING_NAME&#125;</span>"</span> <span class="variable">$&#123;TARGET_DEVICE_ARGS&#125;</span> --compress-pngs --compile <span class="string">"<span class="variable">$&#123;BUILT_PRODUCTS_DIR&#125;</span>/<span class="variable">$&#123;UNLOCALIZED_RESOURCES_FOLDER_PATH&#125;</span>"</span> --app-icon <span class="string">"<span class="variable">$&#123;ASSETCATALOG_COMPILER_APPICON_NAME&#125;</span>"</span> --output-partial-info-plist <span class="string">"<span class="variable">$&#123;TARGET_TEMP_DIR&#125;</span>/assetcatalog_generated_info_cocoapods.plist"</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>所有的 <code>.xcassets</code> 文件都存在了 <code>XCASSET_FILES</code> 这个数组里面了，然后这个数组传递给 <code>actool</code> 来进行编译成 <code>Assets.car</code> 文件。脚本看完后，通过在文件头部加上 <code>set -x</code> 开启了它的调试，在茫茫的输出中，我死盯着 <code>XCASSET_FILES</code> 这个变量，然后惊人的发现这个变量中所有依赖而来的 <code>.xcassets</code> 都变成了两份！真心不知道 <code>actool</code> 在面对这些重复的路劲是怎么的处理，又捏了一把冷汗，于是乎在 <code>Podfile</code> 中加上了这样一些代码：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">post_install <span class="keyword">do</span> |installer|</span><br><span class="line">   <span class="comment"># 其中 #&#123;Target Name&#125; 为主工程输出目标名称</span></span><br><span class="line">    copy_pods_resources_path = <span class="string">"Pods/Target Support Files/Pods-<span class="subst">#&#123;<span class="constant">Target</span> <span class="constant">Name</span>&#125;</span>/Pods-<span class="subst">#&#123;<span class="constant">Target</span> <span class="constant">Name</span>&#125;</span>-resources.sh"</span></span><br><span class="line">    </span><br><span class="line">    str1 = <span class="string">'printf "%s\0" "$&#123;XCASSET_FILES[@]&#125;"'</span></span><br><span class="line">    str2 = <span class="string">'printf "%s\n" "$&#123;XCASSET_FILES[@]&#125;" | sort -u | tr \'\n\' \'\\\\0\' '</span></span><br><span class="line">    </span><br><span class="line">    text = <span class="constant">File</span>.read(copy_pods_resources_path)</span><br><span class="line">    new_contents = text.gsub(str1, str2)</span><br><span class="line">    <span class="constant">File</span>.open(copy_pods_resources_path, <span class="string">"w"</span>) &#123;|file| file.puts new_contents &#125;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>通过对 CocoaPods 自动生成文件内容进行替换，我们插入了一段脚本，最终对 <code>XCASSET_FILES</code> 中的条目进行了去重。做完这一切，我又在 CI 上发起了一个构建，然后它又成功了，然后还是没法解释为啥本地没问题，所以，注定了这还是一个支线任务。</p>
+<p>可是，大家再一次愉快地使用 CI 了。</p>
+<h2 id="第三次解决问题">第三次解决问题</h2><p>过了很长一段时间，长到我都以为这个问题真的彻底解决了，但冷不丁的就在前几天，这个问题又出现了。都说事不过三，这问题一次又一次的反复，也实在是让我颜面尽失，大过年的，你这该死又淘气的 CocoaPods。按捺住心中的烦躁不安，我又一次仔细地把那自动生成的脚本撸了一遍，可能是内心足够安静了吧，这一次我尽然只凭理论分析，就找到了罪魁祸首 <code>xargs</code>。</p>
+<p><code>xargs</code> 不仅能正确处理空格之类的转义，还会在超过一定的限制后，把传递给它的参数<strong>分批</strong>传递给后续的命令，<code>XCASSET_FILES</code> 中就是我们所存储的参数。<code>xargs</code> 分批传递的限制主要是两个参数：<code>-n</code> 的条目限制和 <code>-s</code> 的大小限制，其中 <code>-s</code> 的大小限制受环境变量 <code>ARG_MAX</code> 影响。</p>
+<p>所以，一旦我们的 <code>XCASSET_FILES</code> 被分批传递给了 <code>actool</code>，其中只有某一批里面有“AppIcon”，其它的自然会报错。由于环境不同，<code>ARG_MAX</code> 值不一致，这也解释了一直没法解释的那个问题。前面的两次修复，都不经意间缩减了 <code>XCASSET_FILES</code> 中的内容，而我们的 <code>.xcassets</code> 文件在慢慢增多，一旦突破了限制，问题就又出现了。</p>
+<p>感觉找打了主线，于是修改了下 Podfile 中的代码：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">post_install <span class="keyword">do</span> |installer|</span><br><span class="line">   <span class="comment"># 其中 #&#123;Target Name&#125; 为主工程输出目标名称</span></span><br><span class="line">    copy_pods_resources_path = <span class="string">"Pods/Target Support Files/Pods-<span class="subst">#&#123;<span class="constant">Target</span> <span class="constant">Name</span>&#125;</span>/Pods-<span class="subst">#&#123;<span class="constant">Target</span> <span class="constant">Name</span>&#125;</span>-resources.sh"</span></span><br><span class="line">    </span><br><span class="line">    str1 = <span class="string">'printf "%s\0" "$&#123;XCASSET_FILES[@]&#125;" | xargs -0'</span></span><br><span class="line">    str2 = <span class="string">'printf "%s\n" "$&#123;XCASSET_FILES[@]&#125;" | sort -u | tr \'\n\' \'\\\\0\' | xargs -0 -s 20480 -n 100'</span></span><br><span class="line">    </span><br><span class="line">    text = <span class="constant">File</span>.read(copy_pods_resources_path)</span><br><span class="line">    new_contents = text.gsub(str1, str2)</span><br><span class="line">    <span class="constant">File</span>.open(copy_pods_resources_path, <span class="string">"w"</span>) &#123;|file| file.puts new_contents &#125;</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>搞完后，我在 CI 上再一次发起了构建，如预期的一样，再一次的成功了，我相信这问题不会再出现了。</p>
+<p>大家又开始愉快地使用 CI 了。</p>
+<h2 id="总结一下">总结一下</h2><p>这个问题让我纠结了大半年时间，终于在这新春佳节里给彻底解决了，大体来说就是这样：</p>
+<ul>
+<li>如果你混合使用了 CocoaPods 和 Carthage，确认下 Carthage 的所有目录里是否有 <code>.xcassets</code>，如果有的话，确认下是否被打包到你最后的 App 里了</li>
+<li>注意 CocoaPods 生成的脚本中，<code>XCASSET_FILES</code> 里的条目有重复</li>
+<li>CocoaPods 生成的脚本中，最终传递给 <code>actool</code> 编译的参数，一定不能被 <code>xargs</code> 分批传递</li>
+</ul>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/15/thinking-in-fe-something-about-pwa/" rel="next">Thinking in FE 谈谈 PWA 的那些事</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div id="SOHUCS" sid="2019/02/19/the-story-about-cocoapods-and-xcode-asset/"></div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/images/avatar.jpg" alt="Makee" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">Makee</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">29</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">35</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/prinsun" target="_blank">github</a>
+              </span>
+            
+              <span class="links-of-author-item">
+                <a href="http://weibo.com/prinsun" target="_blank">weibo</a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#问题的出现"><span class="nav-number">1.</span> <span class="nav-text">问题的出现</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第一次解决问题"><span class="nav-number">2.</span> <span class="nav-text">第一次解决问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第二次解决问题"><span class="nav-number">3.</span> <span class="nav-text">第二次解决问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#第三次解决问题"><span class="nav-number">4.</span> <span class="nav-text">第三次解决问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结一下"><span class="nav-number">5.</span> <span class="nav-text">总结一下</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2013 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    <script type="text/javascript">
+    (function(){
+    var appid = "cysUqkOiV";
+    var conf = "prod_4974dcf40c81d099877e8ff0fb6d499d";
+    var width = window.innerWidth || document.documentElement.clientWidth;
+    if (width < 960) {
+    window.document.write('<script id="changyan_mobile_js" charset="utf-8" type="text/javascript" src="https://changyan.sohu.com/upload/mobile/wap-js/changyan_mobile.js?client_id=' + appid + '&conf=' + conf + '"><\/script>'); } else { var loadJs=function(d,a){var c=document.getElementsByTagName("head")[0]||document.head||document.documentElement;var b=document.createElement("script");b.setAttribute("type","text/javascript");b.setAttribute("charset","UTF-8");b.setAttribute("src",d);if(typeof a==="function"){if(window.attachEvent){b.onreadystatechange=function(){var e=b.readyState;if(e==="loaded"||e==="complete"){b.onreadystatechange=null;a()}}}else{b.onload=a}}c.appendChild(b)};loadJs("https://changyan.sohu.com/upload/changyan.js",function(){window.changyan.api.config({appid:appid,conf:conf})}); } })();
+    </script>
+    <script type="text/javascript" src="https://assets.changyan.sohu.com/upload/plugins/plugins.count.js">
+    </script>
+  
+
+
+
+    
+    
+
+  
+
+
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/js/retina.min.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+</body>
+</html>
