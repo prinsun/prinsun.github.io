@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在很早以前，我的有一篇文章中就说过，对于设计模式而言，我们不应该刻意去使用，而是要在非常自然的情况下，不知不觉地去使用。但前提是，你必须对目前所有的设计模式有较深刻的理解，在内心深处烙印下这样的一个种子，后续你才会有更大的机缘，莫名其妙的就使用上它。 本篇文章，主要是介绍了 GoF 23 种设计模式中的组合模式，这算是结构型设计模式中的平民级模式，因为它简单、易用，但效果，往往能助你化繁为简。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="组合化繁为简的力量">
+<meta property="og:url" content="http://blog.makeex.com/2016/04/23/the-design-pattern-of-composite/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="在很早以前，我的有一篇文章中就说过，对于设计模式而言，我们不应该刻意去使用，而是要在非常自然的情况下，不知不觉地去使用。但前提是，你必须对目前所有的设计模式有较深刻的理解，在内心深处烙印下这样的一个种子，后续你才会有更大的机缘，莫名其妙的就使用上它。 本篇文章，主要是介绍了 GoF 23 种设计模式中的组合模式，这算是结构型设计模式中的平民级模式，因为它简单、易用，但效果，往往能助你化繁为简。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/04/23/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/04/23/02.png">
+<meta property="article:published_time" content="2016-04-23T01:05:49.000Z">
+<meta property="article:modified_time" content="2016-04-23T11:56:58.000Z">
+<meta property="article:author" content="Makee">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="组合">
+<meta property="article:tag" content="过滤器">
+<meta property="article:tag" content="拦截器">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2016/04/23/01.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2016/04/23/the-design-pattern-of-composite/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>组合化繁为简的力量 | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2016/04/23/the-design-pattern-of-composite/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          组合化繁为简的力量
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-04-23 09:05:49" itemprop="dateCreated datePublished" datetime="2016-04-23T09:05:49+08:00">2016-04-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/Design/" itemprop="url" rel="index"><span itemprop="name">Design</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2016/04/23/the-design-pattern-of-composite/" class="post-meta-item leancloud_visitors" data-flag-title="组合化繁为简的力量" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2016/04/23/the-design-pattern-of-composite/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2016/04/23/the-design-pattern-of-composite/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在很早以前，我的有<a href="http://blog.makeex.com/2015/05/23/how-to-improving-the-design-powers/">一篇文章</a>中就说过，对于设计模式而言，我们不应该刻意去使用，而是要在非常自然的情况下，不知不觉地去使用。但前提是，你必须对目前所有的设计模式有较深刻的理解，在内心深处烙印下这样的一个种子，后续你才会有更大的机缘，莫名其妙的就使用上它。</p>
+<p>本篇文章，主要是介绍了 GoF 23 种设计模式中的<strong>组合模式</strong>，这算是结构型设计模式中的平民级模式，因为它简单、易用，但效果，往往能助你化繁为简。</p>
+<span id="more"></span>
+
+<h2 id="核心概念"><a href="#核心概念" class="headerlink" title="核心概念"></a>核心概念</h2><p>首先，在介绍组合模式的妙用之前，我们需要对组合模式要有个明确的了解，这里我们先看一下组合模式标准的类结构图：</p>
+<p><img data-src="/images/2016/04/23/01.png" alt="组合模式类结构图"></p>
+<p>如上图所示，在组合模式中，通常都有一个抽象的<code>Component</code>，该抽象拥有自己的一些行为，然后由<code>Leaf</code>来实现该<code>Component</code>，最后<code>Composite</code>内聚合了一系列的<code>Component</code>，并且它本身也实现了<code>Component</code>。由于它本身也实现了这样的抽象，使得它可以聚合自身，这样就很容易形成一个树形的结构（_Leaf - Composite_），而在《设计模式》一书中，关于组合模式给出的定义如下：</p>
+<blockquote>
+<p>将对象以树形结构组织起来，以达成“部分－整体”的层次结构，使得客户端对单个对象和组合对象的使用具有一致性。</p>
+</blockquote>
+<p>我觉得其中最重要的就是最后一句：<strong>使得客户端对单个对象和组合对象的使用具有一致性</strong>，这也是组合模式所要达到的效果，亦或是说，这便是给我们带来的好处。</p>
+<p>简单的介绍完它的核心概念，接下来我们通过它实际的适用场景，来加深对它的理解。</p>
+<h2 id="分而治之"><a href="#分而治之" class="headerlink" title="分而治之"></a>分而治之</h2><p>组合模式最常用的一个场景，便是将一系列类似的操作，分而治之。在此，我们举一个例子：</p>
+<blockquote>
+<p>假如，我们有一个这样的应用，用户分为三个等级：匿名用户、普通用户、VIP用户，每种用户可获取到的应用数据是不一样的。整个应用内，又有很多地方需要获取不同的数据。</p>
+</blockquote>
+<p>为了保证三种用户在程序内接口使用的一致性，这里便是非常适合使用组合模式来分而治之，所以，很自然的就有了下面这样的类结构：</p>
+<p><img data-src="/images/2016/04/23/02.png" alt="用户获取数据类结构图"></p>
+<p>如一开始所描述的核心概念类图类似，我们最终使用的便是上图中的<code>UserDataManager</code>，这样的结构使得我们<strong>对单个对象或组合对象的使用具有了一致性</strong>，而不同的逻辑，都有了自身很好的归属。不难看出，组合模式体现了面向对象设计基本原则中的：接口隔离原则和开放闭合原则。</p>
+<p>可以简单写一下上面结构对应的代码：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">enum</span> <span class="title class_">UserType</span> &#123; <span class="keyword">case</span> <span class="type">Anonymous</span>, <span class="type">General</span>, <span class="type">VIP</span> &#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> type: <span class="type">UserType</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">type</span>: <span class="type">UserType</span>) &#123; <span class="keyword">self</span>.type <span class="operator">=</span> type &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">UserDataFetcher</span>: <span class="title class_">class</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData1</span>() -&gt; <span class="type">String</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData2</span>() -&gt; <span class="type">String</span></span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">user</span>: <span class="type">User</span>) -&gt; <span class="type">Bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AnonymousUserDataFetcher</span>: <span class="title class_">UserDataFetcher</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData1</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Anonymous User Data1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData2</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;Anonymous User Data2&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">user</span>: <span class="type">User</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> user.type <span class="operator">==</span> .<span class="type">Anonymous</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GeneralUserDataFetcher</span>: <span class="title class_">UserDataFetcher</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData1</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;General User Data1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData2</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;General User Data2&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">user</span>: <span class="type">User</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> user.type <span class="operator">==</span> .<span class="type">General</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">VIPUserDataFetcher</span>: <span class="title class_">UserDataFetcher</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData1</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;VIP User Data1&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData2</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;VIP User Data2&quot;</span></span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">user</span>: <span class="type">User</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> user.type <span class="operator">==</span> .<span class="type">VIP</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">UserDataManager</span>: <span class="title class_">UserDataFetcher</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">var</span> fetchers <span class="operator">=</span> [<span class="type">UserDataFetcher</span>]()</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> user: <span class="type">User</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">user</span>: <span class="type">User</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.user <span class="operator">=</span> user</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">add</span>(<span class="params">fetcher</span>: <span class="type">UserDataFetcher</span>) &#123;</span><br><span class="line">        fetchers.append(fetcher)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">remove</span>(<span class="params">fetcher</span>: <span class="type">UserDataFetcher</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> index <span class="operator">=</span> fetchers.indexOf(&#123; <span class="variable">$0</span> <span class="operator">===</span> fetcher &#125;) &#123;</span><br><span class="line">            fetchers.removeAtIndex(index)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData1</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> fetcher <span class="operator">=</span> fetchers.filter(&#123; <span class="variable">$0</span>.accept(user) &#125;).first &#123;</span><br><span class="line">            <span class="keyword">return</span> fetcher.fetchData1()</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;error data&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">fetchData2</span>() -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> <span class="keyword">let</span> fetcher <span class="operator">=</span> fetchers.filter(&#123; <span class="variable">$0</span>.accept(user) &#125;).first &#123;</span><br><span class="line">            <span class="keyword">return</span> fetcher.fetchData2()</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;error data&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">user</span>: <span class="type">User</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> fetchers.contains &#123; <span class="variable">$0</span>.accept(user) &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用如下</span></span><br><span class="line"><span class="keyword">let</span> user <span class="operator">=</span> <span class="type">User</span>(type: .<span class="type">Anonymous</span>)</span><br><span class="line"><span class="keyword">let</span> userDataManager <span class="operator">=</span> <span class="type">UserDataManager</span>(user: user)</span><br><span class="line"></span><br><span class="line">userDataManager.add(<span class="type">AnonymousUserDataFetcher</span>())</span><br><span class="line">userDataManager.add(<span class="type">GeneralUserDataFetcher</span>())</span><br><span class="line">userDataManager.add(<span class="type">VIPUserDataFetcher</span>())</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取数据</span></span><br><span class="line">userDataManager.fetchData1()</span><br><span class="line">userDataManager.fetchData2()</span><br></pre></td></tr></table></figure>
+
+<p>上面短短的一百多行代码，可以放在 <strong>Playground</strong> 中直接跑起来，考虑下，如果我们需要增加一种用户类型，还是可以用比较舒服的方式去面对，这便是开放闭合原则的核心体现。</p>
+<h2 id="过滤器"><a href="#过滤器" class="headerlink" title="过滤器"></a>过滤器</h2><p>除了上面的场景，还有一些常见的设计手段也都和组合模式息息相关，<strong>过滤器</strong>便是其中一个。过滤器，便是将不符合条件的数据过滤掉，这种设计手段最典型的示例便是<strong>规约模式</strong>（_Specification Pattern_）。我们可以为上面的示例增加一些需求：</p>
+<blockquote>
+<p>每个用户都有一个好友列表，用户可以通过名称、年龄、ID来查询好友。</p>
+</blockquote>
+<p>那么很容易就可以用过滤器来实现上面的需求，代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Buddy</span>: <span class="title class_">User</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> identifer: <span class="type">UInt</span>?</span><br><span class="line">    <span class="keyword">var</span> name: <span class="type">String</span>?</span><br><span class="line">    <span class="keyword">var</span> age: <span class="type">UInt</span>?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">protocol</span> <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">buddy</span>: <span class="type">Buddy</span>) -&gt; <span class="type">Bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">BuddyAndFilter</span>: <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> left: <span class="type">BuddyFilter</span></span><br><span class="line">    <span class="keyword">let</span> right: <span class="type">BuddyFilter</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">left</span>: <span class="type">BuddyFilter</span>, <span class="params">right</span>: <span class="type">BuddyFilter</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.left <span class="operator">=</span> left</span><br><span class="line">        <span class="keyword">self</span>.right <span class="operator">=</span> right</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">buddy</span>: <span class="type">Buddy</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> left.accept(buddy) <span class="operator">&amp;&amp;</span> right.accept(buddy)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">BuddyOrFilter</span>: <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> left: <span class="type">BuddyFilter</span></span><br><span class="line">    <span class="keyword">let</span> right: <span class="type">BuddyFilter</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">left</span>: <span class="type">BuddyFilter</span>, <span class="params">right</span>: <span class="type">BuddyFilter</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.left <span class="operator">=</span> left</span><br><span class="line">        <span class="keyword">self</span>.right <span class="operator">=</span> right</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">buddy</span>: <span class="type">Buddy</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> left.accept(buddy) <span class="operator">||</span> right.accept(buddy)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">extension</span> <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">and</span>(<span class="params">filter</span>: <span class="type">BuddyFilter</span>) -&gt; <span class="type">BuddyFilter</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">BuddyAndFilter</span>(left: <span class="keyword">self</span>, right: filter)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">or</span>(<span class="params">filter</span>: <span class="type">BuddyAndFilter</span>) -&gt; <span class="type">BuddyFilter</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="type">BuddyOrFilter</span>(left: <span class="keyword">self</span>, right: filter)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">BuddyNameFilter</span>: <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> name: <span class="type">String</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">name</span>: <span class="type">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.name <span class="operator">=</span> name</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">buddy</span>: <span class="type">Buddy</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> buddy.name <span class="operator">==</span> name</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">struct</span> <span class="title class_">BuddyAgeFilter</span>: <span class="title class_">BuddyFilter</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> age: <span class="type">UInt</span></span><br><span class="line">    <span class="keyword">init</span>(<span class="params">age</span>: <span class="type">UInt</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.age <span class="operator">=</span> age</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">accept</span>(<span class="params">buddy</span>: <span class="type">Buddy</span>) -&gt; <span class="type">Bool</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> buddy.age <span class="operator">==</span> age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 查找年龄 = 22 且 名字 = makee</span></span><br><span class="line"><span class="keyword">var</span> buddys <span class="operator">=</span> [<span class="type">Buddy</span>]()</span><br><span class="line"><span class="keyword">let</span> buddy1 <span class="operator">=</span> <span class="type">Buddy</span>(type: .<span class="type">General</span>)</span><br><span class="line">buddy1.age <span class="operator">=</span> <span class="number">13</span></span><br><span class="line">buddy1.name <span class="operator">=</span> <span class="string">&quot;jack&quot;</span></span><br><span class="line"><span class="keyword">let</span> buddy2 <span class="operator">=</span> <span class="type">Buddy</span>(type: .<span class="type">VIP</span>)</span><br><span class="line">buddy2.age <span class="operator">=</span> <span class="number">22</span></span><br><span class="line">buddy2.name <span class="operator">=</span> <span class="string">&quot;makee&quot;</span></span><br><span class="line"></span><br><span class="line">buddys.append(buddy1)</span><br><span class="line">buddys.append(buddy2)</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> filter <span class="operator">=</span> <span class="type">BuddyNameFilter</span>(name: <span class="string">&quot;makee&quot;</span>).and(<span class="type">BuddyAgeFilter</span>(age: <span class="number">22</span>))</span><br><span class="line"><span class="keyword">let</span> buddy <span class="operator">=</span> buddys.filter(filter.accept).first</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码其实可以使用 swift 的相关特性进行简化，譬如自定义操作符。这样的代码已经很难看出组合模式的影子了，但，考虑下组合模式的核心概念，这里的<code>And</code>和<code>Or</code>便是<code>Composite</code>，其它的便是<code>Leaf</code>，这依然是组合模式的妙用。</p>
+<h2 id="拦截器"><a href="#拦截器" class="headerlink" title="拦截器"></a>拦截器</h2><p>除了过滤器，我们还有<strong>拦截器</strong>，这就更加简单了。拦截器，便是将符合要求的输入进行拦截，并拥有窜改的能力。具体还是以上面的示例，再加上下面的需求来看看：</p>
+<blockquote>
+<p>匿名用户如果数据中带有“error”字符串，则直接返回“无权访问，请登录后再试”。</p>
+</blockquote>
+<p>这样的需求，可以用最简单的方式实现，但，我们要考虑到后续的扩展性，如果有其它类似的拦截操作，我们应该也要能够从容应对。所以，我们考虑使用拦截器来实现：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protocol</span> <span class="title class_">UserDataInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">intercept</span>(<span class="params">data</span>: <span class="type">String</span>) -&gt; <span class="type">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">AggregateUserDataInterceptor</span>: <span class="title class_">UserDataInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">let</span> interceptors: [<span class="type">UserDataInterceptor</span>]</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">init</span>(<span class="params">interceptors</span>: [<span class="type">UserDataInterceptor</span>]) &#123;</span><br><span class="line">        <span class="keyword">self</span>.interceptors <span class="operator">=</span> interceptors</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">intercept</span>(<span class="params">data</span>: <span class="type">String</span>) -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> interceptors.reduce(data, combine: &#123; <span class="variable">$1</span>.intercept(<span class="variable">$0</span>) &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ErrorUserDataInterceptor</span>: <span class="title class_">UserDataInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">intercept</span>(<span class="params">data</span>: <span class="type">String</span>) -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> data.containsString(<span class="string">&quot;error&quot;</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;无权访问，请登录后再试&quot;</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> data</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> data <span class="operator">=</span> <span class="string">&quot;some error&quot;</span></span><br><span class="line"><span class="keyword">let</span> interceptor <span class="operator">=</span> <span class="type">AggregateUserDataInterceptor</span>(interceptors:[<span class="type">ErrorUserDataInterceptor</span>()])</span><br><span class="line">interceptor.intercept(data)</span><br></pre></td></tr></table></figure>
+
+<p>代码写好了，然后需求又增加了（_这种情况是显然的_），除了“error”之外，我们需要将所有的“%”替换成空格，所以，上面的设计才能真正发挥其作用：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">PercentUserDataInterceptor</span>: <span class="title class_">UserDataInterceptor</span> &#123;</span><br><span class="line">    <span class="keyword">func</span> <span class="title function_">intercept</span>(<span class="params">data</span>: <span class="type">String</span>) -&gt; <span class="type">String</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> data.stringByReplacingOccurrencesOfString(<span class="string">&quot;%&quot;</span>, withString: <span class="string">&quot; &quot;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> data1 <span class="operator">=</span> <span class="string">&quot;some error&quot;</span></span><br><span class="line"><span class="keyword">let</span> data2 <span class="operator">=</span> <span class="string">&quot;hello%world&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> interceptors: [<span class="type">UserDataInterceptor</span>] <span class="operator">=</span> [</span><br><span class="line">    <span class="type">ErrorUserDataInterceptor</span>(),</span><br><span class="line">    <span class="type">PercentUserDataInterceptor</span>()</span><br><span class="line">]</span><br><span class="line"></span><br><span class="line"><span class="keyword">let</span> interceptor <span class="operator">=</span> <span class="type">AggregateUserDataInterceptor</span>(interceptors: interceptors)</span><br><span class="line">interceptor.intercept(data1)</span><br><span class="line">interceptor.intercept(data2)</span><br></pre></td></tr></table></figure>
+
+<p>嗯，这样看起来，才更有意思了。</p>
+<h2 id="装饰器"><a href="#装饰器" class="headerlink" title="装饰器"></a>装饰器</h2><p>与上面的拦截器类似，我们也可以用组合模式来配合<strong>装饰模式</strong>来使用，装饰本身和组合有着非常类似的类结构，但两者的侧重点不同。装饰侧重于对已有对象的行为和属性进行包装，而组合侧重于内部组合小部件，对外保持一致的部件接口。</p>
+<p>装饰器配合组合模式来使用，便是将一般的装饰器作为<code>Leaf</code>，而一些相关联可以组合的装饰器可以预先组装成<code>Composite</code>。可能有点牵强，但这的确体现了组合模式的精髓，具体使用在这里就不赘述了。</p>
+<h2 id="还可以做点什么"><a href="#还可以做点什么" class="headerlink" title="还可以做点什么"></a>还可以做点什么</h2><p>组合模式作为平民级设计模式之一，可能没有单例和工厂那般泛滥使用，但这定是初级设计师进阶更高层次的一把利器。</p>
+<p><em>如此说来，万能的组合模式，请在上海赐予我一套房子吧！</em></p>
+
+    </div>
+
+    
+    
+    
+      
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2016/04/30/best-romantic-abstract-promise-and-future/" rel="bookmark">最浪漫的抽象 Promise & Future</a></div>
+    </li>
+  </ul>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E7%BB%84%E5%90%88/" rel="tag"># 组合</a>
+              <a href="/tags/%E8%BF%87%E6%BB%A4%E5%99%A8/" rel="tag"># 过滤器</a>
+              <a href="/tags/%E6%8B%A6%E6%88%AA%E5%99%A8/" rel="tag"># 拦截器</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/03/16/objc-context-design-pattern/" rel="prev" title="ObjC 基于上下文的设计">
+      <i class="fa fa-chevron-left"></i> ObjC 基于上下文的设计
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/04/30/best-romantic-abstract-promise-and-future/" rel="next" title="最浪漫的抽象 Promise & Future">
+      最浪漫的抽象 Promise & Future <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">核心概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E8%80%8C%E6%B2%BB%E4%B9%8B"><span class="nav-number">2.</span> <span class="nav-text">分而治之</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-number">3.</span> <span class="nav-text">过滤器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8B%A6%E6%88%AA%E5%99%A8"><span class="nav-number">4.</span> <span class="nav-text">拦截器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A3%85%E9%A5%B0%E5%99%A8"><span class="nav-number">5.</span> <span class="nav-text">装饰器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%98%E5%8F%AF%E4%BB%A5%E5%81%9A%E7%82%B9%E4%BB%80%E4%B9%88"><span class="nav-number">6.</span> <span class="nav-text">还可以做点什么</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>

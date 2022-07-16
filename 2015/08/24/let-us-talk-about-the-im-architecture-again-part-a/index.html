@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="在前一段时间里，我曾就TeamTalk和Telegram两款Mac下的IM软件的架构设计作了些许分析，对其亮点和不足之处给出了自己的见解。IM本身就是一个比较复杂的应用，要想做好必须是要花费一点精力的，特别是对细节的把握。倘若服务端设计本身不够理想，客户端又受限于某种并不如人愿的基础库，加之工期逼赶，家事繁忙，似乎一切天时地利都不在时，如何做出一个让自己满意的IM呢？ 本文就上述并非虚构的上下文中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="再谈 IM 架构设计（上）">
+<meta property="og:url" content="http://blog.makeex.com/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="在前一段时间里，我曾就TeamTalk和Telegram两款Mac下的IM软件的架构设计作了些许分析，对其亮点和不足之处给出了自己的见解。IM本身就是一个比较复杂的应用，要想做好必须是要花费一点精力的，特别是对细节的把握。倘若服务端设计本身不够理想，客户端又受限于某种并不如人愿的基础库，加之工期逼赶，家事繁忙，似乎一切天时地利都不在时，如何做出一个让自己满意的IM呢？ 本文就上述并非虚构的上下文中">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/08/24/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/08/24/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/08/24/04.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2015/08/24/05.png">
+<meta property="article:published_time" content="2015-08-24T12:04:42.000Z">
+<meta property="article:modified_time" content="2022-07-16T03:24:00.447Z">
+<meta property="article:author" content="Makee">
+<meta property="article:tag" content="通讯基础设施">
+<meta property="article:tag" content="消息归类">
+<meta property="article:tag" content="消息管道">
+<meta property="article:tag" content="代码生成">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2015/08/24/01.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>再谈 IM 架构设计（上） | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          再谈 IM 架构设计（上）
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-08-24 20:04:42" itemprop="dateCreated datePublished" datetime="2015-08-24T20:04:42+08:00">2015-08-24</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OSX/" itemprop="url" rel="index"><span itemprop="name">OSX</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OSX/Design/" itemprop="url" rel="index"><span itemprop="name">Design</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/" class="post-meta-item leancloud_visitors" data-flag-title="再谈 IM 架构设计（上）" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2015/08/24/let-us-talk-about-the-im-architecture-again-part-a/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在前一段时间里，我曾就TeamTalk和Telegram两款Mac下的IM软件的架构设计作了些许分析，对其亮点和不足之处给出了自己的见解。IM本身就是一个比较复杂的应用，要想做好必须是要花费一点精力的，特别是对细节的把握。倘若服务端设计本身不够理想，客户端又受限于某种并不如人愿的基础库，加之工期逼赶，家事繁忙，似乎一切天时地利都不在时，如何做出一个让自己满意的IM呢？</p>
+<p>本文就上述并非虚构的上下文中，带领大家突破这重重枷锁，重塑架构设计，还你一个干净明了的<strong>即时通讯</strong>。技术在于分享，我并不觉得需要有任何保留，小伙伴们，拭目以待吧！</p>
+<span id="more"></span>
+
+
+<h2 id="必须重塑的基础设施"><a href="#必须重塑的基础设施" class="headerlink" title="必须重塑的基础设施"></a>必须重塑的基础设施</h2><p>俗话说，磨刀不误砍柴工，若是基础都没打好，还谈什么优良的未来？所以，在构建这个IM的第一步，便是要让基础设施部分称心如意，而前面也说过了，客户端已经受限于某个特定的基础库了。但，这个基础库并不能让我满意，或者说并不能让大多数人满意，难道这第一步就将我们打入谷底了么？我们先来看看这个基础库的现有设计。</p>
+<p>话说就算到现在，我还是不能给这个基础库作一个设计上的定位，怎么说呢？如果说它是基础通讯组件，它不完全是；如果说它是业务共用组件，它还不那么通用，那么它的设计定位到底是什么呢？既然这样琢磨不透，那就只能往低处落了，将它作为基础通讯组件吧！</p>
+<p>这个库完全是由C++编写，然后通过gyp自动生成了一套<code>Objective-C++</code>的代码，大体的使用方式如下：</p>
+<ol>
+<li>获取某个模块的实例：<code>getXXX()</code></li>
+<li>注册该模块的监听：<code>[getXXX() RegisterObserver:xxx]</code></li>
+<li>调用某个方法，服务端返回结果，触发相应<code>Observer</code>的回调</li>
+</ol>
+<p>这么一说，似乎没有什么问题，但，问题往往隐藏于细节之中：</p>
+<ol>
+<li>所有的Observer都是<code>Protocol</code>，并且所有方法都是<code>required</code>。这导致所有的Observer必须实现一系列方法，这比你想象中的还多</li>
+<li>每一个模块实例，只能注册一个Observer，这和上面一条结合起来，完全将使用者限制住了，连模块的划分都必须保持一致</li>
+<li>所有服务端需要返回的方法，都是从Observer中获取结果。比如，用户更新昵称，需要从Observer中得知是否更新成功。这样使得高层组织代码会非常凌乱，加之这样的操作很多，所以，Observer中的方法真的比你想象中的还多</li>
+</ol>
+<p>面对这样一个已存在的难题，如何打破这样的局限？加之高层是打算用<code>Swift</code>来实现，这<code>Objective-C++</code>是必须要进行包装后才能使用的，有个最简单的方法，就是将所有Observer使用<code>Notification</code>抛出去。但，这种通知满天飞的场景是你我下辈子都不愿意看见的，这样的设计会让高层使用者半夜扮鬼吓死你。</p>
+<p>那么，我们先破除这第一道屏障，这一步不走稳，下一步还怎么迈出？</p>
+<h2 id="返璞归真的通讯组件"><a href="#返璞归真的通讯组件" class="headerlink" title="返璞归真的通讯组件"></a>返璞归真的通讯组件</h2><p>首先，我们明确一下所使用的底层组件核心问题所在，我大体罗列如下：</p>
+<ol>
+<li>观察者不支持多路广播，也就是一个对象只能接受一个观察者</li>
+<li>异步调用不够内聚、关联性不强</li>
+<li>做了过多不必要的持久化操作</li>
+<li>方法参数过长，命名不友好</li>
+<li><code>Swift</code>无法直接使用，必须进行包装</li>
+</ol>
+<p>第三个问题由于无法干预，所以只能不去管它，这导致对内存造成了一定的浪费。其它问题统一使用一种手段解决，那就是将这层薄薄的封装<strong>打回原型</strong>，这样的决策也是让我运粮了许久，这是非常诙谐搞笑的做法，但诙谐的是我，搞笑的却另有其人。</p>
+<p>参照<code>Objective-C</code>的消息设计思维，所有的方法调用都是对相应的对象<strong>发了一条消息</strong>，按照这个核心思路，我们可以把那个底层库的所有方法调用转换成一条消息的发送，观察者的返回作为异步消息的响应，具体思路可以参照以下伪代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="type">void</span>)sendRequest:(Request *)request completion:(<span class="type">void</span> (^) (Response *))completion &#123;</span><br><span class="line">	[getXXX() <span class="keyword">do</span>:request.arg1 someting:request.arg2 withXXX:request.arg3];</span><br><span class="line">	<span class="keyword">self</span>.completion = completion;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Observer</span></span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)onXXXCallback:(<span class="type">id</span>)arg1 arg2:(<span class="type">id</span>)arg2 arg3:(<span class="type">id</span>)arg3 &#123;</span><br><span class="line">	Response *resp = [Response new];</span><br><span class="line">	resp.arg1 = arg1;</span><br><span class="line">	resp.arg2 = arg2;</span><br><span class="line">	resp.arg3 = arg3;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">self</span>.completion(resp); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面代码是整个底层<strong>重建</strong>的核心思想，随之带来的便是巨大的工作量，因为所有要使用的接口都必须重新包装，转换成我认为合理的方式。但回头想想，无论如何，所有接口都是需要进行包装才能被<code>Swift</code>使用，所以，这样的工作量是无法避免的，而这么做带来的好处便是我们拥有了一个非常纯粹的底层通讯组件。如此细粒度的拆分，给高层封装提供了更高的灵活性，不在受限与底层特定的模块和模式，也就是说，这第一道屏障算是破除了。</p>
+<p>接下来，便是基于这样的核心思想，抽象我们的基础组件，构建一个真正<strong>适合消息系统</strong>的基础通讯设施。</p>
+<h3 id="消息归类"><a href="#消息归类" class="headerlink" title="消息归类"></a>消息归类</h3><p>首先我们要对所有发送和接受的消息进行归类，这里所谓的发送和接收最后都会重定向到C++的那个底层库方法中，为了方便描述，我们将这个C++库命名为<code>libMessageCore</code>，以下便是消息的抽象类图：</p>
+<p><img data-src="/images/2015/08/24/01.png" alt="消息归类图"></p>
+<ul>
+<li><strong>Package</strong>：最基础的抽象，是所有消息类型的基类，代表一个数据包，<code>type</code>是一个全局唯一的标识</li>
+<li><strong>Request&#x2F;Response</strong>：请求和响应，<code>seqNo</code>用于请求和响应的匹配，由于<code>libMessageCore</code>中并没有这样的设计，所以这个<code>seqNo</code>是我们根据其它属性来实现，比如用户ID，然后请求中的<code>isExpectResponse</code>方法根据<code>seqNo</code>和其它信息来匹配响应。将响应的匹配放置在每个请求中，会比较内聚，但会略显繁琐</li>
+<li><strong>Message</strong>：消息，所谓消息就是由客户端发出，或服务器推送而来，并没有强烈上下文关联的一种数据包。其子类进行了更细粒度的抽象，<code>NotifyMessage</code>便是服务端推送来的消息，<code>ActionMessage</code>是客户端发出去的消息</li>
+</ul>
+<p>按照这样归类下来，我们基本已经覆盖了通讯中会遇到的所有实体类型，那么，接下来我们再对消息实体的使用进行抽象，这会比划分类型更加有趣。</p>
+<h3 id="消息管道"><a href="#消息管道" class="headerlink" title="消息管道"></a>消息管道</h3><p>在一个消息系统中如果没有管道的存在，那么这个消息系统是不完整的，管道类设计天生就对消息处理非常亲和，我们可以非常容易的通过<strong>装饰器模式</strong>对管道进行拦截、过滤、缓存、重定向等，而这些也都是消息系统中普遍存在的业务需求，所以，这里非常自然的就采用了管道式设计手法。由于这个通讯基础组件是基于<code>libMessageCore</code>之上，所以在最终设计时会略显复杂，但整个框架也变得更加通用，以下是整个消息管道设计的类图：</p>
+<p><img data-src="/images/2015/08/24/02.png" alt="消息管道类图"></p>
+<p>为了便于阅读，这里只展示了整个类的关系图，类的方法和属性都略去了。</p>
+<ul>
+<li><strong>RequestChannel</strong>：请求管道，该管道负责处理<code>Request/Response</code>这样一种消息模式，匹配请求和响应（_还记得<code>isExpectResponse</code>方法不？_），并伴有超时、缓存、异常等处理</li>
+<li><strong>MessageChannel</strong>：消息管道，该管道可以添加多个观察者，用于向服务器发送<code>Message</code>，并且监听服务端推送的<code>Message</code>，通知到所有观察者</li>
+<li><strong>PackageDistributer &#x2F; PackageHandler</strong>：数据包分发器和数据包处理器，分发器对高层暴露了数据包的写入接口（_主要被管道使用_），内部聚合了多个处理器，负责将数据包路由到正确的处理器上，并对处理器的寻径做了一些缓存。处理器为抽象接口，最终适配为<code>libMessageCore</code>的方法调用</li>
+<li><strong>PackageCollector &#x2F; PackageEmitter</strong>：数据包收集器和数据包发射器，收集器可以添加多个观察者（_主要被管道观察_），内部聚合了一系列发射器，负责收集由发射器发射而来的数据包，并通知所有观察者。数据包发射器最终适配为<code>libMessageCore</code>的观察者实现，通过<code>libMessageCore</code>的回调，构建数据包，并且<strong>发射</strong>出去</li>
+</ul>
+<p>上面简单描述了几个核心抽象的职责，可能比较难以理解，所以，还是看几个时序图吧，动态的时序，相当于程序的运行时逻辑，配合上面的叙述，会更有助于理解：</p>
+<p>![发送请求时序图] (&#x2F;images&#x2F;2015&#x2F;08&#x2F;24&#x2F;03.png)<br><img data-src="/images/2015/08/24/04.png" alt="响应请求时序图"></p>
+<p>上面两个时序图，描述了整个请求响应的消息处理流程，对于<code>MessageChannel</code>而言，也是类似，但较<code>RequestChannel</code>更加简单，因为消息通道不需要做数据包匹配，也无需做超时处理，它只是单纯的成功失败，所以这里就不再展开了。</p>
+<p>有了这样一个非常灵活轻巧的通讯组件，高层的使用代码会类似于下面这样：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">AccountUpdateNicknameRequest *request = [AccountUpdateNicknameRequest new];</span><br><span class="line">request.nickname = nickname;</span><br><span class="line"></span><br><span class="line">[[<span class="keyword">self</span>.requestChannel sendRequest:request] onComplete:^(<span class="built_in">NSError</span> *error, CCNResponse *response) &#123;</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">        <span class="comment">// ....</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        AccountUpdateNicknameResponse *realResponse = (<span class="type">id</span>)response;</span><br><span class="line">        <span class="comment">// ....</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<p>看上去还是非常内聚的，并且不受限于特定的模块，我们非常愉快的解决了第一道屏障，但又给我们带来了新的挑战。那就是工作量，文章一开始就提到过：<strong>工期逼赶</strong>，所以，我们没有可能有太多的时间来撰写很多的<code>Request/Response/Message</code>。怎么办？花这么大气力构建的设计，难道就要这样抛弃掉？</p>
+<p>怎么可能？那么接下来我们就来克服这个难题，缩短所需开发时间，在不缩减质量的前提下。</p>
+<h2 id="争分夺秒的代码生成"><a href="#争分夺秒的代码生成" class="headerlink" title="争分夺秒的代码生成"></a>争分夺秒的代码生成</h2><p>这些所需要编写的<code>Package</code>，其实有很多重复性的工作，并且，由于<code>Objective-C</code>语法的特性，我们也输入了很多额外的字符。那么，要节约时间，很自然的就想到了代码生成。在<code>C#</code>中，有 CodeSmith、T4 等很多令人印象深刻的代码生成工具，但在<code>Objective-C</code>这个领域，网络上似乎很难找到一款非常强大且易用的代码生成工具。</p>
+<p>那么，怎么办呢？既然没有，那就自己手动实现一个吧，我们需要设计一个针对性很强的代码生成工具，相对而言，还是比较简单的。</p>
+<h3 id="语法定义"><a href="#语法定义" class="headerlink" title="语法定义"></a>语法定义</h3><p>所谓代码生成，其实和编译器的概念是一样的，编译器将我们所书写的源代码转换成机器码，想象一下，这为我们省去了多少时间。那么我们需要实现的也就是一个编译器，将我们自定义的源码文件转换成所需要的各种<code>Package</code>定义。</p>
+<p>类似于<code>Protocol Buffers</code>的定义，我将这个源码生成工具取名为<code>Package Buffers</code>，以下是我为它设计的语法原型：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line">#!using <span class="string">&quot;xxx.pkg&quot;</span></span><br><span class="line"></span><br><span class="line">@option1: xxx1</span><br><span class="line">@option2: xxx2</span><br><span class="line"></span><br><span class="line"># comment</span><br><span class="line">@<span class="keyword">package</span> Package &#123;</span><br><span class="line">	@option1: xxx1</span><br><span class="line">	@option2: xxx2</span><br><span class="line"></span><br><span class="line">	int8 field1 &#123;</span><br><span class="line">	    @option1: xxx1</span><br><span class="line">	    @option2: xxx2</span><br><span class="line">	&#125;</span><br><span class="line">	uint8 field2</span><br><span class="line">	int16 field3</span><br><span class="line">	uint16 field3</span><br><span class="line">	<span class="type">int32</span> field4</span><br><span class="line">	<span class="type">uint32</span> field5</span><br><span class="line">	<span class="type">int64</span> field6</span><br><span class="line">	<span class="type">uint64</span> field7</span><br><span class="line">	<span class="type">bool</span> field8</span><br><span class="line">	<span class="type">float</span> field9</span><br><span class="line">	<span class="type">double</span> field10</span><br><span class="line">	<span class="type">string</span> field11</span><br><span class="line">	any field14</span><br><span class="line">	list&lt;int8&gt; field12</span><br><span class="line">	map&lt;<span class="type">string</span>, int8&gt; field13</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@<span class="keyword">enum </span><span class="title class_">Enum</span> : uint8 &#123;</span><br><span class="line">	@option1: xxx1</span><br><span class="line">	@option1: xxx2</span><br><span class="line">	</span><br><span class="line">	field1 = <span class="number">1</span></span><br><span class="line">	field2 = <span class="number">2</span></span><br><span class="line">	field3 = <span class="number">30</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>为了减少输入量，我将语法设计的尽量精简，省去了不必要的分号。上面便是一个语法完全合格的<code>Package Buffers</code>源文件，我们首要的工作是需要为这个源文件定义抽象语法树（VST），其次是实现解析器构建语法树，最后通过语法树生成我们想要的代码。</p>
+<p>要定义语法树，我需要对这个源文件做一些说明，只有深刻的了解了语法，我们才能定义出正确的语法树。大体分为以下几个概念：</p>
+<ol>
+<li><strong>预编译指令</strong>：以<code>#!</code>开头的内容，上面代码中的<code>#!using</code>就是一个预编译指令，预编译指令用在解析源码前，对源文件做预先处理</li>
+<li><strong>数据包</strong>：以<code>@package</code>开头便是定义一个数据包，数据包名称紧跟其后，花括号中便是整个数据包的详细定义</li>
+<li><strong>枚举</strong>：以<code>@enum</code>开头便是定义一个枚举，名称和元类型紧跟其后，花括号中是枚举的详细定义</li>
+<li><strong>字段</strong>：定义在数据包中，用空格分隔的，前面为字段类型，后面为字段名称</li>
+<li><strong>枚举字段</strong>：枚举字段与普通字段不同，它是在枚举中，没有字段类型，但有字段值</li>
+<li><strong>选项</strong>：所有以<code>@</code>开头（_除去package和enum_）的基本都是选项，选项是对其所在作用域作补充说明，用于增强代码生成器的可扩展性。比如，在文件作用域中可以定义一些全局的选项，数据包作用域中定义只影响当前数据包的选项</li>
+<li><strong>注释</strong>：已<code>#</code>开头的，都是可以被忽略的注释内容</li>
+</ol>
+<p>有了上述的说明，我们可以将整个语法树类图构建出来了：</p>
+<p><img data-src="/images/2015/08/24/05.png" alt="语法树类图"></p>
+<h3 id="解析器实现"><a href="#解析器实现" class="headerlink" title="解析器实现"></a>解析器实现</h3><p>构建完语法树之后，我们就要考虑如何将源码转换成语法树了，标准的编译流程是这样的：Tokenizer -&gt; Parser -&gt; Expression，可以借助于<code>ANTLR</code>这样的工具来生成。但，我们的语法比较简单，可以直接从 Parser 到 Expression，全手动撸也不会有太多的工作量。</p>
+<p>于是综合权衡后，决定采用<code>Swift</code>作为实现语言，应用<strong>递归下降分析法</strong>作为解析器的核心算法，很幸运的在 GitHub 上找到一个开源的项目，封装了一套比较好用的分析器。地址如下：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ollie-williams/octopus">https://github.com/ollie-williams/octopus</a></p>
+<p>这是一个非常简单的封装，当对于我们而言已经足够了，于是用这个库实现<code>OptionDescriptor</code>的解析代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">struct</span> <span class="title class_">DescriptorParser</span> &#123;</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> skip         <span class="operator">=</span> many(commt <span class="operator">|</span> regex(<span class="string">&quot;<span class="subst">\\</span>s+&quot;</span>))</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> at           <span class="operator">=</span> const(<span class="string">&quot;@&quot;</span>)</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> dquote       <span class="operator">=</span> const(<span class="string">&quot;<span class="subst">\&quot;</span>&quot;</span>)</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> id           <span class="operator">=</span> regex(<span class="string">&quot;<span class="subst">\\</span>w+&quot;</span>) <span class="operator">~&gt;</span> skip</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> val          <span class="operator">=</span> (id <span class="operator">|</span> ( dquote <span class="operator">&gt;~</span> regex(<span class="string">&quot;[^<span class="subst">\&quot;</span>]+&quot;</span>) <span class="operator">~&gt;</span> dquote)) <span class="operator">~&gt;</span> skip</span><br><span class="line">    <span class="keyword">static</span> <span class="keyword">let</span> colon        <span class="operator">=</span> const(<span class="string">&quot;:&quot;</span>) <span class="operator">~&gt;</span> skip</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">struct</span> <span class="title class_">Option</span>: <span class="title class_">Parser</span> &#123;</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">let</span> optpair  <span class="operator">=</span> at <span class="operator">&gt;~</span> id <span class="operator">~&gt;~</span> (colon <span class="operator">&gt;~</span> val) <span class="operator">|&gt;</span> <span class="type">Option</span>.make</span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">let</span> optimpl  <span class="operator">=</span> skip <span class="operator">&gt;~</span> optpair <span class="operator">~&gt;</span> skip</span><br><span class="line">       </span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">make</span>(<span class="params">name</span>: <span class="type">String</span>, <span class="params">value</span>: <span class="type">String</span>) -&gt; <span class="type">OptionDescriptor</span> &#123;</span><br><span class="line">            <span class="keyword">let</span> result <span class="operator">=</span> <span class="type">OptionDescriptor</span>(value: value)</span><br><span class="line">            result.name <span class="operator">=</span> name</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">return</span> result</span><br><span class="line">        &#125;</span><br><span class="line">       </span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">parse</span>(<span class="params">string</span>: <span class="type">String</span>) -&gt; <span class="type">OptionDescriptor</span>? &#123;</span><br><span class="line">            <span class="keyword">return</span> parse(<span class="type">CharStream</span>(str: string))</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">static</span> <span class="keyword">func</span> <span class="title function_">parse</span>(<span class="params">stream</span>: <span class="type">CharStream</span>) -&gt; <span class="type">OptionDescriptor</span>? &#123;</span><br><span class="line">            <span class="keyword">return</span> optimpl.parse(stream)</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">typealias</span> <span class="type">Target</span> <span class="operator">=</span> <span class="type">OptionDescriptor</span></span><br><span class="line">        <span class="keyword">func</span> <span class="title function_">parse</span>(<span class="params">stream</span>: <span class="type">CharStream</span>) -&gt; <span class="type">Target</span>? &#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="type">Option</span>.parse(stream)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其它实现类似，都是比较简单粗暴的将源码转换成了语法树，其自定义的操作符还是非常有特色的，省略了很多不必要的嵌套。当构建完解析器，也完成了所有语法树的解析时，那么接下来就需要构建生成器了，将语法树生成我们真正想要的源代码。</p>
+<h3 id="生成器实现"><a href="#生成器实现" class="headerlink" title="生成器实现"></a>生成器实现</h3><p>生成器的实现就非常简单了，首先通过<strong>访问者模式</strong>对语法树进行遍历，找出一些语法错误；其次再挨个的将语法树转换成代码，这个过程比较繁杂，但也不可避免。当然，我们也需要进行一些轻量级的封装，以达到下面的代码风格：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">func</span> <span class="title function_">predefines</span>() -&gt; <span class="type">Writer</span> &#123;</span><br><span class="line">    <span class="keyword">var</span> writer: <span class="type">Writer</span> <span class="operator">=</span> empty()</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">let</span> depends <span class="operator">=</span> file.dependencies.flatMap(&#123; <span class="variable">$0</span>.descriptor.elements &#125;).filter(&#123;<span class="variable">$0</span> <span class="keyword">is</span> <span class="type">PackageDescriptor</span>&#125;)</span><br><span class="line">    <span class="keyword">let</span> defineds <span class="operator">=</span> file.descriptor.elements.filter(&#123;<span class="variable">$0</span> <span class="keyword">is</span> <span class="type">PackageDescriptor</span>&#125;)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> pkg <span class="keyword">in</span> depends &#123;</span><br><span class="line">        writer <span class="operator">=</span> (writer <span class="operator">=&gt;</span> str(<span class="string">&quot;@class &quot;</span>) <span class="operator">=&gt;</span> sp.elestr(pkg) <span class="operator">=&gt;</span> str(<span class="string">&quot;;&quot;</span>) <span class="operator">=&gt;</span> endl())</span><br><span class="line">        writer <span class="operator">=</span> (writer <span class="operator">=&gt;</span> str(<span class="string">&quot;@protocol &quot;</span>) <span class="operator">=&gt;</span> sp.elestr(pkg) <span class="operator">=&gt;</span> str(<span class="string">&quot;Builder;&quot;</span>) <span class="operator">=&gt;</span> endl())</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> pkg <span class="keyword">in</span> defineds &#123;</span><br><span class="line">        writer <span class="operator">=</span> (writer <span class="operator">=&gt;</span> str(<span class="string">&quot;@class &quot;</span>) <span class="operator">=&gt;</span> sp.elestr(pkg) <span class="operator">=&gt;</span> str(<span class="string">&quot;;&quot;</span>) <span class="operator">=&gt;</span> endl())</span><br><span class="line">        writer <span class="operator">=</span> (writer <span class="operator">=&gt;</span> str(<span class="string">&quot;@protocol &quot;</span>) <span class="operator">=&gt;</span> sp.elestr(pkg) <span class="operator">=&gt;</span> str(<span class="string">&quot;Builder;&quot;</span>) <span class="operator">=&gt;</span> endl())</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> writer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上面的代码，是将一个<code>PackageDescriptor</code>所定义的类和所有依赖的类预先申明在头文件中。可以看出还是比较简单的就可以实现，其它生成逻辑就不在这里赘述了，最终使用到的<code>Package Buffers</code>文件定义如下：</p>
+<figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#!using <span class="string">&quot;CCNPackage.Constants.pkgdef&quot;</span></span><br><span class="line"></span><br><span class="line">@<span class="keyword">import</span>: <span class="string">&quot;CCNRequest.h&quot;</span></span><br><span class="line">@impl_import: <span class="string">&quot;CCNResponse.h&quot;</span></span><br><span class="line">@super_class: CCNRequest</span><br><span class="line">@preffix: CCNBuddy</span><br><span class="line">@ccn_sid: SID_BUDDY</span><br><span class="line"></span><br><span class="line"># 更新好友备注请求</span><br><span class="line">@<span class="keyword">package</span> UpdateBuddyRemarkRequest &#123;</span><br><span class="line">	@ccn_cid: CID_BUDDY_REQ_UPDATE_REMARK</span><br><span class="line">	@expect_cid: CID_BUDDY_RES_UPDATE_REMARK</span><br><span class="line">	@seq_no: identifier</span><br><span class="line"></span><br><span class="line">	<span class="type">uint32</span> identifier</span><br><span class="line">	<span class="type">string</span> remark</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>非常简略的定义，就可以帮我们生成很多重复性工作的代码，如此一来大概可以节约掉70%的工作量。这也是一种解决繁杂问题的思路，磨刀不误砍柴工，说得应该就是这样的道理吧！</p>
+<h2 id="本篇完"><a href="#本篇完" class="headerlink" title="本篇完"></a>本篇完</h2><p>作为单篇博文，我思考了下，还是要尽量的减少字数，所以本系列将采用分篇的方式。这一篇下来，我们完成了整个 IM 非常基础也非常重要的底层框架，这将是整个高层设计的基石。后续，将会解开整个高层设计的神秘面纱，带你解读一系列用心良苦的设计。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E9%80%9A%E8%AE%AF%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/" rel="tag"># 通讯基础设施</a>
+              <a href="/tags/%E6%B6%88%E6%81%AF%E5%BD%92%E7%B1%BB/" rel="tag"># 消息归类</a>
+              <a href="/tags/%E6%B6%88%E6%81%AF%E7%AE%A1%E9%81%93/" rel="tag"># 消息管道</a>
+              <a href="/tags/%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90/" rel="tag"># 代码生成</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2015/07/08/why-we-using-swift-these-features/" rel="prev" title="带你领略 Swift 的风骚">
+      <i class="fa fa-chevron-left"></i> 带你领略 Swift 的风骚
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2015/10/04/let-us-talk-about-the-im-architecture-again-part-b/" rel="next" title="再谈 IM 架构设计（中）">
+      再谈 IM 架构设计（中） <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BF%85%E9%A1%BB%E9%87%8D%E5%A1%91%E7%9A%84%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD"><span class="nav-number">1.</span> <span class="nav-text">必须重塑的基础设施</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%94%E7%92%9E%E5%BD%92%E7%9C%9F%E7%9A%84%E9%80%9A%E8%AE%AF%E7%BB%84%E4%BB%B6"><span class="nav-number">2.</span> <span class="nav-text">返璞归真的通讯组件</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%BD%92%E7%B1%BB"><span class="nav-number">2.1.</span> <span class="nav-text">消息归类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%AE%A1%E9%81%93"><span class="nav-number">2.2.</span> <span class="nav-text">消息管道</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%89%E5%88%86%E5%A4%BA%E7%A7%92%E7%9A%84%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90"><span class="nav-number">3.</span> <span class="nav-text">争分夺秒的代码生成</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%AD%E6%B3%95%E5%AE%9A%E4%B9%89"><span class="nav-number">3.1.</span> <span class="nav-text">语法定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%A3%E6%9E%90%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.2.</span> <span class="nav-text">解析器实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%94%9F%E6%88%90%E5%99%A8%E5%AE%9E%E7%8E%B0"><span class="nav-number">3.3.</span> <span class="nav-text">生成器实现</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%AC%E7%AF%87%E5%AE%8C"><span class="nav-number">4.</span> <span class="nav-text">本篇完</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。 题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MEF核心笔记（1）基础应用">
+<meta property="og:url" content="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。 题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2013/04/04/001.png">
+<meta property="article:published_time" content="2013-04-04T15:04:57.000Z">
+<meta property="article:modified_time" content="2015-09-29T08:32:49.000Z">
+<meta property="article:author" content="Makee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2013/04/04/001.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MEF核心笔记（1）基础应用 | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2013/04/04/mef-core-note-basic-using/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MEF核心笔记（1）基础应用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-04-04 23:04:57" itemprop="dateCreated datePublished" datetime="2013-04-04T23:04:57+08:00">2013-04-04</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/MEF/" itemprop="url" rel="index"><span itemprop="name">MEF</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2013/04/04/mef-core-note-basic-using/" class="post-meta-item leancloud_visitors" data-flag-title="MEF核心笔记（1）基础应用" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2013/04/04/mef-core-note-basic-using/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2013/04/04/mef-core-note-basic-using/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>从接触MEF到现在，已经有些年头了，虽然有些年头，但一直未在实际项目中使用，这可能是因为它的.NET Framework框架太高，毕竟目前公司的主流项目都是用.NET Framework 3.5。如此，冷落了它，有点可惜。最近可能会需要用到了，所以写一些笔记，来让自己熟悉起来。</p>
+<p>题外话说一下，最近公司的小组里面一位成员要离开了，小组中也就我和他有对领域驱动设计有所研究，还没好好合作一次呢，也真是可惜。的确，这世间就是有太多的可惜，也许，哪天不如意了，我也会离开。当然，这一切都是题外话，偶尔的伤感和牢骚后，我们应该继续向前看，毕竟，向前看脖子才不酸（相比起仰视）。</p>
+<p>废话不多说了，下面，我们进入正题吧。</p>
+<span id="more"></span>
+
+
+<h2 id="一、基本概念"><a href="#一、基本概念" class="headerlink" title="一、基本概念"></a>一、基本概念</h2><ul>
+<li><strong>MEF</strong>：Managed Extensibility Framework，.NET 4.0中带来的一个基于托管的扩展程序开发框架（挺拗口的，不过只是概念），另外通过强大的百度百科，我们发现MEF还是“小鼠胚胎成纤维细胞”的简称（这货是？）。</li>
+<li><strong>Contract</strong>：契约，即一种约定，具体在代码中表现为接口和抽象类。自从进入.NET 4.0，契约这个单词我们应该不会陌生，WCF中贯穿着各种契约，无论如何，契约就是一种约定。</li>
+<li><strong>Import</strong>：导入，导入契约的实现，说明此处需要一个实现的契约。</li>
+<li><strong>Export</strong>：导出，导出契约的实现，说明相应的类中实现了相应的契约。</li>
+<li><strong>Part</strong>：部件，即实现契约的类。</li>
+<li><strong>Catalog</strong>：目录（我是这样定义的），存放部件的地方，当需要某个部件时，会在目录中寻找。</li>
+<li><strong>Container</strong>：容器，存放目录并进行部件管理，如导出、导入等。</li>
+<li><strong>Compose</strong>：组装，通过容器在目录中寻找到实现了相应契约的部件，进行部件的组装。</li>
+</ul>
+<h2 id="二、框架图示"><a href="#二、框架图示" class="headerlink" title="二、框架图示"></a>二、框架图示</h2><p><img data-src="/images/2013/04/04/001.png" alt="框架图示"></p>
+<p>不是很会作图，上面的图就将就着看吧。一个Component Import了两个Contract，分别是Contract 1和Contract 2，一个Catalog中有两个Part并且Export了上诉的两个Contract，最后，Component通过Container的Compose操作，实例化了两个Contract。（我表述的不是很好，说的很拗口，但MEF是非常简单的框架，坚持看下去，你一定会学会的）</p>
+<h2 id="三、基本使用示例"><a href="#三、基本使用示例" class="headerlink" title="三、基本使用示例"></a>三、基本使用示例</h2><p>下面到了动手操作的时候了，打开Visual Studio，新建一个.NET 4的控制台项目【MyMEFApplication】，添加对MEF库的引用，即“System.ComponentModel.Composition”。</p>
+<h3 id="1、添加一个契约"><a href="#1、添加一个契约" class="headerlink" title="1、添加一个契约"></a>1、添加一个契约</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//这便是我们的契约 Contract</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ICalculator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">int</span> <span class="title">Add</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="built_in">int</span> <span class="title">Sub</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="2、实现这个契约"><a href="#2、实现这个契约" class="headerlink" title="2、实现这个契约"></a>2、实现这个契约</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//此处我们导出了契约，这就是一个部件</span></span><br><span class="line">[<span class="meta">Export(typeof(ICalculator))</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MyCalculator</span> : <span class="title">ICalculator</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Add</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Add Invoked&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> a + b;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Sub</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> &#123;</span><br><span class="line">        Console.WriteLine(<span class="string">&quot;Sub Invoked&quot;</span>);</span><br><span class="line">        <span class="keyword">return</span> a - b;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3、完成测试程序"><a href="#3、完成测试程序" class="headerlink" title="3、完成测试程序"></a>3、完成测试程序</h3><figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title">Program</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> CompositionContainer _container;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span> &#123;</span><br><span class="line">        <span class="comment">//AssemblyCatalog 目录的一种，表示在相应的程序集中搜索</span></span><br><span class="line">        <span class="keyword">var</span> catalog = <span class="keyword">new</span> AssemblyCatalog(<span class="keyword">typeof</span>(Program).Assembly);</span><br><span class="line">        _container = <span class="keyword">new</span> CompositionContainer(catalog);</span><br><span class="line"></span><br><span class="line">        MathCompute mathCompute = <span class="keyword">new</span> MathCompute();</span><br><span class="line">        _container.ComposeParts(mathCompute);<span class="comment">//组装部件</span></span><br><span class="line"></span><br><span class="line">        Console.WriteLine(mathCompute.Add(<span class="number">1</span>, <span class="number">3</span>));</span><br><span class="line">        Console.WriteLine(mathCompute.Sub(<span class="number">3</span>, <span class="number">2</span>));</span><br><span class="line"></span><br><span class="line">        Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">MathCompute</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//我们需要导入这个契约实现的部件</span></span><br><span class="line">    [<span class="meta">Import(typeof(ICalculator))</span>]</span><br><span class="line">    <span class="keyword">private</span> ICalculator _calculator;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Add</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> _calculator.Add(a, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">int</span> <span class="title">Sub</span>(<span class="params"><span class="built_in">int</span> a, <span class="built_in">int</span> b</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> _calculator.Sub(a, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于时间仓促，本次示例相当简单，并且无实际意义，接下来的实例，我会尽量弄些有实际意义的东西。</p>
+<h2 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h2><p>本篇笔记中，我们大致的了解了MEF的使用，并且完成了一个很无聊的应用程序。我们熟知了什么是导入、导出，什么是契约、容器，这样就够了。</p>
+<p>文中所涉及的源码项目地址：<a target="_blank" rel="noopener" href="https://github.com/prinsun/BlogDemo.MEF01">https://github.com/prinsun/BlogDemo.MEF01</a></p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2013/04/05/mef-core-note-about-catalog/" rel="next" title="MEF核心笔记（2）Catalog的种类">
+      MEF核心笔记（2）Catalog的种类 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.</span> <span class="nav-text">一、基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%A1%86%E6%9E%B6%E5%9B%BE%E7%A4%BA"><span class="nav-number">2.</span> <span class="nav-text">二、框架图示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E7%A4%BA%E4%BE%8B"><span class="nav-number">3.</span> <span class="nav-text">三、基本使用示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1%E3%80%81%E6%B7%BB%E5%8A%A0%E4%B8%80%E4%B8%AA%E5%A5%91%E7%BA%A6"><span class="nav-number">3.1.</span> <span class="nav-text">1、添加一个契约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2%E3%80%81%E5%AE%9E%E7%8E%B0%E8%BF%99%E4%B8%AA%E5%A5%91%E7%BA%A6"><span class="nav-number">3.2.</span> <span class="nav-text">2、实现这个契约</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3%E3%80%81%E5%AE%8C%E6%88%90%E6%B5%8B%E8%AF%95%E7%A8%8B%E5%BA%8F"><span class="nav-number">3.3.</span> <span class="nav-text">3、完成测试程序</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-number">4.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>

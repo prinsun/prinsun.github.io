@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="最近事情很多，有烦恼，有悲伤，不过，一切想通后，感觉其实也没什么。毕竟，这是每个人都要经历了，那么恭喜自己，就要当爸爸了，一个程序员爸爸。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MEF核心笔记（5）是模式还是设计">
+<meta property="og:url" content="http://blog.makeex.com/2013/04/18/mef-core-note-pattern-or-design/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="最近事情很多，有烦恼，有悲伤，不过，一切想通后，感觉其实也没什么。毕竟，这是每个人都要经历了，那么恭喜自己，就要当爸爸了，一个程序员爸爸。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2013/04/18/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2013/04/18/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2013/04/18/03.png">
+<meta property="article:published_time" content="2013-04-18T14:32:41.000Z">
+<meta property="article:modified_time" content="2015-09-29T08:33:14.000Z">
+<meta property="article:author" content="Makee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2013/04/18/01.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2013/04/18/mef-core-note-pattern-or-design/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>MEF核心笔记（5）是模式还是设计 | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2013/04/18/mef-core-note-pattern-or-design/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          MEF核心笔记（5）是模式还是设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2013-04-18 22:32:41" itemprop="dateCreated datePublished" datetime="2013-04-18T22:32:41+08:00">2013-04-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/MEF/" itemprop="url" rel="index"><span itemprop="name">MEF</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2013/04/18/mef-core-note-pattern-or-design/" class="post-meta-item leancloud_visitors" data-flag-title="MEF核心笔记（5）是模式还是设计" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2013/04/18/mef-core-note-pattern-or-design/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2013/04/18/mef-core-note-pattern-or-design/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近事情很多，有烦恼，有悲伤，不过，一切想通后，感觉其实也没什么。毕竟，这是每个人都要经历了，那么恭喜自己，就要当爸爸了，一个程序员爸爸。</p>
+<span id="more"></span>
+
+<h2 id="同事的设计"><a href="#同事的设计" class="headerlink" title="同事的设计"></a>同事的设计</h2><p>最近同事在做关于WCF的一个项目，而我主要负责WCF通讯的部分，所以无意间看到了他的设计。该同事出生Java，话说Java中的设计模式要比C#起步早很多，但，如果只是为了模式而去设计，那么就失去了模式的意义。</p>
+<p>该项目的业务流程大概可以归结于下图：</p>
+<p><img data-src="/images/2013/04/18/01.png" alt="业务流程图"></p>
+<p>业务逻辑很简单，有客户端发送一个命令给服务器端，服务器端根据不同的命令返回不同的结果。这其中的通讯已经通过WCF实现了，所以，现在主要要设计的便是这命令的解析。</p>
+<p>同事的设计代码如下：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">using</span> System;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">CommandBase</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="built_in">string</span> <span class="title">Execute</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">        CommandBase cmd = <span class="literal">null</span>;</span><br><span class="line">        <span class="keyword">switch</span> (command) &#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;cmd1&quot;</span>:</span><br><span class="line">                cmd = <span class="keyword">new</span> CommandA();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&quot;cmd2&quot;</span>:</span><br><span class="line">                cmd = <span class="keyword">new</span> CommandB();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            <span class="literal">default</span>:</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (cmd != <span class="literal">null</span>) <span class="keyword">return</span> cmd.Execute();</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">string</span>.Empty;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">virtual</span> <span class="built_in">string</span> <span class="title">Execute</span>()</span> &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">string</span>.Empty;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CommandA</span> : <span class="title">CommandBase</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">Execute</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;CommandA&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CommandB</span> : <span class="title">CommandBase</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">protected</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">Execute</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;CommandB&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>看上去蛮好，有多态，有继承，并且类的耦合度不高。是蛮好的，但是我觉得不适合，有点为了模式而设计的嫌疑。具体有什么问题？那么我们继续就这个设计，来做进一步的讨论。</p>
+<h2 id="针对同事设计随想"><a href="#针对同事设计随想" class="headerlink" title="针对同事设计随想"></a>针对同事设计随想</h2><p>首先，我们看看它的类关系图：</p>
+<p><img data-src="/images/2013/04/18/02.png" alt="同事设计的类关系图"></p>
+<p>由于<code>CommandA</code>和<code>CommandB</code>继承至<code>CommandBase</code>，所以，它们与<code>CommandBase</code>是强耦合关系，并且<code>CommandBase</code>中的静态方法引用了<code>CommandA</code>、<code>CommandB</code>，所以，<code>CommandBase</code>对<code>CommandA</code>、<code>CommandB</code>又有依赖关系。</p>
+<p>如此一来，我们发现整个系统中，只有<code>CommandA</code>和<code>CommandB</code>是松耦合的，但是，这是我们所想要的么？其实，恰恰不是，我们期望的是对外提供一个统一的<code>Command</code>执行接口，并且内部能够安全方便的添加新的<code>Command</code>支持。如果按照这样的设计，难免会出现以下问题：</p>
+<ul>
+<li>由于系统中的<code>Command</code>很多，导致太多的<code>CommandBase</code>子类，引发子类膨胀性增长。</li>
+<li><code>CommandBase</code>中的<code>Switch</code>语句会越来越长，与子类的个数相对应。<br>解决上述问题，我们可以通过改良一些设计，并引入MEF来解决。</li>
+</ul>
+<h2 id="最后的设计"><a href="#最后的设计" class="headerlink" title="最后的设计"></a>最后的设计</h2><p>其实，解决上述的两个问题也并不怎么困难，针对第一个问题，我们需要优化下程序的结构，而第二个问题，我们就需要引入MEF了。</p>
+<p>首先，我们要理清一下类的职责，<code>CommandBase</code>的设计总让人感觉怪异，特别是它的静态方法。所以我们这里改变一下设计，将<code>Command</code>抽象成一个接口，然后由一个实体类来管理<code>Command</code>的调用，基本结构如下：</p>
+<p><img data-src="/images/2013/04/18/03.png" alt="最后设计图"></p>
+<p>如此一来，我们解除了继承导致的依赖，并且，所有的实现都是依赖于抽象的。但是，我们似乎解决了所有问题，又似乎什么问题也没有解决。有了上面这样的程序结构，我们解决子类膨胀增长的问题，就很简单了，主要是接口的设计：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ICommand</span> &#123;</span><br><span class="line">    <span class="function"><span class="built_in">bool</span> <span class="title">CanHandle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>通过这样的接口设计，我们可以把一组相关的<code>Command</code>放在一个类中实现，只要<code>CanHandle</code>返回<code>true</code>，即代表我们可以处理这个<code>Command</code>。例如，我们将先前同事设计的<code>CommandA</code>和<code>CommandB</code>合并为一个类：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CommandAB</span> : <span class="title">ICommand</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">bool</span> <span class="title">CanHandle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> command == <span class="string">&quot;cmd1&quot;</span> || command == <span class="string">&quot;cmd2&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (command == <span class="string">&quot;cmd1&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;CommandA&quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;CommandB&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>下面最重要的，是我们的<code>CommandHandler</code>要如何实现，其实也相当的简单：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title">CommandHandler</span> &#123;</span><br><span class="line">    <span class="comment">//单例创建</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">readonly</span> CommandHandler _instance = <span class="keyword">new</span> CommandHandler();</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> CommandHandler Instance &#123; <span class="keyword">get</span> &#123; <span class="keyword">return</span> _instance; &#125; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> IList&lt;ICommand&gt; HandleCommandList &#123; <span class="keyword">get</span>; <span class="keyword">private</span> <span class="keyword">set</span>; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">CommandHandler</span>()</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.HandleCommandList = <span class="keyword">new</span> List&lt;ICommand&gt;();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> cmd <span class="keyword">in</span> <span class="keyword">this</span>.HandleCommandList) &#123;</span><br><span class="line">            <span class="keyword">if</span> (cmd.CanHandle(command))</span><br><span class="line">                <span class="keyword">return</span> cmd.Handle(command);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">string</span>.Empty;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>仔细看看上面的代码，其实很简单。为了统一管理<code>ICommand</code>，我们将它实现成了单例模式，现在我们可以这样来使用：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">CommandHandler.Instance.HandleCommandList.Add(<span class="keyword">new</span> CommandAB());</span><br><span class="line"></span><br><span class="line">Console.WriteLine(CommandHandler.Instance.Handle(<span class="string">&quot;cmd1&quot;</span>));</span><br><span class="line">Console.WriteLine(CommandHandler.Instance.Handle(<span class="string">&quot;cmd2&quot;</span>));</span><br></pre></td></tr></table></figure>
+
+<p>能到这一步，已经很不错了，但是，我们不喜欢手动的<code>Add</code>，所以，现在是MEF最佳的使用时机了（最后完善的代码）：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">interface</span> <span class="title">ICommand</span> &#123;</span><br><span class="line">    <span class="function"><span class="built_in">bool</span> <span class="title">CanHandle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">    <span class="function"><span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//单例创建</span></span><br><span class="line">[<span class="meta">Export, PartCreationPolicy(CreationPolicy.Shared)</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">sealed</span> <span class="keyword">class</span> <span class="title">CommandHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    [<span class="meta">ImportMany</span>]</span><br><span class="line">    <span class="keyword">private</span> IEnumerable&lt;ICommand&gt; _handleCommandList;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">private</span> <span class="title">CommandHandler</span>()</span> &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">foreach</span> (<span class="keyword">var</span> cmd <span class="keyword">in</span> _handleCommandList) &#123;</span><br><span class="line">            <span class="keyword">if</span> (cmd.CanHandle(command))</span><br><span class="line">                <span class="keyword">return</span> cmd.Handle(command);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="built_in">string</span>.Empty;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[<span class="meta">InheritedExport(typeof(ICommand))</span>]</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">class</span> <span class="title">CommandBase</span> : <span class="title">ICommand</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="built_in">bool</span> <span class="title">CanHandle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">CommandAB</span> : <span class="title">CommandBase</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">bool</span> <span class="title">CanHandle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> command == <span class="string">&quot;cmd1&quot;</span> || command == <span class="string">&quot;cmd2&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">override</span> <span class="built_in">string</span> <span class="title">Handle</span>(<span class="params"><span class="built_in">string</span> command</span>)</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (command == <span class="string">&quot;cmd1&quot;</span>)</span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;CommandA&quot;</span>;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">            <span class="keyword">return</span> <span class="string">&quot;CommandB&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>细看代码，你还是会觉得MEF很有用处的，由此一来，我们解决了所有问题，使用方式如下：</p>
+<figure class="highlight c#"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> CompositionContainer _container;</span><br><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="built_in">string</span>[] args</span>)</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> catalog = <span class="keyword">new</span> AssemblyCatalog(<span class="keyword">typeof</span>(Program).Assembly);</span><br><span class="line">    _container = <span class="keyword">new</span> CompositionContainer(catalog);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> commandHandler = _container.GetExportedValue&lt;CommandHandler&gt;();</span><br><span class="line">    Console.WriteLine(commandHandler.Handle(<span class="string">&quot;cmd1&quot;</span>));</span><br><span class="line">    Console.WriteLine(commandHandler.Handle(<span class="string">&quot;cmd2&quot;</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        Console.ReadLine();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至此，我们所依赖的，是MEF的容器，后续增加新的<code>Command</code>也会很方便，对外的统一接口更不会改变。通过这一个例子，我们综合性的感受了下MEF的使用，而到这里，MEF的系列已经接近尾声了。</p>
+<p>那么，恭喜你，你应该已经学会使用MEF了。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2013/04/09/mef-core-note-attribute-part-b/" rel="prev" title="MEF核心笔记（4）细说MEF中的Attribute [下]">
+      <i class="fa fa-chevron-left"></i> MEF核心笔记（4）细说MEF中的Attribute [下]
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2014/04/13/mef-core-note-hug-with-aop/" rel="next" title="MEF核心笔记（6）让 MEF 拥抱 AOP">
+      MEF核心笔记（6）让 MEF 拥抱 AOP <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%8C%E4%BA%8B%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">同事的设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%92%88%E5%AF%B9%E5%90%8C%E4%BA%8B%E8%AE%BE%E8%AE%A1%E9%9A%8F%E6%83%B3"><span class="nav-number">2.</span> <span class="nav-text">针对同事设计随想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%9C%80%E5%90%8E%E7%9A%84%E8%AE%BE%E8%AE%A1"><span class="nav-number">3.</span> <span class="nav-text">最后的设计</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>

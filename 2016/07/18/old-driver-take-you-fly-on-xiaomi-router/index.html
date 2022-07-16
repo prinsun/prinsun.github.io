@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（_后来忘了这茬_），看来梦想终是破灭了。 于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了小米路由3。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐">
+<meta property="og:type" content="article">
+<meta property="og:title" content="老司机带你玩转小米路由">
+<meta property="og:url" content="http://blog.makeex.com/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（_后来忘了这茬_），看来梦想终是破灭了。 于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了小米路由3。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/02.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/03.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/04.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/05.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/06.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/07.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/08.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/09.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/10.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2016/07/18/11.png">
+<meta property="article:published_time" content="2016-07-18T14:13:25.000Z">
+<meta property="article:modified_time" content="2016-07-18T17:33:11.000Z">
+<meta property="article:author" content="Makee">
+<meta property="article:tag" content="小米路由3">
+<meta property="article:tag" content="Openwrt">
+<meta property="article:tag" content="Node">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2016/07/18/01.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>老司机带你玩转小米路由 | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          老司机带你玩转小米路由
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-07-18 22:13:25" itemprop="dateCreated datePublished" datetime="2016-07-18T22:13:25+08:00">2016-07-18</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cross-Compile/" itemprop="url" rel="index"><span itemprop="name">Cross Compile</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Cross-Compile/Openwrt/" itemprop="url" rel="index"><span itemprop="name">Openwrt</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/" class="post-meta-item leancloud_visitors" data-flag-title="老司机带你玩转小米路由" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2016/07/18/old-driver-take-you-fly-on-xiaomi-router/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>前段时间，由于家中无人，水管突然爆裂，导致水漫金山，以致于把我珍藏多年的高配 TP-Link 给活生生的淹死了。想当年克俭克勤，好不容易买来准备把玩 Openwrt 的（_后来忘了这茬_），看来梦想终是破灭了。</p>
+<p>于是，在家人好言相劝并不断督促的前提下，我怒下重金在京东买了<a target="_blank" rel="noopener" href="http://item.jd.com/2713336.html">小米路由3</a>。一个炎热而又百般无聊的下午，京东快递小哥暧昧的给我递上一个包裹，小米路由安静而美丽的躺在里面，久违的清风吹过，家人乐了，而老司机我这次却坐不住了。</p>
+<p>这一次，一定要抽空把玩下这货，以免人生再留下遗憾啊！</p>
+<span id="more"></span>
+
+
+<h2 id="开启-SSH"><a href="#开启-SSH" class="headerlink" title="开启 SSH"></a>开启 SSH</h2><p>一转眼几周过去了，老司机觉得时机已经成熟，可以对它动手了。而这首当其冲的，是需要我们去剥开它的外衣，直入主题。开启 SSH 后，才可以让我们对它一览无遗，而要开启小米路由3的 SSH，首先我们要升级它的 ROM，稳定版是不能开启的。</p>
+<h3 id="升级为开发版-ROM"><a href="#升级为开发版-ROM" class="headerlink" title="升级为开发版 ROM"></a>升级为开发版 ROM</h3><p>升级很简单，我们进入这个网址：</p>
+<p><a target="_blank" rel="noopener" href="http://www1.miwifi.com/miwifi_download.html">http://www1.miwifi.com/miwifi_download.html</a></p>
+<p>选择 ROM 标签，然后下载小米路由3的开发版 ROM，<strong>注意不要选错路由器哦</strong>。我目前下载到的版本是<code>2.13.33</code>，然后进入小米路由器管理界面：<a target="_blank" rel="noopener" href="http://192.168.31.1/">http://192.168.31.1</a> ，进入 <strong>[常用设置]</strong> -&gt; **[系统状态]**，点击 <strong>[手动升级]</strong> ，然后选择你下载的 ROM，一段时间的等待后，再进入系统状态查看就已经是你升级的开发版啦。</p>
+<h3 id="官方工具开启-SSH"><a href="#官方工具开启-SSH" class="headerlink" title="官方工具开启 SSH"></a>官方工具开启 SSH</h3><p>有了开发版这个前提，老司机可以带你用官方工具来开启 SSH 了，进入官方的这个地址：</p>
+<p><a target="_blank" rel="noopener" href="http://www1.miwifi.com/miwifi_open.html">http://www1.miwifi.com/miwifi_open.html</a></p>
+<p>滚动到 <strong>开启SSH工具</strong> 这里：</p>
+<p><img data-src="/images/2016/07/18/01.png"></p>
+<p>点击进入，这里会显示你 root 的密码，赶快用个小本子记下来吧：</p>
+<p><img data-src="/images/2016/07/18/02.png"></p>
+<p>点击下载工具包，然后按照官方的步骤如下：</p>
+<blockquote>
+<ol>
+<li>请将下载的工具包bin文件复制到U盘（FAT&#x2F;FAT32格式）的根目录下，保证文件名为miwifi_ssh.bin；</li>
+<li>断开小米路由器的电源，将U盘插入 USB 接口；</li>
+<li>按住 reset 按钮之后重新接入电源，指示灯变为黄色闪烁状态即可松开 reset 键；</li>
+<li>等待3-5秒后安装完成之后，小米路由器会自动重启，之后您就可以尽情折腾啦 ：）</li>
+</ol>
+</blockquote>
+<p>不过这里老司机要提醒下，如果你的路由没有固定，那么想一个人完成这整个动作有点困难，对于老司机我，当然就轻车熟路了。</p>
+<h3 id="初尝-SSH-连接"><a href="#初尝-SSH-连接" class="headerlink" title="初尝 SSH 连接"></a>初尝 SSH 连接</h3><p>一切完毕后，等这一刻是不是已经很久了，那么赶快进入主题吧：</p>
+<pre><code>ssh root@192.168.31.1
+</code></pre>
+<p>输入你刚刚记在小本子上的密码，进入后可以看到震撼的欢迎界面：</p>
+<p><img data-src="/images/2016/07/18/03.png"></p>
+<p>顿时<a target="_blank" rel="noopener" href="http://www.iqiyi.com/w_19rtkzkp3d.html">雷总被鬼畜后</a>那魔性的声音在我脑海中旋转起来，老司机欣然的笑了笑，这工程师文化，牛逼！来不及多想，试验了几个命令，发现<code>opkg</code>都没有了，看来小米对 openwrt 做了些阉割。扫了扫几个 bin 目录，发现工具还是挺多的，包括一个简化版的 vi。然后再扫了扫 lib 目录，发现里面集成的库还是很多的，值得注意的是 C 标准库用的是<code>uClibc</code>。</p>
+<p>这时候，如果你想在 &#x2F;root 目录下建立文件，肯定会报只读的错误，没关系，我们重新挂载下 &#x2F;root，按下面命令执行：</p>
+<pre><code># cd /data
+# mkdir -p diy/root
+# mount diy/root/ /root
+</code></pre>
+<p>这时候再进入 &#x2F;root 目录下，就可以进行读写操作了，从现在开始，我们可以做一些更有趣的事情，比如写一个小程序玩玩。</p>
+<h2 id="交叉编译环境搭建"><a href="#交叉编译环境搭建" class="headerlink" title="交叉编译环境搭建"></a>交叉编译环境搭建</h2><p>小米路由官方提供了<a target="_blank" rel="noopener" href="http://dev.xiaomi.com/docs/routerplugin/user_guide/">插件开发文档</a>，但这种受限且无趣的扩展，老司机是一点都提不起精神，甚至连试都懒得去试。我们需要一些更加激进的玩法，需要更大的掌控权利，所以开发完全原生的应用是个不错的选择。</p>
+<p>开发原生应用，那就不得不搭建一个交叉编译环境了，在这之前首先我们要清楚小米路由的 CPU 是什么架构的：</p>
+<pre><code>uname -m
+</code></pre>
+<p>输出了<code>mips</code>，呃，<code>mips</code>还有大端<code>mipsbe</code>和小端<code>mipsel</code>区分，这个在没有法写程序的情况下，还真不好区分。没关系，我们先去官方找找看，有没有现成的交叉环境。</p>
+<p>进入刚刚下载开启 SSH 工具的地址：<a target="_blank" rel="noopener" href="http://www1.miwifi.com/miwifi_open.html">http://www1.miwifi.com/miwifi_open.html</a></p>
+<p>选择 <strong>小米路由器插件开发文档</strong>，下载下来是一个 sdk_package.zip 文件，解压后看到了 toolchain 目录：</p>
+<p><img data-src="/images/2016/07/18/04.png"></p>
+<p>什么鬼？怎么这些 toolchain 都是 arm 架构的，完全不符合情理，老司机都不镇定了。用<code>file</code>看了下，这些都是 linux 下的二进制文件，作为有追求的 mac 党，果断删、删、删。</p>
+<p>于是，抱着好奇的态度，点了旁边 <strong>小米路由Mini插件开发文档</strong>，下载下来是一个 sdk_package_r1c.zip 文件，解压后看到了 toolchain 目录：</p>
+<p><img data-src="/images/2016/07/18/05.png"></p>
+<p>这下 CPU 架构对了，看来是小端<code>mipsel</code>无疑了，但是老司机怒了，原来这小米路由3就是小米路由mini的升级版啊！没有追求的人可以直接开 linux 虚拟机用这 toolchain 去玩耍了，但老司机是绝对不会做这事。既然官方没有提供 mac 下的 toolchain，老司机决定自己去编译一个。</p>
+<h3 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h3><p>要在 mac 上编译 openwrt，需要有些准备工作，首先用<code>brew</code>安装一些依赖库，逐条执行：</p>
+<pre><code>brew tap homebrew/dupes
+brew install coreutils findutils gawk gnu-getopt gnu-tar grep wget quilt xz
+brew ln gnu-getopt --force
+</code></pre>
+<p>依赖库安装完后，我们需要导一下环境变量：</p>
+<pre><code>export PATH=&quot;/usr/local/opt/coreutils/libexec/gnubin:$PATH&quot;
+</code></pre>
+<p>其次，mac 的文件系统默认是大小写不明感的（_Case-insensitive_），而 openwrt 必须在大小写敏感的（_Case-sensitive_）文件系统上编译，这点也不难，我们创建一个即可：</p>
+<pre><code>hdiutil create -size 10g -type SPARSE -fs &quot;Case-sensitive HFS+&quot; -volname OpenWrt OpenWrt.sparseimage
+hdiutil attach OpenWrt.sparseimage
+</code></pre>
+<p>创建完毕并附加成功后，我们切入到这个盘中：</p>
+<pre><code>cd /Volumes/OpenWrt
+</code></pre>
+<p>接下来就是下载源码了，进入 openwrt 的官方 git 仓库：<a target="_blank" rel="noopener" href="http://git.openwrt.org/">http://git.openwrt.org</a> ，我们发现最新的稳定版是<code>15.05</code>，那我们就选择这个版本。</p>
+<pre><code>git clone git://git.openwrt.org/15.05/openwrt.git
+</code></pre>
+<p>等待克隆完毕，老司机就可以带你编译了！</p>
+<h3 id="开始编译"><a href="#开始编译" class="headerlink" title="开始编译"></a>开始编译</h3><p>克隆完毕后，我们需要更新和安装下 openwrt 的包列表，执行下面命令：</p>
+<pre><code>scripts/feeds update -a
+scripts/feeds install -a
+</code></pre>
+<p>等待执行完毕后，开始我们的定制化编译配置了，openwrt 这块做得还是非常人性化的，执行<code>make menuconfig</code>之后，我们看见一个命令行下的图形化配置界面：</p>
+<p><img data-src="/images/2016/07/18/06.png"></p>
+<p>这个界面有点酷啊，注意图中老司机的红色箭头标注，这里选择了系统架构和要构建 toolchain，按两次 ESC，保存后，我们就可以开始编译了。</p>
+<pre><code>make toolchain/install
+</code></pre>
+<p>这个要耗蛮久的时间，老司机转身就出门抽烟去了，大概 20 多分钟后它才编译完成，这时候新鲜出炉的 toolchain 就在 staging_dir 目录下了：</p>
+<p><img data-src="/images/2016/07/18/07.png"></p>
+<h2 id="久违的-Hello-World"><a href="#久违的-Hello-World" class="headerlink" title="久违的 Hello World"></a>久违的 Hello World</h2><p>这一刻我们已经等得太久了，mac 下的 toolchain 在老司机的轻车熟路下很快就构建了出来，那么我们试试写一个经典的<code>Hello World</code>吧！</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">    cout &lt;&lt; <span class="string">&quot;Hello World&quot;</span> &lt;&lt; endl;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>编译前，我们需要指定<code>STAGING_DIR</code>到 openwrt 编译好的 staging_dir，依次执行如下：</p>
+<pre><code>export STAGING_DIR=/Volumes/OpenWrt/openwrt/staging_dir
+export CXX=/Volumes/OpenWrt/openwrt/staging_dir/toolchain-mipsel_mips32_gcc-4.8-linaro_uClibc-0.9.33.2/bin/mipsel-openwrt-linux-g++
+$CXX helloworld.cpp -o helloworld
+</code></pre>
+<p>正确的生成了 helloworld 文件，我们用<code>file</code>命令看一下：</p>
+<pre><code>helloworld: ELF 32-bit LSB executable, MIPS, MIPS32 version 1, dynamically linked (uses shared libs), with unknown capability 0xf41 = 0x756e6700, with unknown capability 0x70100 = 0x3040000, not stripped
+</code></pre>
+<p>现在放到小米路由上试试吧：</p>
+<pre><code>scp helloworld root@192.168.31.1:/root/
+</code></pre>
+<p>结果如下图：</p>
+<p><img data-src="/images/2016/07/18/08.png"></p>
+<p>这个<code>Hello World</code>可真是久违了，那么再来一个更加现代化的<code>Hello World</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">(<span class="type">void</span>)</span> </span>&#123;</span><br><span class="line">    [](<span class="type">const</span> std::string &amp;input) &#123;</span><br><span class="line">       cout &lt;&lt; input &lt;&lt; endl; </span><br><span class="line">    &#125;(<span class="string">&quot;Hello World!&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令编译：</p>
+<pre><code>$CXX -std=c++11 helloworld.cpp -o helloworld2
+</code></pre>
+<p>拷贝、执行，完全没问题！你以为这样的 Hello World 就算结束了么？真正的大招现在才开始呢！</p>
+<h2 id="放大招，上-Node"><a href="#放大招，上-Node" class="headerlink" title="放大招，上 Node"></a>放大招，上 Node</h2><p>Node JS 可以说在跨平台这一块算是做得非常出色的，而在 openwrt 平台上编译 Node JS 也并非难事，最新的非稳定吧 openwrt 中已经包含了 Node 包了，但遗憾的是，最新的 openwrt 使用的是<code>musl-libc</code>实现，这个 C 标准库与<code>uClibc</code>二进制不兼容，所以编译的二进制文件小米路由3是无法使用的。</p>
+<p>老司机灵机一动，想到一个最简单的编译方式，把最新版 openwrt 的  Node 包拷贝到<code>15.05</code>中，用<code>15.05</code>来编译，如此一来少了很多麻烦的参数配置。于是乎：</p>
+<pre><code>cd /Volumes/OpenWrt
+
+# 克隆最新版到 openwrt_dev
+git clone git://git.openwrt.org/openwrt.git openwrt_dev
+
+# 拷贝最新版的 feeds 包
+cd /Volumes/OpenWrt/openwrt/package
+cp -rf ../../openwrt_dev/package/feeds .
+</code></pre>
+<p>这些都执行完毕后，我们再回到 openwrt 根目录<code>make menuconfig</code>：	<br><img data-src="/images/2016/07/18/09.png"></p>
+<p>注意上图中的层次，保存好后，我们直接<code>make -j2</code>，漫长的等待之后，在下面的目录中产生了编译好的 Node：</p>
+<pre><code>/Volumes/OpenWrt/openwrt/build_dir/target-mipsel_mips32_uClibc-0.9.33.2/node-v4.4.5/out/Release
+</code></pre>
+<p>我们拷贝到路由上，再次写一个<code>Hello World</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http&#x27;</span>);</span><br><span class="line"></span><br><span class="line">http.<span class="title function_">createServer</span>(<span class="keyword">function</span> (<span class="params">req, res</span>) &#123;</span><br><span class="line">  res.<span class="title function_">writeHead</span>(<span class="number">200</span>, &#123;<span class="string">&#x27;Content-Type&#x27;</span> : <span class="string">&#x27;text/plain&#x27;</span>&#125;);</span><br><span class="line">  res.<span class="title function_">end</span>(<span class="string">&#x27;Hello World!\n&#x27;</span>);</span><br><span class="line">&#125;).<span class="title function_">listen</span>(<span class="number">8080</span>, <span class="string">&#x27;0.0.0.0&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;server running at http://0.0.0.0:8080/&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>路由器上跑起来，完全没问题：</p>
+<p><img data-src="/images/2016/07/18/10.png"></p>
+<p>本地访问起来，也完全没问题：</p>
+<p><img data-src="/images/2016/07/18/11.png"></p>
+<h2 id="还能怎么玩"><a href="#还能怎么玩" class="headerlink" title="还能怎么玩"></a>还能怎么玩</h2><p>折腾下来，发现 openwrt 的可定制程度还是相当高的，小米路由3嘛，就是一个弱鸡！老司机觉得，接下来可以折腾、折腾小米硬件相关的 API 使用了（_libroutermain\libxmrouter_）。</p>
+<p>当然，永远相信，美好的事情即将发生！</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B0%8F%E7%B1%B3%E8%B7%AF%E7%94%B13/" rel="tag"># 小米路由3</a>
+              <a href="/tags/Openwrt/" rel="tag"># Openwrt</a>
+              <a href="/tags/Node/" rel="tag"># Node</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/05/22/the-oop-thought-of-xcode-project-manage/" rel="prev" title="从面向对象来理解 Xcode 的项目管理">
+      <i class="fa fa-chevron-left"></i> 从面向对象来理解 Xcode 的项目管理
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/08/19/thinking-in-fe-the-more-modern-web-develop/" rel="next" title="Thinking in FE 更现代的 Web 开发">
+      Thinking in FE 更现代的 Web 开发 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%80%E5%90%AF-SSH"><span class="nav-number">1.</span> <span class="nav-text">开启 SSH</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%87%E7%BA%A7%E4%B8%BA%E5%BC%80%E5%8F%91%E7%89%88-ROM"><span class="nav-number">1.1.</span> <span class="nav-text">升级为开发版 ROM</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%AE%98%E6%96%B9%E5%B7%A5%E5%85%B7%E5%BC%80%E5%90%AF-SSH"><span class="nav-number">1.2.</span> <span class="nav-text">官方工具开启 SSH</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9D%E5%B0%9D-SSH-%E8%BF%9E%E6%8E%A5"><span class="nav-number">1.3.</span> <span class="nav-text">初尝 SSH 连接</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA"><span class="nav-number">2.</span> <span class="nav-text">交叉编译环境搭建</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E5%87%86%E5%A4%87"><span class="nav-number">2.1.</span> <span class="nav-text">环境准备</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%A7%8B%E7%BC%96%E8%AF%91"><span class="nav-number">2.2.</span> <span class="nav-text">开始编译</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%85%E8%BF%9D%E7%9A%84-Hello-World"><span class="nav-number">3.</span> <span class="nav-text">久违的 Hello World</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%94%BE%E5%A4%A7%E6%8B%9B%EF%BC%8C%E4%B8%8A-Node"><span class="nav-number">4.</span> <span class="nav-text">放大招，上 Node</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%98%E8%83%BD%E6%80%8E%E4%B9%88%E7%8E%A9"><span class="nav-number">5.</span> <span class="nav-text">还能怎么玩</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>

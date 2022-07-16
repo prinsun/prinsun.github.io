@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="好久没有写博客了，这也算是我步入新工作后的第一篇技术博文吧。在进入新公司前，早就有了技术层进入下一个迭代的准备，但很多事情是意想不到的，就像我以C#程序员的身份面试入职的，而今却是一个全职的iOS开发。从C#到Objective-C的切换，还是有不少成本的，加上今年又推出了Swift，以后要学习的路是漫长的，其实，学习的路本身就是漫长的，不应该满足于一个阶段和特定领域。对我而言，语言的切换，已经太">
+<meta property="og:type" content="article">
+<meta property="og:title" content="pjsip for iOS：编译多平台支持的静态库">
+<meta property="og:url" content="http://blog.makeex.com/2014/06/28/pjsip-for-ios-build-mutil-target-support/index.html">
+<meta property="og:site_name" content="MakeeX">
+<meta property="og:description" content="好久没有写博客了，这也算是我步入新工作后的第一篇技术博文吧。在进入新公司前，早就有了技术层进入下一个迭代的准备，但很多事情是意想不到的，就像我以C#程序员的身份面试入职的，而今却是一个全职的iOS开发。从C#到Objective-C的切换，还是有不少成本的，加上今年又推出了Swift，以后要学习的路是漫长的，其实，学习的路本身就是漫长的，不应该满足于一个阶段和特定领域。对我而言，语言的切换，已经太">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/01.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2014/06/28/02.png">
+<meta property="article:published_time" content="2014-06-28T08:16:39.000Z">
+<meta property="article:modified_time" content="2015-09-29T08:33:49.000Z">
+<meta property="article:author" content="Makee">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2014/06/28/01.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2014/06/28/pjsip-for-ios-build-mutil-target-support/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>pjsip for iOS：编译多平台支持的静态库 | MakeeX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeeX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2014/06/28/pjsip-for-ios-build-mutil-target-support/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Makee">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeeX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          pjsip for iOS：编译多平台支持的静态库
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2014-06-28 16:16:39" itemprop="dateCreated datePublished" datetime="2014-06-28T16:16:39+08:00">2014-06-28</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/pjsip/" itemprop="url" rel="index"><span itemprop="name">pjsip</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2014/06/28/pjsip-for-ios-build-mutil-target-support/" class="post-meta-item leancloud_visitors" data-flag-title="pjsip for iOS：编译多平台支持的静态库" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2014/06/28/pjsip-for-ios-build-mutil-target-support/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2014/06/28/pjsip-for-ios-build-mutil-target-support/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>好久没有写博客了，这也算是我步入新工作后的第一篇技术博文吧。在进入新公司前，早就有了技术层进入下一个迭代的准备，但很多事情是意想不到的，就像我以C#程序员的身份面试入职的，而今却是一个全职的iOS开发。从C#到Objective-C的切换，还是有不少成本的，加上今年又推出了Swift，以后要学习的路是漫长的，其实，学习的路本身就是漫长的，不应该满足于一个阶段和特定领域。对我而言，语言的切换，已经太常见了，学习一门语言是很容易的事情，但，完全的掌握它，却不是易事，就像去摸清一个陌生人的脾气一样。有点扯远了，还是进入今天的正题吧！</p>
+<span id="more"></span>
+
+<p>pjsip，如果你不知道它是什么，那么说明你无需使用它，那也就没必要继续看我的这篇文章了。由于项目中需要使用到VOIP，而对比下来，使用SIP实现的代价是相对小的，在Android里，谷歌内置了对SIP的支持，IOS中就没这么好运了，于是乎找到了pjsip，这是一个纯C的库，实现的相当漂亮。在网络上找了很久，也没有找到适合我这种的入门级教程，在我的摸索和努力下，终于搞出点名堂来了。那么，恭喜你，你不用走我走过的弯路了。</p>
+<p>下面正式开始，一步步来：</p>
+<h2 id="第一步：下载"><a href="#第一步：下载" class="headerlink" title="第一步：下载"></a>第一步：下载</h2><p>首先，去<a target="_blank" rel="noopener" href="http://www.pjsip.org/download.htm">官网</a>下载源代码，这里推荐下载.tar.bz2的包，下载完成后，找到对应的目录，用<code>tar</code>命令或者图形化操作来解压，这里我用命令行的方式来操作：</p>
+<pre><code>$ tar -jxvf pjproject-2.2.1.tar.bz2
+</code></pre>
+<h2 id="第二步：编译"><a href="#第二步：编译" class="headerlink" title="第二步：编译"></a>第二步：编译</h2><p>首先，要在pjlib&#x2F;include&#x2F;pj&#x2F;目录下，建立一个config_site.h的文件，切换到该目录下，用<code>vi</code>或者<code>touch</code>一个文件：</p>
+<pre><code>$ cd pjlib/include/pj/
+$ vi config_site.h
+</code></pre>
+<p>按照官方的<a target="_blank" rel="noopener" href="http://trac.pjsip.org/repos/wiki/Getting-Started/iPhone">说明文档</a>，我们文件内容定义如下：</p>
+<pre><code>#define PJ_CONFIG_IPHONE 1
+#include &lt;pj/config_site_sample.h&gt;
+</code></pre>
+<p>OK，保存，切换回主目录下（也就是有pjlib、pjmedia、pjnath等目录的文件夹），这时候我们就可以编译了，还有个前提，你必须安装了XCode的Command Line Tools（XCode –&gt; Preferences –&gt;Downloads）。</p>
+<h3 id="i386"><a href="#i386" class="headerlink" title="i386"></a>i386</h3><p>首先编译模拟器平台的静态库，依次执行下面这三句：</p>
+<pre><code>$ export DEVPATH=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer
+$ ARCH=&quot;-arch i386&quot; CFLAGS=&quot;-O2 -m32 -mios-simulator-version-min=5.0&quot; LDFLAGS=&quot;-O2 -m32 -mios-simulator-version-min=5.0&quot; ./configure-iphone
+$ make dep &amp;&amp; make clean &amp;&amp; make
+</code></pre>
+<p>OK，没有什么问题的话，你模拟器版本的静态库就编译完成了，它们存在于：</p>
+<ul>
+<li>pjlib&#x2F;lib</li>
+<li>pjlib-util&#x2F;lib</li>
+<li>pjmedia&#x2F;lib</li>
+<li>pjnath&#x2F;lib</li>
+<li>pjsip&#x2F;lib</li>
+<li>third_party&#x2F;lib</li>
+</ul>
+<p>这些，是在以后的SIP开发中，必须要使用到的静态库，目前该库只支持模拟器（可使用<code>lipo -info</code>命令来查看，只支持i386），所以，我们将其拷贝出来，当然，我已经为你写好拷贝的脚本了：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">PJLIB_PATH=<span class="string">&quot;./lib/<span class="variable">$1</span>/pjlib&quot;</span></span><br><span class="line">PJLIB_UTIL_PATH=<span class="string">&quot;./lib/<span class="variable">$1</span>/pjlib-util&quot;</span></span><br><span class="line">PJMEDIA_PATH=<span class="string">&quot;./lib/<span class="variable">$1</span>/pjmedia&quot;</span></span><br><span class="line">PJNATH_PATH=<span class="string">&quot;./lib/<span class="variable">$1</span>/pjnath&quot;</span></span><br><span class="line">PJSIP_PATH=<span class="string">&quot;./lib/<span class="variable">$1</span>/pjsip&quot;</span></span><br><span class="line">THIRD_PARTY=<span class="string">&quot;./lib/<span class="variable">$1</span>/third_party&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;start coping to <span class="variable">$1</span>&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$PJLIB_PATH</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$PJNATH_PATH</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$PJSIP_PATH</span></span><br><span class="line"><span class="built_in">rm</span> -rf <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$PJLIB_PATH</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$PJNATH_PATH</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$PJSIP_PATH</span></span><br><span class="line"><span class="built_in">mkdir</span> -p <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cp</span> -r ./pjlib/lib/ <span class="variable">$PJLIB_PATH</span></span><br><span class="line"><span class="built_in">cp</span> -r ./pjlib-util/lib/ <span class="variable">$PJLIB_UTIL_PATH</span></span><br><span class="line"><span class="built_in">cp</span> -r ./pjmedia/lib/ <span class="variable">$PJMEDIA_PATH</span></span><br><span class="line"><span class="built_in">cp</span> -r ./pjnath/lib/ <span class="variable">$PJNATH_PATH</span></span><br><span class="line"><span class="built_in">cp</span> -r ./pjsip/lib/ <span class="variable">$PJSIP_PATH</span></span><br><span class="line"><span class="built_in">cp</span> -r ./third_party/lib/ <span class="variable">$THIRD_PARTY</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;copy done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将该脚本保存为copylibs.sh存放到主目录下（你应该知道主目录在哪吧！），然后执行：</p>
+<pre><code>$ ./copylibs.sh i386
+</code></pre>
+<p>如果提示权限不够，那么使用<code>chmod 777 copylibs.sh</code>来赋予该文件最大的访问权限，执行完后，所有生成的静态库，都被拷贝到主目录下lib目录中的对应位置。</p>
+<h3 id="armv7"><a href="#armv7" class="headerlink" title="armv7"></a>armv7</h3><p>下面继续编译armv7版的库，关闭刚刚的那个控制台，注意，是全部关闭后再进入，然后到主目录依次执行下面的命令：</p>
+<pre><code>$ ARCH=&#39;-arch armv7&#39; ./configure-iphone
+$ make dep &amp;&amp; make clean &amp;&amp; make
+$ ./copylibs.sh armv7
+</code></pre>
+<h3 id="armv7s"><a href="#armv7s" class="headerlink" title="armv7s"></a>armv7s</h3><p>现在编译armv7s版本的库，这次不用关闭控制台了，直接依次执行下面的命令（有报错误，但都是示例项目编译出错，和静态链接库文件没关系）：</p>
+<pre><code>$ ARCH=&#39;-arch armv7s&#39; ./configure-iphone
+$ make dep &amp;&amp; make clean &amp;&amp; make
+$ ./copylibs.sh armv7s
+</code></pre>
+<h3 id="arm64"><a href="#arm64" class="headerlink" title="arm64"></a>arm64</h3><p>最后，我们完成arm64版本库的编译：</p>
+<pre><code>$ ARCH=&#39;-arch arm64&#39; ./configure-iphone
+$ make dep &amp;&amp; make clean &amp;&amp; make
+$ ./copylibs.sh arm64
+</code></pre>
+<h2 id="第三步：合并静态链接库"><a href="#第三步：合并静态链接库" class="headerlink" title="第三步：合并静态链接库"></a>第三步：合并静态链接库</h2><p>好了，现在我们需要的库都已经被拷贝到lib目录下了，它目前应该是这样的：</p>
+<p><img data-src="/images/2014/06/28/01.png" alt="目录截图"></p>
+<p>对的，这底下有一个mix.sh，当然，这也是我为你写好的脚本：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">OUPUT_PATH=<span class="string">&quot;./mixed/&quot;</span></span><br><span class="line">XLIPO=<span class="string">&quot;/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/usr/bin/lipo&quot;</span>  </span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> <span class="built_in">dir</span> <span class="keyword">in</span> armv7/*</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line">    LIB_NAME=<span class="variable">$&#123;dir##*/&#125;</span></span><br><span class="line">    LIB_OUTPUT=<span class="variable">$&#123;OUPUT_PATH&#125;</span><span class="variable">$LIB_NAME</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">rm</span> -rf <span class="variable">$LIB_OUTPUT</span></span><br><span class="line">    <span class="built_in">mkdir</span> -p <span class="variable">$LIB_OUTPUT</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> subdir <span class="keyword">in</span> <span class="variable">$&#123;dir&#125;</span>/*</span><br><span class="line">    <span class="keyword">do</span></span><br><span class="line">        AFILE=<span class="variable">$&#123;subdir##*/&#125;</span></span><br><span class="line">        ARMV7_FILE=<span class="string">&quot;./armv7/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>&quot;</span></span><br><span class="line">        ARMV7S_FILE=<span class="string">&quot;./armv7s/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>&quot;</span></span><br><span class="line">        ARM64_FILE=<span class="string">&quot;./arm64/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>&quot;</span></span><br><span class="line">        I386_FILE=<span class="string">&quot;./i386/<span class="variable">$LIB_NAME</span>/<span class="variable">$AFILE</span>&quot;</span></span><br><span class="line">        <span class="built_in">echo</span> <span class="string">&quot;start mixing file: <span class="variable">$AFILE</span>&quot;</span></span><br><span class="line">        </span><br><span class="line">        <span class="variable">$&#123;XLIPO&#125;</span> -<span class="built_in">arch</span> armv7 <span class="variable">$ARMV7_FILE</span> -<span class="built_in">arch</span> armv7s <span class="variable">$ARMV7S_FILE</span> -<span class="built_in">arch</span> arm64 <span class="variable">$ARM64_FILE</span> -<span class="built_in">arch</span> i386 <span class="variable">$I386_FILE</span> -create -output <span class="variable">$&#123;LIB_OUTPUT&#125;</span>/<span class="variable">$AFILE</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">echo</span> <span class="string">&quot;all mixed done&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>将上面的脚本，保存到lib目录下mix.sh中，控制台中，<code>cd</code>切换到lib目录下，然后执行：</p>
+<pre><code>./mix.sh 
+</code></pre>
+<p>OK，现在一切都完成了，在lib目录下会多出个mixed目录，该目录底下的所有库，都是包含了上诉各种架构版本信息的，可以使用<code>lipo</code>来验证下：</p>
+<p><img data-src="/images/2014/06/28/02.png" alt="lipo截图"></p>
+<p>注意，无论是合并还是查看，都要使用Xcode下的lipo，mac自带的那个lipo可能版本很低。</p>
+<p>如果你觉得，亲自动手太麻烦的话，那么这里有一个已经帮你编译好的版本，直接下载使用即可：</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/chebur/pjsip">https://github.com/chebur/pjsip</a></p>
+<p>不过，我还是推荐你自己动手来一遍，自己弄出来的，使用起来才更有意思嘛，呵呵~</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2014/04/13/mef-core-note-hug-with-aop/" rel="prev" title="MEF核心笔记（6）让 MEF 拥抱 AOP">
+      <i class="fa fa-chevron-left"></i> MEF核心笔记（6）让 MEF 拥抱 AOP
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2014/06/28/pjsip-for-ios-using-pjsua/" rel="next" title="pjsip for iOS：iPJSUA的简单使用">
+      pjsip for iOS：iPJSUA的简单使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%EF%BC%9A%E4%B8%8B%E8%BD%BD"><span class="nav-number">1.</span> <span class="nav-text">第一步：下载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5%EF%BC%9A%E7%BC%96%E8%AF%91"><span class="nav-number">2.</span> <span class="nav-text">第二步：编译</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#i386"><span class="nav-number">2.1.</span> <span class="nav-text">i386</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#armv7"><span class="nav-number">2.2.</span> <span class="nav-text">armv7</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#armv7s"><span class="nav-number">2.3.</span> <span class="nav-text">armv7s</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#arm64"><span class="nav-number">2.4.</span> <span class="nav-text">arm64</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5%EF%BC%9A%E5%90%88%E5%B9%B6%E9%9D%99%E6%80%81%E9%93%BE%E6%8E%A5%E5%BA%93"><span class="nav-number">3.</span> <span class="nav-text">第三步：合并静态链接库</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Makee"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Makee</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">30</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">39</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Makee</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流...",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : false,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>
