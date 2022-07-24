@@ -28,25 +28,25 @@
 <meta property="og:site_name" content="MakeeX">
 <meta property="og:description" content="闲云潭影日悠悠，物换星移几度秋。阁中帝子今何在？槛外长江空自流。  转眼间又过去了两年有余，时光匆匆，在习惯了被生活拍打向前奔跑的这些日子里，已经很难再挤出感性的文字，似乎从一个诗人变成了一介蛮夫。最近在高温和疫情的双重压迫下，越发觉得需要静下心来，还是要做一个诗人，这样才能写出像诗一样优美的代码呀。不过，在成为真正的诗人之前，请允许我先修炼成 点灯大师。人生路漫漫，难免会走入窄道暗巷，希望在你">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/01-stc89-block.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/02-nxp-block.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/03-pz-dev-board.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/04-pz-led.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/05-pz-led-sch.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/06-pz-mcu-sch.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/07-pz-led-con.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/08-pz-ch340-sch.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/09-led-lighting.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/10-rk-grf-1.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/11-rk-grf-2.png">
-<meta property="og:image" content="http://blog.makeex.com/images/2020/07/16/12-ch32-addr.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/01-stc89-block.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/02-nxp-block.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/03-pz-dev-board.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/04-pz-led.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/05-pz-led-sch.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/06-pz-mcu-sch.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/07-pz-led-con.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/08-pz-ch340-sch.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/09-led-lighting.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/10-rk-grf-1.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/11-rk-grf-2.png">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/07/16/12-ch32-addr.png">
 <meta property="article:published_time" content="2022-07-16T14:22:22.000Z">
-<meta property="article:modified_time" content="2022-07-17T08:34:57.955Z">
+<meta property="article:modified_time" content="2022-07-24T08:00:34.834Z">
 <meta property="article:author" content="Makee">
 <meta property="article:tag" content="Light Master">
 <meta property="article:tag" content="51 单片机">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://blog.makeex.com/images/2020/07/16/01-stc89-block.png">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2022/07/16/01-stc89-block.png">
 
 <link rel="canonical" href="http://blog.makeex.com/2022/07/16/light-master-with-stc89c51/">
 
@@ -281,7 +281,7 @@
 <h2 id="STC89C51-简介"><a href="#STC89C51-简介" class="headerlink" title="STC89C51 简介"></a>STC89C51 简介</h2><h3 id="和-51-单片机的关系"><a href="#和-51-单片机的关系" class="headerlink" title="和 51 单片机的关系"></a>和 51 单片机的关系</h3><p>STC89C51 是 STC80C51 单片机的升级版本，而 STC80C51 就是传统意义上的 51 单片机，51 单片机是大多数嵌入式开发的启蒙单片机。古老但简单，可以快速的上手并了解基础的单片机开发套路，所以，从这块板子开始点灯，我觉得是个不错的选择。</p>
 <h3 id="STC89-系列参数"><a href="#STC89-系列参数" class="headerlink" title="STC89 系列参数"></a>STC89 系列参数</h3><p>STC 是由宏晶科技推出的一系列芯片，官网地址是：<a target="_blank" rel="noopener" href="http://www.stcmcudata.com/">http://www.stcmcudata.com</a>，当然这官网的布局花哨且杂乱，就不在本篇的讨论范畴了。以下是官方对于 STC89 系列单片机的介绍：</p>
 <blockquote>
-<p><img data-src="/images/2020/07/16/01-stc89-block.png"></p>
+<p><img data-src="/images/2022/07/16/01-stc89-block.png"></p>
 <ol>
 <li>增强型 8051 单片机，6 时钟&#x2F;机器周期和 12 时钟&#x2F;机器周期可任意选择，指令代码完全兼容传统 8051</li>
 <li>工作电压: 5.5V-3.3V（5V单片机） &#x2F;3.8V-2.0V (<em>3V单片机</em>)</li>
@@ -313,7 +313,7 @@
 <p>简而言之，MCU 就是比 MPU 计算及处理能力要弱很多的芯片，但价格便宜呀，所以也会有适用的场景。而，我们的 STC89C51，就是一块 MCU。至于什么是 MMU、什么是 RTOS，以及更多的差异点，后续如果涉及到的话，我们再展开讨论。</p>
 <h4 id="SoC-又是什么"><a href="#SoC-又是什么" class="headerlink" title="SoC 又是什么"></a>SoC 又是什么</h4><p>前面讲了 MPU、MCU 这种微芯片，这里又要引出来另外一个概念叫 SoC，SoC 是什么呢？SoC 的全称是片上系统 (<em>System on Chip</em>)。这里我以大家比较熟知的 ARM 处理器来举例，大家有没有想过，很多手机或平板都在号称自己使用的是 ARM 处理器，但同样是 ARM 处理器，为什么会有高通、三星、苹果等等品牌的区别呢？比如高通的骁龙、三星的 Exynos。 这就要将处理器再细分一下了，ARM 公司其实并不实际生产处理器，而是提供处理器的架构设计方案，各个厂商 (<em>比如高通或者三星</em>) 拿到 ARM 公司的设计以及版权后，就可以开始自己的处理器设计，这里的设计并不是对 ARM 的设计进行修改 (<em>应该也是版权不允许的</em>)，而是使用 ARM 架构所预留的接口(<em>或者称之为地址空间</em>)来扩展芯片上的外围设备 (<em>简称芯片外设</em>)，比如加一些控制单元、处理单元等等。这就是片上系统，片上系统所能拓展的外设也很多，比如：GPIO、UART(<em>串口</em>)、I2C、I2S、SPI 等等，这些都称之为芯片的外设(<em>Peripheral</em>)，下图是恩智浦的一款处理器片上系统框图：</p>
 <blockquote>
-<p><img data-src="/images/2020/07/16/02-nxp-block.png"></p>
+<p><img data-src="/images/2022/07/16/02-nxp-block.png"></p>
 </blockquote>
 <p>红色框里的，可以说是实际意义上的 CPU，是由 ARM 公司提供，其它所有的框块都是由恩智浦设计实现，最终一起打包生产 (<em>交给台积电这种</em>)，我们最终能看到的就是一个非常小的小黑块。所以像三星、高通、恩智浦这种，一般也称他们为 SoC 厂商，由他们给 CPU 内核增加外设，这样才能产生真正的实用价值。而我们今天使用的 STC89C51 也是类似，只不过它的核心不是使用的 ARM，而是 Intel。</p>
 <h4 id="什么是开发板"><a href="#什么是开发板" class="headerlink" title="什么是开发板"></a>什么是开发板</h4><p>讲完了 SoC，再来讲开发板就更容易让人理解了。就像上面所说的，如果 ARM 直接给你一块 ARM 的处理器核心，或者 Intel 给了你一块它的核心，以你一个人的能力，大概率是没法去直接使用的。那如果是 SoC 厂商给了你一块 CPU、MPU、MCU 呢？这个要使用起来就简单了很多，但也不是那么容易，一般情况下你需要先通过 SoC 厂商给的芯片手册了解清楚处理器里的外设，以及电器属性；然后构建最小系统电路，最小电路一般包括下面几个部分(<em>简单看看，现在不了解也无所谓</em>)：</p>
@@ -327,12 +327,12 @@
 <p>等板级设备考虑完成之后，你就可以进行电路设计了，先画原理图，再进行 PCB 设计，然后找厂商进行 PCB 打样，打样的同时你可以并行的购买需要的元器件 (<em>比如我们的 LED 灯</em>)。在收到厂商打样回来的样板之后，你就可以进行元器件焊接工作了，不过焊接一个处理器还是挺有成就感的，是不是？当然不可能全是靠电烙铁进行一个针脚、一个针脚的焊接，焊接这个就不展开了。一切准备就绪后，你就可以进行代码编写了，然后下载到板子上进行测试。都没有问题后，就可以考虑设计个外壳，然后组装起来，这就是一整个使用 SoC 厂商给到的芯片流程了。</p>
 <p>是不是觉得流程还是太长了，并且对于初学者而言并不友好，所以这里就引出了另外一个东西，叫 <strong>开发板</strong>。随着 SoC 厂商的芯片复杂度越来越高，想要能够靠一己之力将一块芯片驱动起来已经越来越难，一般情况下 ARM 架构的处理器芯片手册基本都在 4000 页以上，并且有些内容 SoC 厂商也是不会开源的。于是在 SoC 厂商的下游又诞生了另外一个层次：定制方案商或开发板商。SoC 厂商在推出一款新的处理器后，基本也会推出一款对应的示例开发板，所谓开发板就是包含了上述最小系统电路以及部分的板级外设，拿到后插电就可以开发使用的那种。如果是能运行 Linux、Android 这种比较庞大的系统，SoC 厂商还会提供他们移植好的 BootLoader 以及 Android&#x2F;Linux 系统，当然这些 SoC 厂商基本不会直接公开给个人 (<em>部分会在官网提供下载</em>)，但开发板或方案商能拿到这些源码和资料。开发板厂商会参考 SoC 厂商提供的开发板进行定制，要么直接做出各种产品进行售卖 (<em>比如手机、平板、智能音箱等</em>)，要么直接卖大而全的开发板给嵌入式开发者进行学习使用(<em>就是我们这种人了</em>)。SoC 厂商有时候又被称之为原厂，比如在学习 Linux 驱动时，会经常在 <strong>原厂</strong> 提供的设备树基础上进行修改。</p>
 <p>既然励志成为点灯大师，那我们先将关注点转移到怎么点灯，而不是怎么造灯。所以，先买一块开发板，下图是我手头上的一块普中开发板：</p>
-<p><img data-src="/images/2020/07/16/03-pz-dev-board.png"></p>
+<p><img data-src="/images/2022/07/16/03-pz-dev-board.png"></p>
 <p>这里包括后续使用到的所有开发板，为了避免推销嫌疑，都不会给出购买链接的，我们把注意力集中在点灯上。上图中间那黑色的一条就是 STC89C51 的本尊了，其它都是一些板级外设。这块开发板有一个特点，所有外设都不是直接与 MCU 连接的，而是 MCU 引脚连接到了排针上 (<em>或者叫端子</em>)，外设的引脚也是连接到排针上，所以我们需要使用额外的导线将需要的外设与 MCU 对应的引脚通过排针进行连接，这种设计就比较灵活，我们甚至可以通过导线连接到本身不在开发板上的设备。下图是今天我们需要点亮的 LED 灯所在区域：</p>
-<p><img data-src="/images/2020/07/16/04-pz-led.png"></p>
+<p><img data-src="/images/2022/07/16/04-pz-led.png"></p>
 <p>可以看到，这里有好多的灯，并且摆放的很像人行道旁边的红绿灯，我们可以用程序来模拟红绿灯变化情况，不过，这不在本篇的范畴，本篇我们只要点亮一盏灯即可！</p>
 <h2 id="原理图"><a href="#原理图" class="headerlink" title="原理图"></a>原理图</h2><p>在点灯之前，我们需要看下开发板厂商给我们提供的原理图，确定下要怎样才能将灯点亮，以下就是这块 LED 区域的原理图：</p>
-<p><img data-src="/images/2020/07/16/05-pz-led-sch.png"></p>
+<p><img data-src="/images/2022/07/16/05-pz-led-sch.png"></p>
 <p>可以看到这批 LED 灯的一端连接的是 VCC，也就是高电平，另外一端连接到了 J18、J19 两个端子上了，我们要点亮它，只要将 J18、J19 其中任意一个排针给上低电平，就可以亮起来了 (<em>电流从高往低流动起来</em>)。那么怎么给它低电平呢？一般 MCU 的引脚中都包含了一批称之为 GPIO 的引脚，全称就是通用输入输出，这批引脚可以输出高低电平，也可以检测输入的电平高低，当然都是靠编写程序来驱动的。在介绍 STC89C51 时，官方已经给出了这样的说明：</p>
 <blockquote>
 <ol start="6">
@@ -344,7 +344,7 @@
 </ol>
 </blockquote>
 <p>关于上拉、下拉、推挽、开漏这些电器属性，本篇不作展开，可以自行搜索学习。我们这里知道了，P0&#x2F;P1&#x2F;P2&#x2F;P3&#x2F;P4 这些都是 GPIO 接口 (<em>P4是后续的某些升级板子上才有的，我手头上的这块并没有这个接口</em>)，这样就好办了，还需要再看看原理图，这些 GPIO 口连接到了哪里：</p>
-<p><img data-src="/images/2020/07/16/06-pz-mcu-sch.png"></p>
+<p><img data-src="/images/2022/07/16/06-pz-mcu-sch.png"></p>
 <p>就如前面所说，这些引脚都接到了端子上，值得一提的是上图中还包含了一个复位电路，并且将复位信号也接到了端子上，可以用来扩展其它芯片的复位。那么我们所关注的 GPIO 连接分别是：</p>
 <ul>
 <li>P0 - J22</li>
@@ -353,7 +353,7 @@
 <li>P1 - J20</li>
 </ul>
 <p>需要注意的是，这些每一个都是一组 GPIO，每一组包含了 8 个 GPIO，比如 P0 这组就是 P00 - P07，其它类似。所以我们只需要挑选一个引脚即可，这里我们选择 P00，最终是接入到 J22 的 1 号排针上，然后 LED 选择 D1 这个绿色的灯 (<em>不要问为啥选择绿色</em>)，D1 对应的是 J19 的 1 号排针，拿出杜邦线连接后如下图：</p>
-<p><img data-src="/images/2020/07/16/07-pz-led-con.png"></p>
+<p><img data-src="/images/2022/07/16/07-pz-led-con.png"></p>
 <p>硬件准备就绪后，我们下一步就开始准备点灯了！</p>
 <h2 id="开始点灯"><a href="#开始点灯" class="headerlink" title="开始点灯"></a>开始点灯</h2><p>在开始编码点灯之前，我们还要准备下开发环境，已经很久不用 Windows 了，那就看看如何基于 MacOS 来搭建点灯环境吧！</p>
 <h3 id="开发环境准备"><a href="#开发环境准备" class="headerlink" title="开发环境准备"></a>开发环境准备</h3><p>首先我们要安装的肯定是交叉编译器了，要在 MacOS 编译 51 单片机，我们需要安装 SDCC 工具链，可以在以下地址下载安装：</p>
@@ -372,7 +372,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">❯ ./burnit --help</span><br><span class="line">Usage: burnit [OPTION...] [BINARY FILE]</span><br><span class="line">A tool that can burn MCU on MacOS</span><br><span class="line"></span><br><span class="line"> Serial Port Options:</span><br><span class="line">  -b, --baudrate=&lt;BAUDRATE&gt;  Config serial port baudrate</span><br><span class="line">      --bits=[BITS]          Config serial port bits, default is 8</span><br><span class="line">                             valid option is 5|6|7|8</span><br><span class="line">      --parity=[PARITY]      Config serial port parity, default is &#x27;none&#x27;</span><br><span class="line">                             valid option is &#x27;none&#x27;|&#x27;even&#x27;|&#x27;odd&#x27;</span><br><span class="line">  -p, --port=&lt;PORT&gt;          Config serial port address</span><br><span class="line">      --stopbits=[STOPBITS]  Config serial port stopbits, default is 1</span><br><span class="line">                             valid option is 1|1.5|2</span><br><span class="line"></span><br><span class="line"> Burning Options:</span><br><span class="line">  -a, --address=&lt;ADDR&gt;       Config burn address</span><br><span class="line">  -B, --board=&lt;BOARD&gt;        Config which MCU board to use</span><br><span class="line"></span><br><span class="line"> Misc Options:</span><br><span class="line">  -?, --help                 Give this help list</span><br><span class="line">      --board-supports       Show all supported MCU boards</span><br><span class="line">      --usage                Give a short usage message</span><br><span class="line">  -V, --version              Print program version</span><br></pre></td></tr></table></figure>
 
 <p>该工具只支持串口的方式来下载程序，所以可以看到，大部分都在配置串口相关参数，本次使用的开发板中已经集成了一块 USB 转串口的芯片: CH340G，值得一提的是较新的 MacOS 系统中已经内置了 CH340 驱动，所以无需做额外的驱动安装。原理图如下：</p>
-<p><img data-src="/images/2020/07/16/08-pz-ch340-sch.png"></p>
+<p><img data-src="/images/2022/07/16/08-pz-ch340-sch.png"></p>
 <p>普中在这块的下载电路里还做了一个额外的小设计，可以看到 CH340 的 RTS、DTR 引脚通过限流电阻以及三极管最终连接到了一块场效应管上 (Q3)，并且场效应管和前面的开关电路连接，从而可以通过用程序控制 RTS、DTR 来进行电源开关。STC89 需要开关电源后才能进入下载模式，有了这样的设计，就不需要每次烧录程序的时候手动拨动开关了，当然 stcgal 这个工具里没有适配这样的设计，而我们自己写的这个 burnit 就可以更加轻松的下载程序了。</p>
 <h3 id="开始编写程序"><a href="#开始编写程序" class="headerlink" title="开始编写程序"></a>开始编写程序</h3><p>终于到了最关键的一步，我们要写代码来点亮这盏期待已久的 LED 灯了，直接上代码吧：</p>
 <figure class="highlight c"><figcaption><span>led.c</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">void</span> <span class="title function_">main</span><span class="params">()</span> &#123;</span><br><span class="line">    __sbit __at (<span class="number">0x80</span>) P0_0;</span><br><span class="line">    P0_0 = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -387,11 +387,11 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&gt;&gt; writing binary file (106 bytes)...</span><br><span class="line"> 100 % [##################################################]</span><br><span class="line">&gt;&gt; writing binary file done !</span><br><span class="line">&gt;&gt; setting option...</span><br><span class="line">&gt;&gt; setting option done !</span><br><span class="line">&gt;&gt; reset MCU...</span><br><span class="line">&gt;&gt; reset MCU done !</span><br><span class="line">&gt;&gt; disconnected !</span><br></pre></td></tr></table></figure>
 
 <p>标示着整个烧录过程结束，burnit 工具会自动重置开发板，所以这时候这颗 LED 灯应该就亮了起来：</p>
-<p><img data-src="/images/2020/07/16/09-led-lighting.png"></p>
+<p><img data-src="/images/2022/07/16/09-led-lighting.png"></p>
 <p>这是我为你们点亮的第一盏灯，绿色代表着能够一路畅通无阻，期望迷茫的你能找到绿色指明方向。不过为什么短短 5 行代码，它就亮了起来呢？这是接下来我们要讨论的，也是成为点灯大师必修的基本功!</p>
 <h3 id="什么是寄存器"><a href="#什么是寄存器" class="headerlink" title="什么是寄存器"></a>什么是寄存器</h3><p>首先我们要了解清楚的是，什么是寄存器？如果你只做过传统的应用开发，那你了解到的寄存器概念可能是狭义的，传统意义里的寄存器大多是指处理器核心里的寄存器，可以称之为 CPU 寄存器，比如 ARM 的通用寄存器 r0、r1、r2…，Intel 的 eax、ebx、ecx…。前面说过了，SoC 厂商在拿到这些处理器核心后，会开始构建片上系统，也就是基于处理器核心来增加一些额外的处理或控制单元 (<em>比如 GPIO</em>)，那 SoC 的用户怎么使用这些单元呢？也是通过寄存器，SoC 厂商会将这些单元的配置和使用都定义成一系列的寄存器，这就是广义上的寄存器，可以称之为片外寄存器 (<em>片外是相对于处理器核心而言</em>)。因为片外系统需要适应广泛的使用场景，所以一般模块种类和配置方式都很多，因此，SoC 厂商在提供芯片的同时，也会提供对于片外寄存器进行配置使用的描述手册，大多数情况下都会放在数据手册里 (<em>datasheet</em>)，也有直接提供寄存器手册的。这些描述会占据手册的大部分类型，以下是瑞芯微的一款芯片数据手册对于 GPIO 相关寄存器的描述：</p>
 <blockquote>
-<p><img data-src="/images/2020/07/16/10-rk-grf-1.png"><br><img data-src="/images/2020/07/16/11-rk-grf-2.png"></p>
+<p><img data-src="/images/2022/07/16/10-rk-grf-1.png"><br><img data-src="/images/2022/07/16/11-rk-grf-2.png"></p>
 </blockquote>
 <p>可以看到，只是 GPIO 的寄存器就占据了 200 多页的篇幅，所以数据手册只能作为类似于字典来查阅，死记硬背几乎是不可能的事情，也没有必要。那么这些片外寄存器和 CPU 核心是怎么交互的呢？我们虽然知道了这些概念，但到底怎么通过程序来使用它呢？这就要了解下什么是地址了！</p>
 <h3 id="什么是地址"><a href="#什么是地址" class="headerlink" title="什么是地址"></a>什么是地址</h3><p>说到地址，应用开发者的第一反应应该就是指针了，指针是什么？指针就是指向某块内存<strong>地址</strong>的变量，我们可以通过指针直接操作某块内存。这里也引入了一个地址的概念，也就是访问指定内存区域的唯一编号，如果再细究一下，这里的地址又可以分为：虚拟地址、物理地址。一般情况下，站在一个高层应用的视角，它所能看到的地址都是虚拟地址，比如 0x02020303，可以简单认为这就是一个哈希表的 <code>key</code>，系统内核的内存管理模块 (<em>一般使用软件或硬件 MMU 实现</em>)，会通过这个 <code>key</code> 查询到一个 <code>value</code>，而这个 <code>value</code> 就是真实要去访问的地址，也就是物理地址。要深入了解虚拟地址的话，就要牵扯到操作系统的相关设计，这个话题也比较庞大，为了和后续我们所讨论的地址区别开，这里只是简单提一下。作为点灯大师，我们关注的，当然是最接近灯的<strong>物理地址</strong>。</p>
@@ -406,7 +406,7 @@
 </ul>
 <p>那么这里的地址总线上，连接的就是 SoC 厂商所设计的片外模块，通过对模块进行地址分配，地址总线上发出特定的寻址信号时，相应的模块就会感应到自身被呼叫，后续通过数据总线进行数据交换。而模块的地址分配，一般是一个范围的，比如 0x02000000 - 0x0200F00 这个区域是给 I2C 外设、0x03000000 - 0x0300F00 这个区域是给 GPIO 外设等等(<em>这里不是实际数据，地址也不是固定的，要看 SoC 厂商的定义了，只是举个例子</em>)。而每个区域里，又会细分地址，这就是关联到片外寄存器了，每个寄存器都对应了一个实际的物理地址，通过对这个物理地址的操作，就可以直接操作寄存器！以下是某一款 MCU 的地址框图：</p>
 <blockquote>
-<p><img data-src="/images/2020/07/16/12-ch32-addr.png"></p>
+<p><img data-src="/images/2022/07/16/12-ch32-addr.png"></p>
 </blockquote>
 <p>从图中可以看到，这是一个 32 位的地址空间，外设的地址空间是: 0x4000 0000 - 0x4002 4000；一共有 4 组 GPIO 接口：PortA - PortD，地址空间是: 0x4001 0800 - 0x4001 1800。另外可以看出，作为一个 MCU，很多地址空间都是没有被使用，因为本身的能力决定了它使用不完。这里又无意间引出了另外一个概念: <strong>32 位地址空间</strong> (<em>坑越挖越多呀，感觉今天的灯还要再点一会儿</em>)。</p>
 <p>我们常说一个处理是 32 位、64 位，甚至我们今天还说了，STC89 是一个 8 位的处理器，那这个 8 位是指啥呢？是前面我们所说的 32 位的地址总线么？并不是！这里的位数是指数据总线的位数，一般情况下地址总线的位数都是和数据总线相匹配的，但也有例外，比如我们今天所使用的 STC89，虽然数据总线只有 8 位，但地址总线却是 16 位的带宽。我们可以回过头来，看看宏晶所给的 RAM 参数：</p>
@@ -468,6 +468,12 @@ sdld -i led.hex led.rel
     
     
       
+  <div class="popular-posts-header">相关文章</div>
+  <ul class="popular-posts">
+    <li class="popular-posts-item">
+      <div class="popular-posts-title"><a href="/2022/07/24/light-master-with-esp32/" rel="bookmark">点灯大师在线点灯之 ESP32</a></div>
+    </li>
+  </ul>
 
 
       <footer class="post-footer">
@@ -485,7 +491,10 @@ sdld -i led.hex led.rel
     <a href="/2019/03/27/review-the-cpp-virtual-method/" rel="prev" title="温习 C++ 的虚函数">
       <i class="fa fa-chevron-left"></i> 温习 C++ 的虚函数
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/07/24/light-master-with-esp32/" rel="next" title="点灯大师在线点灯之 ESP32">
+      点灯大师在线点灯之 ESP32 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -561,7 +570,7 @@ sdld -i led.hex led.rel
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">31</span>
+          <span class="site-state-item-count">32</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -574,7 +583,7 @@ sdld -i led.hex led.rel
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">41</span>
+        <span class="site-state-item-count">42</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
