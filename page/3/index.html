@@ -23,12 +23,12 @@
 
   <meta name="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="MakeeX">
+<meta property="og:title" content="MakeEX">
 <meta property="og:url" content="http://blog.makeex.com/page/3/index.html">
-<meta property="og:site_name" content="MakeeX">
+<meta property="og:site_name" content="MakeEX">
 <meta property="og:description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:author" content="Makee">
+<meta property="article:author" content="MK">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://blog.makeex.com/page/3/">
@@ -44,7 +44,7 @@
   };
 </script>
 
-  <title>MakeeX</title>
+  <title>MakeEX</title>
   
 
 
@@ -104,7 +104,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">MakeeX</h1>
+      <h1 class="site-title">MakeEX</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -169,16 +169,121 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2015/05/26/the-basic-knowledge-of-unit-test/">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2015/05/30/the-architecture-of-teamtalk-mac-client/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2015/05/30/the-architecture-of-teamtalk-mac-client/" class="post-title-link" itemprop="url">TeamTalk 之 Mac 客户端架构分析</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2015-05-30 11:32:16" itemprop="dateCreated datePublished" datetime="2015-05-30T11:32:16+08:00">2015-05-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OSX/" itemprop="url" rel="index"><span itemprop="name">OSX</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/OSX/Design/" itemprop="url" rel="index"><span itemprop="name">Design</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2015/05/30/the-architecture-of-teamtalk-mac-client/" class="post-meta-item leancloud_visitors" data-flag-title="TeamTalk 之 Mac 客户端架构分析" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2015/05/30/the-architecture-of-teamtalk-mac-client/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2015/05/30/the-architecture-of-teamtalk-mac-client/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>这个周末本打算做点更有意义的事情，但，觉得花点时间对这个开源的IM客户端进行一番分析或许会对后续的工作内容有点帮助。那么，先安抚下内心中那惴惴不安，暂时放下原定的宏伟计划，静下心来，看看别人是怎么来做这个IM的。</p>
+<p>TeamTalk是什么？它是蘑菇街开源的一整套IM解决方案，包括服务端和各种客户端，相关地址如下：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/mogujie/TeamTalk">GitHub 仓库</a></li>
+<li><a target="_blank" rel="noopener" href="http://mogu.io/">团队对外博客</a></li>
+</ul>
+<p>说起来，我和蘑菇街还是有点渊源的，但，这个故事，这里就不做过多展开了（_说多了都是泪啊_），我们直接进入今天的正题吧。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2015/05/30/the-architecture-of-teamtalk-mac-client/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2015/05/26/the-basic-knowledge-of-unit-test/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="MK">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -274,12 +379,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -374,12 +479,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -470,12 +575,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -570,12 +675,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -669,12 +774,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -768,12 +873,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -867,12 +972,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -966,12 +1071,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
@@ -1057,105 +1162,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2013/04/06/mef-core-note-attribute-part-a/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
-      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2013/04/06/mef-core-note-attribute-part-a/" class="post-title-link" itemprop="url">MEF核心笔记（3）细说MEF中的Attribute [上]</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2013-04-06 17:25:34" itemprop="dateCreated datePublished" datetime="2013-04-06T17:25:34+08:00">2013-04-06</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/" itemprop="url" rel="index"><span itemprop="name">C#</span></a>
-                </span>
-                  ，
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/C/MEF/" itemprop="url" rel="index"><span itemprop="name">MEF</span></a>
-                </span>
-            </span>
-
-          
-            <span id="/2013/04/06/mef-core-note-attribute-part-a/" class="post-meta-item leancloud_visitors" data-flag-title="MEF核心笔记（3）细说MEF中的Attribute [上]" title="阅读次数">
-              <span class="post-meta-item-icon">
-                <i class="fa fa-eye"></i>
-              </span>
-              <span class="post-meta-item-text">阅读次数：</span>
-              <span class="leancloud-visitors-count"></span>
-            </span>
-  
-  <span class="post-meta-item">
-    
-      <span class="post-meta-item-icon">
-        <i class="far fa-comment"></i>
-      </span>
-      <span class="post-meta-item-text">评论总数：</span>
-    
-    <a title="valine" href="/2013/04/06/mef-core-note-attribute-part-a/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2013/04/06/mef-core-note-attribute-part-a/" itemprop="commentCount"></span>
-    </a>
-  </span>
-  
-  
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <p>又到了写笔记的时候了，这次的内容网罗了MEF中的所有Attribute，感觉内容偏多，所以分为两个篇幅来记录，篇幅内容过多的话，感觉不太适合阅读。</p>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2013/04/06/mef-core-note-attribute-part-a/#more" rel="contents">
-                阅读全文 &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1217,9 +1223,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Makee"
+    <img class="site-author-image" itemprop="image" alt="MK"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Makee</p>
+  <p class="site-author-name" itemprop="name">MK</p>
   <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -1227,7 +1233,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -1240,7 +1246,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -1279,7 +1285,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Makee</span>
+  <span class="author" itemprop="copyrightHolder">MK</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
@@ -1440,14 +1446,14 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       notify     : false,
       appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
       appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
-      placeholder: "欢迎留言交流...",
+      placeholder: "欢迎留言交流~",
       avatar     : 'mm',
       meta       : guest,
       pageSize   : '10' || 10,
       visitor    : true,
       lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
-      recordIP   : false,
+      recordIP   : true,
       serverURLs : ''
     });
   }, window.Valine);

@@ -25,7 +25,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="TeamTalk 之 Mac 客户端架构分析">
 <meta property="og:url" content="http://blog.makeex.com/2015/05/30/the-architecture-of-teamtalk-mac-client/index.html">
-<meta property="og:site_name" content="MakeeX">
+<meta property="og:site_name" content="MakeEX">
 <meta property="og:description" content="这个周末本打算做点更有意义的事情，但，觉得花点时间对这个开源的IM客户端进行一番分析或许会对后续的工作内容有点帮助。那么，先安抚下内心中那惴惴不安，暂时放下原定的宏伟计划，静下心来，看看别人是怎么来做这个IM的。 TeamTalk是什么？它是蘑菇街开源的一整套IM解决方案，包括服务端和各种客户端，相关地址如下：  GitHub 仓库 团队对外博客  说起来，我和蘑菇街还是有点渊源的，但，这个故事，">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.makeex.com/images/2015/05/30/01.png">
@@ -35,7 +35,7 @@
 <meta property="og:image" content="http://blog.makeex.com/images/emoticons/leibeng.png">
 <meta property="article:published_time" content="2015-05-30T03:32:16.000Z">
 <meta property="article:modified_time" content="2015-09-29T08:35:09.000Z">
-<meta property="article:author" content="Makee">
+<meta property="article:author" content="MK">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="http://blog.makeex.com/images/2015/05/30/01.png">
 
@@ -52,7 +52,7 @@
   };
 </script>
 
-  <title>TeamTalk 之 Mac 客户端架构分析 | MakeeX</title>
+  <title>TeamTalk 之 Mac 客户端架构分析 | MakeEX</title>
   
 
 
@@ -112,7 +112,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">MakeeX</h1>
+      <h1 class="site-title">MakeEX</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -182,12 +182,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -443,9 +443,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Makee"
+    <img class="site-author-image" itemprop="image" alt="MK"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Makee</p>
+  <p class="site-author-name" itemprop="name">MK</p>
   <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -453,7 +453,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -466,7 +466,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -505,7 +505,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Makee</span>
+  <span class="author" itemprop="copyrightHolder">MK</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
@@ -666,14 +666,14 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       notify     : false,
       appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
       appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
-      placeholder: "欢迎留言交流...",
+      placeholder: "欢迎留言交流~",
       avatar     : 'mm',
       meta       : guest,
       pageSize   : '10' || 10,
       visitor    : true,
       lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
-      recordIP   : false,
+      recordIP   : true,
       serverURLs : ''
     });
   }, window.Valine);

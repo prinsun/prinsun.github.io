@@ -25,12 +25,12 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="ObjC 基于上下文的设计">
 <meta property="og:url" content="http://blog.makeex.com/2016/03/16/objc-context-design-pattern/index.html">
-<meta property="og:site_name" content="MakeeX">
+<meta property="og:site_name" content="MakeEX">
 <meta property="og:description" content="春节长假归来，相信大多数人都犯了节后综合征，那么就写一篇博文来收收心。没有心思干活的同学们，可以看看我的这篇文章，权当是散散心，找找感觉。 本篇文章主要介绍了关于上下文（_Context_）的一些概念，并提出了在设计上下文时应该考虑到的问题，最后通过一个实例来演示如何用Objective-C实现一个上下文。相信通过阅读本篇文章，大家能够基本掌握软件设计中上下文的使用，并且，我相信，想象力如此丰富的">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2016-03-16T15:59:57.000Z">
 <meta property="article:modified_time" content="2016-03-16T16:10:55.000Z">
-<meta property="article:author" content="Makee">
+<meta property="article:author" content="MK">
 <meta property="article:tag" content="上下文">
 <meta property="article:tag" content="线程本地存储">
 <meta name="twitter:card" content="summary">
@@ -48,7 +48,7 @@
   };
 </script>
 
-  <title>ObjC 基于上下文的设计 | MakeeX</title>
+  <title>ObjC 基于上下文的设计 | MakeEX</title>
   
 
 
@@ -108,7 +108,7 @@
 
     <a href="/" class="brand" rel="start">
       <span class="logo-line-before"><i></i></span>
-      <h1 class="site-title">MakeeX</h1>
+      <h1 class="site-title">MakeEX</h1>
       <span class="logo-line-after"><i></i></span>
     </a>
   </div>
@@ -178,12 +178,12 @@
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.png">
-      <meta itemprop="name" content="Makee">
+      <meta itemprop="name" content="MK">
       <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="MakeeX">
+      <meta itemprop="name" content="MakeEX">
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
@@ -388,9 +388,9 @@
 
       <div class="site-overview-wrap sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-    <img class="site-author-image" itemprop="image" alt="Makee"
+    <img class="site-author-image" itemprop="image" alt="MK"
       src="/images/avatar.png">
-  <p class="site-author-name" itemprop="name">Makee</p>
+  <p class="site-author-name" itemprop="name">MK</p>
   <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
 </div>
 <div class="site-state-wrap motion-element">
@@ -398,7 +398,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-count">33</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -411,7 +411,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">42</span>
+        <span class="site-state-item-count">45</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -450,7 +450,7 @@
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
-  <span class="author" itemprop="copyrightHolder">Makee</span>
+  <span class="author" itemprop="copyrightHolder">MK</span>
 </div>
   <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
   </div>
@@ -611,14 +611,14 @@ NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
       notify     : false,
       appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
       appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
-      placeholder: "欢迎留言交流...",
+      placeholder: "欢迎留言交流~",
       avatar     : 'mm',
       meta       : guest,
       pageSize   : '10' || 10,
       visitor    : true,
       lang       : 'zh-cn' || 'zh-cn',
       path       : location.pathname,
-      recordIP   : false,
+      recordIP   : true,
       serverURLs : ''
     });
   }, window.Valine);

@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
+  <link rel="mask-icon" href="/favicon.png" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.makeex.com","root":"/","scheme":"Mist","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":true,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}}};
+  </script>
+
+  <meta name="description" content="曳杖危楼去。斗垂天、沧波万顷，月流烟渚。扫尽浮云风不定，未放扁舟夜渡。宿雁落、寒芦深处。怅望关河空吊影，正人间、鼻息鸣鼍鼓。谁伴我，醉中舞。   十年一梦扬州路。倚高寒、愁生故国，气吞骄虏。要斩楼兰三尺剑，遗恨琵琶旧语。谩暗涩铜华尘土。唤取谪仙平章看，过苕溪、尚许垂纶否。风浩荡，欲飞举。  今天是我阳了的第四天，也是正式失业后的第二十天，仅以此词明志，定要守住这“黄沙百战穿金甲，不破楼兰终不还”">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScriptCore 的一些黑魔法">
+<meta property="og:url" content="http://blog.makeex.com/2022/12/27/advanced-javascript-core-usage/index.html">
+<meta property="og:site_name" content="MakeEX">
+<meta property="og:description" content="曳杖危楼去。斗垂天、沧波万顷，月流烟渚。扫尽浮云风不定，未放扁舟夜渡。宿雁落、寒芦深处。怅望关河空吊影，正人间、鼻息鸣鼍鼓。谁伴我，醉中舞。   十年一梦扬州路。倚高寒、愁生故国，气吞骄虏。要斩楼兰三尺剑，遗恨琵琶旧语。谩暗涩铜华尘土。唤取谪仙平章看，过苕溪、尚许垂纶否。风浩荡，欲飞举。  今天是我阳了的第四天，也是正式失业后的第二十天，仅以此词明志，定要守住这“黄沙百战穿金甲，不破楼兰终不还”">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.makeex.com/images/2022/12/27/01-wx-call.png">
+<meta property="article:published_time" content="2022-12-27T09:17:17.000Z">
+<meta property="article:modified_time" content="2022-12-29T09:37:05.062Z">
+<meta property="article:author" content="MK">
+<meta property="article:tag" content="JavaScriptCore">
+<meta property="article:tag" content="私有 API">
+<meta property="article:tag" content="真机调试">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.makeex.com/images/2022/12/27/01-wx-call.png">
+
+<link rel="canonical" href="http://blog.makeex.com/2022/12/27/advanced-javascript-core-usage/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>JavaScriptCore 的一些黑魔法 | MakeEX</title>
+  
+
+
+  <script data-pjax>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?b46a193b288b66b7eb9dc75b4d74eae6";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">MakeEX</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/prinsun" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.makeex.com/2022/12/27/advanced-javascript-core-usage/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="MK">
+      <meta itemprop="description" content="LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="MakeEX">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JavaScriptCore 的一些黑魔法
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2022-12-27 17:17:17" itemprop="dateCreated datePublished" datetime="2022-12-27T17:17:17+08:00">2022-12-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/" itemprop="url" rel="index"><span itemprop="name">iOS</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/iOS/Reverse/" itemprop="url" rel="index"><span itemprop="name">Reverse</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2022/12/27/advanced-javascript-core-usage/" class="post-meta-item leancloud_visitors" data-flag-title="JavaScriptCore 的一些黑魔法" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">评论总数：</span>
+    
+    <a title="valine" href="/2022/12/27/advanced-javascript-core-usage/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2022/12/27/advanced-javascript-core-usage/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>曳杖危楼去。<br>斗垂天、沧波万顷，月流烟渚。<br><strong>扫尽浮云风不定</strong>，未放扁舟夜渡。<br>宿雁落、寒芦深处。<br>怅望关河空吊影，正人间、鼻息鸣鼍鼓。<br>谁伴我，醉中舞。</p>
+</blockquote>
+<blockquote>
+<p>十年一梦扬州路。<br>倚高寒、愁生故国，气吞骄虏。<br><strong>要斩楼兰三尺剑</strong>，遗恨琵琶旧语。<br>谩暗涩铜华尘土。<br>唤取谪仙平章看，过苕溪、尚许垂纶否。<br>风浩荡，欲飞举。</p>
+</blockquote>
+<p>今天是我阳了的第四天，也是正式失业后的第二十天，仅以此词明志，定要守住这“黄沙百战穿金甲，不破楼兰终不还”的魄力！另外关于面试，我觉得它是一次双向选择的过程，而我现在还没想清楚要怎么选择，因为并没有想明白这其中的<strong>意义</strong>和<strong>价值</strong>，所以没有付出太多行动，被动的挂掉了所有面试。十多年了，这是我休过最长的一次假，人生或许真的有其他活法吧。</p>
+<span id="more"></span>
+
+<p>关于前几篇的《点灯大师》系列，原本打算一直更新到 Linux 驱动点灯的（ <em>我手上起码有三种 Linux 的开发板</em> ），后面发生的事情太过魔幻，就耽搁了，按目前的境况而言，估计要无限期的鸽了。这灯终还是没能点到最后呀，不过只要灯点得好，就有机会接触到另外的点灯大师：</p>
+<p><img data-src="/images/2022/12/27/01-wx-call.png"></p>
+<p>这是我离稚晖君最近的一次了，所以截屏纪念了一下，听说他最近也离职了，这也让我失去了更新下一篇《点灯大师》的动力，毕竟我计划下一篇的 SoC 是 Hi3861（ <em>海思的</em> ）。</p>
+<p>回归到本篇的主题吧，也算是回归到我的本职工作了，这几年的工作内容越来越偏门，真正在 iOS 平台上有所研究的，也只能说是 <code>JavaScriptCore</code> 用得比较熟了吧 （笑死…）。本篇内容不多，但涉及到的黑魔法，我觉得在做相关基建时，还是挺实用的，毕竟在 iOS 平台上，JS 引擎除了 JSCore，没有其他选择了。</p>
+<h2 id="调整-Inspector-的调用线程"><a href="#调整-Inspector-的调用线程" class="headerlink" title="调整 Inspector 的调用线程"></a>调整 Inspector 的调用线程</h2><p>为了描述该魔法的使用场景，我们先构建一段测试代码，看测试结果再做解释。先建立一个 <code>NSThread</code> 子类，用于运转一个 <code>RunLoop</code>：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">JSRunThread</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)initWithName:(<span class="built_in">NSString</span> *)name &#123;</span><br><span class="line">    <span class="built_in">NSParameterAssert</span>(name.length);</span><br><span class="line">    <span class="keyword">self</span> = [<span class="variable language_">super</span> init];</span><br><span class="line">    <span class="keyword">self</span>.name = name;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)main &#123;</span><br><span class="line">    <span class="keyword">@autoreleasepool</span> &#123;</span><br><span class="line">        <span class="built_in">CFRunLoopSourceContext</span> noSpinCtx = &#123;<span class="number">0</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>, <span class="literal">NULL</span>&#125;;</span><br><span class="line">        <span class="built_in">CFRunLoopSourceRef</span> noSpinSource = <span class="built_in">CFRunLoopSourceCreate</span>(<span class="literal">NULL</span>, <span class="number">0</span>, &amp;noSpinCtx);</span><br><span class="line">        <span class="built_in">CFRunLoopAddSource</span>(<span class="built_in">CFRunLoopGetCurrent</span>(), noSpinSource, kCFRunLoopDefaultMode);</span><br><span class="line">        <span class="built_in">CFRelease</span>(noSpinSource);</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">while</span> (kCFRunLoopRunStopped !=</span><br><span class="line">               <span class="built_in">CFRunLoopRunInMode</span>(kCFRunLoopDefaultMode, ((<span class="built_in">NSDate</span> *)[<span class="built_in">NSDate</span> distantFuture]).timeIntervalSinceReferenceDate, <span class="literal">NO</span>)) &#123;</span><br><span class="line">            <span class="built_in">NSAssert</span>(<span class="literal">NO</span>, <span class="string">@&quot;not reached assertion&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>基于这个 <code>JSRunThread</code> 我们再构建一段测试代码：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">JSCRunLoopTest</span> () </span>&#123;</span><br><span class="line">    JSContext *_context;</span><br><span class="line">    JSRunThread *_thread;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">JSCRunLoopTest</span></span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">instancetype</span>)init &#123;</span><br><span class="line">    <span class="keyword">self</span> = [<span class="variable language_">super</span> init];</span><br><span class="line">    _thread = [[JSRunThread alloc] initWithName:<span class="string">@&quot;js.test.thread&quot;</span>];</span><br><span class="line">    [_thread start];</span><br><span class="line">    </span><br><span class="line">    [<span class="keyword">self</span> performSelector:<span class="keyword">@selector</span>(_setupJSContext)</span><br><span class="line">                 onThread:_thread</span><br><span class="line">               withObject:<span class="literal">nil</span></span><br><span class="line">            waitUntilDone:<span class="literal">YES</span>];</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">self</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)_setupJSContext &#123;</span><br><span class="line">    <span class="built_in">NSAssert</span>([<span class="built_in">NSThread</span>.currentThread isEqual:_thread], <span class="string">@&quot;&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    _context = [[JSContext alloc] initWithVirtualMachine:[JSVirtualMachine new]];</span><br><span class="line">    _context.name = <span class="string">@&quot;test js context&quot;</span>;</span><br><span class="line">    </span><br><span class="line">    _context[<span class="string">@&quot;testMethod&quot;</span>] = ^(<span class="built_in">NSString</span> *val) &#123;</span><br><span class="line">        <span class="built_in">NSLog</span>(<span class="string">@&quot;invoke under thread: %@&quot;</span>, [<span class="built_in">NSThread</span> currentThread]);</span><br><span class="line">    &#125;;</span><br><span class="line">    </span><br><span class="line">    [_context evaluateScript:<span class="string">@&quot;testMethod()&quot;</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+
+<p>最终测试的地方类似这么写：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> JSCRunLoopTest *test; <span class="comment">// 需要强引用，否则 JSContext 就被释放了</span></span><br><span class="line">test = [JSCRunLoopTest new];</span><br></pre></td></tr></table></figure>
+
+<p>代码不复杂，这里也简单解释下，主要就是构建一个 <code>JSContext</code>，并且是从后台线程进行的初始化，然后注入了一个原生方法 <code>testMethod</code>，并在该方法里打印当前线程。后台线程创建 <code>JSVirtualMachine</code> 的原因是将 GC 线程放置到后台，而并不能限制住 <code>testMethod</code> 的入口线程，也就是说，<code>testMethod</code> 里打印的值是不确定的，这取决于我们是从哪个线程进行的 <code>evaluateScript</code>。从实际应用的角度而言，我们通常会限制住 <code>evaluateScript</code> 的线程为 <code>JSVirtualMachine</code> 的初始化线程，那么就能确保 <code>testMethod</code> 的入口线程是单一的，也就是说不会产生多线程的竞争问题。</p>
+<p>不过还有例外，当我们打开 Safari 的 Inspector，直接从控制台输入 <code>testMethod</code> 进行调用时，你会发现它的入口线程是主线程。这种差异性会给开发、调试带来一些问题，有可能是死锁，或者运行异常。一些自动化测试框架的原理跟 Safari Inspector 一致，所以也会有同样的问题。</p>
+<p>手动去差异性处理线程切换的意义不大，因为这些差异仅产生在测试阶段，线上不应该带上这种不可能触达的代码逻辑，所以就需要使用以下私有 API 了：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">JS_EXPORT <span class="type">void</span> <span class="title function_">JSGlobalContextSetDebuggerRunLoop</span><span class="params">(JSGlobalContextRef ctx, CFRunLoopRef runLoop)</span>;</span><br></pre></td></tr></table></figure>
+
+<p>我们将这个 API 直接定义到测试代码的头部，再进行如下调整：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">JS_EXPORT <span class="type">void</span> JSGlobalContextSetDebuggerRunLoop(JSGlobalContextRef ctx, <span class="built_in">CFRunLoopRef</span> runLoop);</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">JSCRunLoopTest</span> () </span>&#123;</span><br><span class="line">    JSContext *_context;</span><br><span class="line">    JSRunThread *_thread;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line">... 此处省略</span><br><span class="line"></span><br><span class="line">- (<span class="type">void</span>)_setupJSContext &#123;</span><br><span class="line">    <span class="built_in">NSAssert</span>([<span class="built_in">NSThread</span>.currentThread isEqual:_thread], <span class="string">@&quot;&quot;</span>);</span><br><span class="line">    </span><br><span class="line">    _context = [[JSContext alloc] initWithVirtualMachine:[JSVirtualMachine new]];</span><br><span class="line">    _context.name = <span class="string">@&quot;test js context&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 重点关注此处的设置</span></span><br><span class="line">    JSGlobalContextSetDebuggerRunLoop(_context.JSGlobalContextRef, <span class="built_in">CFRunLoopGetCurrent</span>());</span><br><span class="line">    </span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>问题就完美解决了，注意这里链接了私有 API 的符号，千万不要这样直接提交 AppStore，被拒的可能性非常大。并且这个一般线上也不会用到，所以可以考虑通过 DEBUG 宏来进行区分。</p>
+<h2 id="强制关闭-Safari-的-Inspector"><a href="#强制关闭-Safari-的-Inspector" class="headerlink" title="强制关闭 Safari 的 Inspector"></a>强制关闭 Safari 的 Inspector</h2><p>前面说到了 Safari Inspector，这里还引入了另外一个问题，当 Safari Inspector 处于打开的状态时，它会类似的强持有了 <code>JSContext</code>，导致 <code>JSContext</code> 所持有的资源无法被释放。所以，在以往的工作经验中，QA 进行 API 测试时经常会忘记关闭掉 Safari Inspector，从而导致了类似内存泄漏的状况，也导致了一些独占资源的断言失败，从而引发一些不太好解释的缺陷。</p>
+<p>而 <code>JavaScriptCore</code> 并没有提供关闭掉 Safari Inspector 的方法，这里就要使用另外的私有 API 了，当我们明确当前 <code>JSContext</code> 的生命周期已经结束的时候，尝试强制去关闭掉 Safari Inspector。</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;JavaScriptCore/JavaScriptCore.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> uintptr_t JSCSymbolAddr(<span class="keyword">const</span> <span class="type">char</span> *symb) &#123;</span><br><span class="line">    Dl_info dli;</span><br><span class="line">    memset(&amp;dli, <span class="number">0</span>, <span class="keyword">sizeof</span>(dli));</span><br><span class="line">    dladdr((<span class="keyword">const</span> <span class="type">void</span> *)JSContextGroupCreate, &amp;dli);</span><br><span class="line">    </span><br><span class="line">    auto handle = dlopen(dli.dli_fname, RTLD_NOLOAD);</span><br><span class="line">    auto addr = (uintptr_t)dlsym(handle, symb);</span><br><span class="line">    dlclose(handle);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> addr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">void</span> ForceCloseSafariInspector(<span class="type">void</span>) &#123;</span><br><span class="line">    auto ins = (&#123;</span><br><span class="line">        auto addr = JSCSymbolAddr(<span class="string">&quot;_ZN9Inspector15RemoteInspector9singletonEv&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!addr) <span class="keyword">return</span>;</span><br><span class="line">        </span><br><span class="line">        ((<span class="type">void</span> *(*)(<span class="type">void</span>))addr)();</span><br><span class="line">    &#125;);</span><br><span class="line">    </span><br><span class="line">    &#123;   <span class="comment">// stop remote inspector</span></span><br><span class="line">        auto addr = JSCSymbolAddr(<span class="string">&quot;_ZN9Inspector15RemoteInspector4stopEv&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!addr) <span class="keyword">return</span>;</span><br><span class="line">        </span><br><span class="line">        ((<span class="type">void</span> (*)(decltype(ins)))addr)(ins);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// waitting for remote inspector resources clean</span></span><br><span class="line">    [<span class="built_in">NSRunLoop</span>.currentRunLoop runUntilDate:[<span class="built_in">NSDate</span> dateWithTimeIntervalSinceNow:<span class="number">0.25</span>]];</span><br><span class="line">    </span><br><span class="line">    &#123;   <span class="comment">// restart remote inspector</span></span><br><span class="line">        auto addr = JSCSymbolAddr(<span class="string">&quot;_ZN9Inspector15RemoteInspector5startEv&quot;</span>);</span><br><span class="line">        <span class="keyword">if</span> (!addr) <span class="keyword">return</span>;</span><br><span class="line">        </span><br><span class="line">        ((<span class="type">void</span> (*)(decltype(ins)))addr)(ins);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接调用 <code>ForceCloseSafariInspector</code> 即可强制关闭掉 Safari Inspector 了，不过这里是重启了 <code>JavaScriptCore</code> 内部的 Inspector Server，所以会导致所有的 Safari Inspector 都会被关闭掉。另外上述代码是 C++ 和 Objective-C 混编的，所以要使用 .mm 文件来承载。同样这里的私有 API 也是不建议直接提交 AppStore 的，并且这里也只是测试时才会有的场景，使用特定的宏进行差异化编译即可。</p>
+<h2 id="设定执行耗时的看门狗"><a href="#设定执行耗时的看门狗" class="headerlink" title="设定执行耗时的看门狗"></a>设定执行耗时的看门狗</h2><p>通常而言，我们使用 <code>JSContext</code> 主要是为了动态化考虑，也就是所执行的 <code>JavaScript</code> 代码并不太受管控，特别是当我们本身是一个小程序、小游戏框架而言，业务方代码参差不齐，甚至可能有恶意性代码。比如下面这样一个无限死循环的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> a = <span class="string">&#x27;123&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这会导致 CPU 跑满，从而可能导致主 App 被系统看门狗杀掉。即便不是恶意代码，也有可能无意间引入了类似的死循环，那么为了主 App 的健壮性，面对这样的代码该如何防备呢？那么这里就又是另外的一些私有 API 的使用了：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="type">bool</span> (*JSShouldTerminateCallback) (JSContextRef ctx, <span class="type">void</span>* context);</span><br><span class="line"></span><br><span class="line">JS_EXPORT <span class="type">void</span> JSContextGroupSetExecutionTimeLimit(JSContextGroupRef group, <span class="type">double</span> limit, JSShouldTerminateCallback callback, <span class="type">void</span>* context);</span><br><span class="line">JS_EXPORT JSStringRef JSContextCreateBacktrace(JSContextRef ctx, <span class="type">unsigned</span> maxStackSize);</span><br><span class="line"></span><br><span class="line"><span class="keyword">static</span> <span class="type">bool</span> JSShouldTerminate(JSContextRef ctx, <span class="type">void</span> *context) &#123;</span><br><span class="line">    <span class="built_in">NSString</span> *bt = (&#123;</span><br><span class="line">        JSStringRef x = JSContextCreateBacktrace(ctx, <span class="number">1024</span> * <span class="number">1024</span> * <span class="number">4</span>);</span><br><span class="line">        (__bridge <span class="built_in">NSString</span> *)JSStringCopyCFString(kCFAllocatorDefault, x);</span><br><span class="line">    &#125;);</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@&quot;JS long time execution backtrace:\n%@&quot;</span>, bt);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">... 此处省略</span><br><span class="line"></span><br><span class="line">    JSContextGroupSetExecutionTimeLimit(JSContextGetGroup(_context.JSGlobalContextRef),</span><br><span class="line">                                        <span class="number">3.0</span>,</span><br><span class="line">                                        JSShouldTerminate,</span><br><span class="line">                                        <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">... 此处省略</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>通过以上两个私有 API，我们设定了 <code>JavaScript</code> 执行的时间限制，超过 3 秒的 <code>JavaScript</code> 执行就会被强制结束，并且会将相关的 <code>JavaScript</code> 堆栈输出。此 API 可用于监控，也可用作为 <code>JavaScript</code> 的看门狗。当然，如果想带到线上，还是要考虑下如何隐蔽的使用该私有 API 了，本篇后续会介绍一种相对安全的私有 API 调用方式。</p>
+<h2 id="实现-AppStore-应用的远程调试"><a href="#实现-AppStore-应用的远程调试" class="headerlink" title="实现 AppStore 应用的远程调试"></a>实现 AppStore 应用的远程调试</h2><p>在 iOS 平台使用 JavaScriptCore 还有一个经常会遇到的问题，当我们的 App 使用非开发者证书进行签名后（ <em>比如企业证书、AppStore证书</em> ），就无法再使用 Safari Inspector 进行调试了。苹果这样设计是从应用的安全性角度进行考量，无可厚非。不过如果我们应用场景是一个较为开放的平台服务，第三方接入时难免需要进行问题调试和排查，这样就失去了很多便利。</p>
+<p>比较常见的做法，是提供类似 vConsole 这种页面级别的调试工具进行日志查看，但总归没有 Inspector 来得好用，那有没有办法再度打开 Inspector 能力呢？答案是肯定的，之所以 Safari 无法再发现我们的 <code>JSContext</code>，是因为 iOS 系统中的 <code>webinspectord</code> 守护进程进行了目标过滤，它会检查目标应用证书及 entitlement，一次常规的 Safari Inspector 到我们 <code>JSContext</code> 连接是这样一个链路：</p>
+<pre><code>Safari Inspector &lt;-&gt; webinspectord &lt;-&gt; JSContext
+</code></pre>
+<p>俩俩间通过 RPC&#x2F;IPC 进行通信，其实 <code>webinspectord</code> 仅仅只是做消息的分发和过滤，最终消息的处理能力还是存在目标 App 中，也就是 JavaScriptCore 框架中。那么我们可以自己构建一条通道，直接将 Inspector 和 JSContext 进行连接，比较适合的是开启 WebSocket 服务，所以最终的链路变成了这样：</p>
+<pre><code>Inspector &lt;-&gt; WebSocket Server &lt;-&gt; JSContext
+</code></pre>
+<p>和 <code>webinspectord</code> 类似，WebSocket Server 主要做的也是消息分发，但由于 Safari Inspector 没法进行 WebSocket 连接，所以这里的 Inspector 使用了 Chrome DevTools。于是 WebSocket Server 这一层又多了一份职责：Safari Inspector 协议和 Chrome DevTools 协议的相互转换，双方协议定义参考下面：</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://github.com/WebKit/WebKit/tree/main/Source/JavaScriptCore/inspector/protocol">https://github.com/WebKit/WebKit/tree/main/Source/JavaScriptCore/inspector/protocol</a></li>
+<li><a target="_blank" rel="noopener" href="https://chromedevtools.github.io/devtools-protocol">https://chromedevtools.github.io/devtools-protocol</a></li>
+</ul>
+<p>如何让 <code>JSContext</code> 能处理并响应这些调试协议呢？主要依靠的是以下这个私有 API：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">JS_EXPORT Inspector::AugmentableInspectorController* </span></span><br><span class="line"><span class="function">    <span class="title">JSGlobalContextGetAugmentableInspectorController</span><span class="params">(JSGlobalContextRef)</span></span>;</span><br></pre></td></tr></table></figure>
+
+<p>这个方法返回了一个 C++ 的抽象类 <code>AugmentableInspectorController</code> 的实例，这个类定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">AugmentableInspectorController</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">AugmentableInspectorController</span>() &#123; &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> AugmentableInspectorControllerClient* <span class="title">augmentableInspectorControllerClient</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">setAugmentableInspectorControllerClient</span><span class="params">(AugmentableInspectorControllerClient*)</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">const</span> FrontendRouter&amp; <span class="title">frontendRouter</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> BackendDispatcher&amp; <span class="title">backendDispatcher</span><span class="params">()</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">registerAlternateAgent</span><span class="params">(std::unique_ptr&lt;InspectorAgentBase&gt;)</span> </span>= <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">connected</span><span class="params">()</span> <span class="type">const</span> </span>&#123; <span class="keyword">return</span> <span class="built_in">frontendRouter</span>().<span class="built_in">hasFrontends</span>(); &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>那么根据 C++ 类的布局，我们其实只要构建相同大小的虚方法表，强转后即可调用到这其中任何一个虚方法。如果这块有所疑问，可以看我之前的这篇 <a href="/2019/03/27/review-the-cpp-virtual-method">《温习 C++ 的虚函数》</a> 文章。这里我们只要关注 <code>frontendRouter</code> 和 <code>backendDispatcher</code> 即可，<code>backendDispatcher</code>用来处理协议请求，<code>frontendRouter</code> 用来接收协议处理后的响应以及内部的一些纯通知类协议。</p>
+<p>其中 <code>FrontendRouter</code> 核心定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">JS_EXPORT_PRIVATE</span> FrontendRouter : <span class="keyword">public</span> RefCounted&lt;FrontendRouter&gt; &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">connectFrontend</span><span class="params">(FrontendChannel&amp;)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">disconnectFrontend</span><span class="params">(FrontendChannel&amp;)</span></span>;</span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">disconnectAllFrontends</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>connectFrontend</code> 需要传入一个抽象类 <code>FrontendChannel</code> 实例引用，这个可以理解为类似 iOS 中常见的 <code>Delegate</code>，用观察者模式来监听协议返回和通知。这个 <code>FrontendChannel</code> 定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">FrontendChannel</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line"></span><br><span class="line">    <span class="keyword">enum class</span> <span class="title class_">ConnectionType</span> &#123;</span><br><span class="line">        Remote,</span><br><span class="line">        Local</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">virtual</span> ~<span class="built_in">FrontendChannel</span>() &#123; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> ConnectionType <span class="title">connectionType</span><span class="params">()</span> <span class="type">const</span> </span>= <span class="number">0</span>;</span><br><span class="line">    <span class="function"><span class="keyword">virtual</span> <span class="type">void</span> <span class="title">sendMessageToFrontend</span><span class="params">(<span class="type">const</span> String&amp; message)</span> </span>= <span class="number">0</span>;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>同样，我们构建一个虚函数布局相同的实例即可，这里关注的就是 <code>sendMessageToFrontend</code> 方法，该方法是由 <code>JSContext</code> 内部进行回调的。那么如何调用 <code>FrontendRouter</code> 的 <code>connectFrontend</code> 这个方法呢？毕竟它不是虚函数了，无法从 <code>this</code> 指针进行偏移获得，并且它还是一个实例方法。其实也很简单，我们找到该方法的符号：</p>
+<pre><code>_ZN9Inspector14FrontendRouter15connectFrontendERNS_15FrontendChannelE
+</code></pre>
+<p>然后使用前面的 <code>JSCSymbolAddr</code> 方法查询到该符号对应的地址，将地址转换成 C 方法进行调用，根据 iOS 平台的方法调用约定，C++ 实例方法的第一个参数为 <code>this</code>，所以调用方式大致如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">auto</span> router = ...; <span class="comment">// FrontendRouter 实例通过 AugmentableInspectorController 获取</span></span><br><span class="line"><span class="keyword">auto</span> channel = ...; <span class="comment">// FrontendChannel 自己构建相同的类布局</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">auto</span> symbol = <span class="string">&quot;_ZN9Inspector14FrontendRouter15connectFrontendERNS_15FrontendChannelE&quot;</span>;</span><br><span class="line"><span class="keyword">auto</span> addr = <span class="built_in">JSCSymbolAddr</span>(symbol);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 强转成函数指针，第一个参数是 this，也就是 FrontendRouter</span></span><br><span class="line"><span class="keyword">auto</span> func = (<span class="built_in">void</span> (*)(<span class="keyword">decltype</span>(router), <span class="keyword">decltype</span>(channel)))addr;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 直接进行调用</span></span><br><span class="line"><span class="built_in">func</span>(router, channel);</span><br></pre></td></tr></table></figure>
+
+<p><code>BackendDispatcher</code> 需要关注的就比较简单了，它定义如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">JS_EXPORT_PRIVATE</span> BackendDispatcher : <span class="keyword">public</span> RefCounted&lt;BackendDispatcher&gt; &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ...</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="type">void</span> <span class="title">dispatch</span><span class="params">(<span class="type">const</span> String&amp; message)</span></span>;</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>我们只需要使用这个 <code>dispatch</code> 方法即可，使用方法和前面 <code>connectFrontend</code> 一致，符号转地址再调用。那么完整的链接其实就已经说完了，从代码的角度再总结一下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 从 Inspector 发送调试消息 JSContext:</span></span><br><span class="line">Inspector </span><br><span class="line">    -&gt; WebSocket Server</span><br><span class="line">        -&gt; JSGlobalContextGetAugmentableInspectorController</span><br><span class="line">            -&gt; AugmentableInspectorController.backendDispatcher</span><br><span class="line">                -&gt; BackendDispatcher.dispatch   <span class="comment">// 消息至此处理</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 注册 JSContext 调试消息监听器</span></span><br><span class="line">JSGlobalContextGetAugmentableInspectorController</span><br><span class="line">    -&gt; AugmentableInspectorController.frontendRouter</span><br><span class="line">        -&gt; FrontendRouter.connectFrontend</span><br><span class="line"></span><br><span class="line"><span class="comment">// 从 JSContext 返回消息至 Inspector:</span></span><br><span class="line">FrontendChannel.sendMessageToFrontend</span><br><span class="line">    -&gt; WebSocket Server</span><br><span class="line">        -&gt; Inspector</span><br></pre></td></tr></table></figure>
+
+<p>另外再补充一点，这里所有的通讯字符串都是使用了 <code>WTF</code> 中的字符串类型，我们无法直接使用。所以要获取到能使用的字符串，还要构建一个内存布局相同的实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">JSCString</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="built_in">JSCString</span>(NSString *objcStr) &#123;</span><br><span class="line">        <span class="type">size_t</span> alloc_size = <span class="built_in">sizeof</span>(DataView) + objcStr.length;</span><br><span class="line">        data_view_ = std::<span class="built_in">shared_ptr</span>&lt;DataView&gt;((DataView *)<span class="built_in">malloc</span>(alloc_size), [](DataView *buf) &#123;</span><br><span class="line">            <span class="built_in">free</span>(buf);</span><br><span class="line">        &#125;);</span><br><span class="line">        </span><br><span class="line">        <span class="built_in">memset</span>((<span class="type">void</span> *)data_view_.<span class="built_in">get</span>(), <span class="number">0</span>, alloc_size);</span><br><span class="line">        data_view_-&gt;ref_count = <span class="number">2</span>;</span><br><span class="line">        data_view_-&gt;length = (<span class="type">unsigned</span>)objcStr.length;</span><br><span class="line">        <span class="keyword">if</span> (@<span class="built_in">available</span>(iOS <span class="number">13.0</span>, *)) &#123;</span><br><span class="line">            data_view_-&gt;datas = (<span class="type">const</span> <span class="type">char</span> *)(&amp;data_view_-&gt;hash_flag + <span class="number">1</span>);</span><br><span class="line">            data_view_-&gt;hash_flag = <span class="number">0x4</span>;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            data_view_-&gt;datas = (<span class="type">const</span> <span class="type">char</span> *)(&amp;data_view_-&gt;datas + <span class="number">1</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">memcpy</span>((<span class="type">void</span> *)data_view_-&gt;datas, objcStr.UTF8String, objcStr.length);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="function">NSString *<span class="title">getObjCString</span><span class="params">()</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">this</span>-&gt;data_view_ == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> nil;</span><br><span class="line">        &#125;</span><br><span class="line">        </span><br><span class="line">        <span class="keyword">return</span> [[NSString alloc] initWithBytes:data_view_-&gt;datas</span><br><span class="line">                                        length:data_view_-&gt;length</span><br><span class="line">                                      encoding:NSUTF8StringEncoding];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="comment">// WARNING: do not change the member order !!!</span></span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">DataView</span> &#123;</span><br><span class="line">        <span class="type">unsigned</span> ref_count;</span><br><span class="line">        <span class="type">unsigned</span> length;</span><br><span class="line">        <span class="type">const</span> <span class="type">char</span> *datas;</span><br><span class="line">        <span class="type">unsigned</span> hash_flag;</span><br><span class="line">    &#125;;</span><br><span class="line">    std::shared_ptr&lt;DataView&gt; data_view_;</span><br><span class="line">&#125;; <span class="comment">// class JSCString</span></span><br></pre></td></tr></table></figure>
+
+<p>那么在实现 <code>FrontendChannel</code> 接收回调时，参数就可以直接使用 这个 <code>JSCString</code>，同理，<code>dispatch</code> 方法直接传入该类实例即可，其它不再赘述。</p>
+<h2 id="附：较为安全的-C-x2F-C-私有-API-的调用方式"><a href="#附：较为安全的-C-x2F-C-私有-API-的调用方式" class="headerlink" title="附：较为安全的 C&#x2F;C++ 私有 API 的调用方式"></a>附：较为安全的 C&#x2F;C++ 私有 API 的调用方式</h2><p>本文中所有的私有 API 都是 C&#x2F;C++ 的，所以这里不讨论 ObjC 私有 API 调用的安全性。对于 C&#x2F;C++ 私有 API 的调用，本文也提供了两种方式，一种是自己将声明导出，一种是通过符号进行查找 (JSCSymbolAddr)。</p>
+<p>导出声明的方式会产生延迟绑定的符号，毕竟链接的是动态库，那么私有 API 就会在相应的符号表里一览无余，都过不了苹果的第一道静态扫描。所以第一种方式仅可用作非生产环境里，一旦提交至 AppStore 审核，大概率会被拒。</p>
+<p>第二种使用符号查找地址的方式，那么可以将符号字符串进行混淆存储，避免被静态扫描到，然后再在运行时进行反混淆处理。这样可能相对比较安全，但还不保险，毕竟我们使用了一个非常敏感的函数： <code>dlsym</code>。如果苹果在该函数内部进行了一些追踪，那么还是能直接输出我们使用到的私有 API。为了安全起见，我们就不能使用该函数，可以自己构建一个类似的函数，也就是查阅符号表，获取符号地址，再加上 ASLR 偏移地址，既可以获得真正的私有 API 运行时地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;JavaScriptCore/JavaScriptCore.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;dlfcn.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;string&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mach-o/dyld.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mach-o/nlist.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;mach-o/loader.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="keyword">ifdef</span> __LP64__</span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">mach_header_64</span> <span class="type">mach_header_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">segment_command_64</span> <span class="type">segment_command_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">section_64</span> <span class="type">section_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">nlist_64</span> <span class="type">nlist_t</span>;</span><br><span class="line">    <span class="meta">#<span class="keyword">define</span> LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT_64</span></span><br><span class="line"><span class="meta">#<span class="keyword">else</span></span></span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">mach_header</span> <span class="type">mach_header_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">segment_command</span> <span class="type">segment_command_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">section</span> <span class="type">section_t</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">struct</span> <span class="title class_">nlist</span> <span class="type">nlist_t</span>;</span><br><span class="line">    <span class="meta">#<span class="keyword">define</span> LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT</span></span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> _get_jsc_header_and_slide(<span class="type">mach_header_t</span> **header, <span class="type">intptr_t</span> *slide) &#123;</span><br><span class="line">    Dl_info dli;</span><br><span class="line">    <span class="built_in">memset</span>(&amp;dli, <span class="number">0</span>, <span class="built_in">sizeof</span>(dli));</span><br><span class="line">    <span class="built_in">dladdr</span>((<span class="type">const</span> <span class="type">void</span> *)JSContextGetGlobalObject, &amp;dli);</span><br><span class="line">    *header = (<span class="type">mach_header_t</span> *)dli.dli_fbase;</span><br><span class="line">    </span><br><span class="line">    <span class="type">uint32_t</span> c = _dyld_image_count();</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; c; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> ((<span class="type">uintptr_t</span>)(dli.dli_fbase) == (<span class="type">uintptr_t</span>)_dyld_get_image_header(i)) &#123;</span><br><span class="line">            *slide = _dyld_get_image_vmaddr_slide(i);</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">void</span> _get_jsc_symb_table(<span class="type">nlist_t</span> **symtab, <span class="type">char</span> **strtab, <span class="type">uint32_t</span> *nsyms, <span class="type">intptr_t</span> *slide) &#123;</span><br><span class="line">    <span class="type">mach_header_t</span> *header = <span class="literal">nullptr</span>;</span><br><span class="line">    _get_jsc_header_and_slide(&amp;header, slide);</span><br><span class="line">    <span class="keyword">if</span> (header == <span class="literal">nullptr</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="type">segment_command_t</span> *cur_seg_cmd;</span><br><span class="line">    <span class="type">segment_command_t</span> *linkedit_segment = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">struct</span> <span class="title class_">symtab_command</span>* symtab_cmd = <span class="literal">NULL</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="type">uintptr_t</span> cur = (<span class="type">uintptr_t</span>)header + <span class="built_in">sizeof</span>(<span class="type">mach_header_t</span>);</span><br><span class="line">    <span class="keyword">for</span> (uint i = <span class="number">0</span>; i &lt; header-&gt;ncmds; i++, cur += cur_seg_cmd-&gt;cmdsize) &#123;</span><br><span class="line">        cur_seg_cmd = (<span class="type">segment_command_t</span> *)cur;</span><br><span class="line">        <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SEGMENT_ARCH_DEPENDENT) &#123;</span><br><span class="line">            <span class="keyword">if</span> (<span class="built_in">strcmp</span>(cur_seg_cmd-&gt;segname, SEG_LINKEDIT) == <span class="number">0</span>) &#123;</span><br><span class="line">                linkedit_segment = cur_seg_cmd;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (cur_seg_cmd-&gt;cmd == LC_SYMTAB) &#123;</span><br><span class="line">            symtab_cmd = (<span class="keyword">struct</span> symtab_command*)cur_seg_cmd;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!symtab_cmd || !linkedit_segment) &#123;</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="type">uintptr_t</span> linkedit_base = (<span class="type">uintptr_t</span>)*slide + linkedit_segment-&gt;vmaddr - linkedit_segment-&gt;fileoff;</span><br><span class="line">    *symtab = (<span class="type">nlist_t</span> *)(linkedit_base + symtab_cmd-&gt;symoff);</span><br><span class="line">    *strtab = (<span class="type">char</span> *)(linkedit_base + symtab_cmd-&gt;stroff);</span><br><span class="line">    *nsyms = symtab_cmd-&gt;nsyms;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="type">static</span> <span class="type">uintptr_t</span> _get_jsc_symb_addr(<span class="type">const</span> <span class="type">char</span> *symb) &#123;</span><br><span class="line">    <span class="type">static</span> NSMutableDictionary *_cache = nil;</span><br><span class="line">    <span class="keyword">if</span> (_cache == nil) &#123;</span><br><span class="line">        _cache = [[NSMutableDictionary alloc] initWithCapacity:<span class="number">10</span>];</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    NSNumber *cache_value = _cache[@(symb)];</span><br><span class="line">    <span class="keyword">if</span> (cache_value != nil) &#123;</span><br><span class="line">        <span class="keyword">return</span> cache_value.unsignedIntegerValue;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="type">nlist_t</span> *symtab = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">char</span> *strtab = <span class="literal">nullptr</span>;</span><br><span class="line">    <span class="type">uint32_t</span> nsyms = <span class="number">0</span>;</span><br><span class="line">    <span class="type">intptr_t</span> slide = <span class="number">0</span>;</span><br><span class="line">    _get_jsc_symb_table(&amp;symtab, &amp;strtab, &amp;nsyms, &amp;slide);</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span> (!symtab || !strtab || !nsyms) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; nsyms; i++) &#123;</span><br><span class="line">        <span class="type">char</span> *symbol_name = strtab + symtab[i].n_un.n_strx;</span><br><span class="line">        <span class="keyword">if</span> (symbol_name[<span class="number">0</span>] &amp;&amp; symbol_name[<span class="number">1</span>] &amp;&amp; <span class="built_in">strcmp</span>(symb, &amp;symbol_name[<span class="number">1</span>]) == <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="type">uintptr_t</span> addr = (<span class="type">uintptr_t</span>)symtab[i].n_value + slide;</span><br><span class="line">            cache_value = @(addr);</span><br><span class="line">            [_cache setObject:cache_value forKey:@(symb)];</span><br><span class="line">            </span><br><span class="line">            <span class="keyword">return</span> addr;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用以上代码，现将私有 API 的符号进行混淆存储，然后运行时先反混淆，最终使用 <code>_get_jsc_symb_addr</code> 来获取对应私有 API 的地址即可。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本篇其实比较简单，也算不上什么奇淫技巧，但在某些场景还是会有其实用价值。另外本文中所有的黑魔法，都是我对 WebKit 源码进行阅读后获得的，所以建议大家如果有其他想法，且发现目前 <code>JavaScriptCore</code> &#x2F; <code>WKWebView</code> 公开的 API 无法满足，那么可以尝试去 WebKit 源码中进行查找。比如如何获得 <code>JSContext</code> 分配的堆内存大小，如何快速验证 <code>WKWebView</code> 崩溃后的兜底逻辑，其实用点心都能找到答案。</p>
+<p>另外，三年前刷了一两百道 LeetCode，这一次不想刷了，因为它给不了我所想要的出路。后续我大概率会关注目前 Java&#x2F;Go 的后端技术发展，毕竟这么多年没关注，都已经诞生了 SpringBoot 这样妖孽化的框架了。</p>
+
+    </div>
+
+    
+    
+    
+      
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/JavaScriptCore/" rel="tag"># JavaScriptCore</a>
+              <a href="/tags/%E7%A7%81%E6%9C%89-API/" rel="tag"># 私有 API</a>
+              <a href="/tags/%E7%9C%9F%E6%9C%BA%E8%B0%83%E8%AF%95/" rel="tag"># 真机调试</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/07/24/light-master-with-esp32/" rel="prev" title="点灯大师在线点灯之 ESP32">
+      <i class="fa fa-chevron-left"></i> 点灯大师在线点灯之 ESP32
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    <div class="comments" id="valine-comments"></div>
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%B0%83%E6%95%B4-Inspector-%E7%9A%84%E8%B0%83%E7%94%A8%E7%BA%BF%E7%A8%8B"><span class="nav-number">1.</span> <span class="nav-text">调整 Inspector 的调用线程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%BA%E5%88%B6%E5%85%B3%E9%97%AD-Safari-%E7%9A%84-Inspector"><span class="nav-number">2.</span> <span class="nav-text">强制关闭 Safari 的 Inspector</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AE%BE%E5%AE%9A%E6%89%A7%E8%A1%8C%E8%80%97%E6%97%B6%E7%9A%84%E7%9C%8B%E9%97%A8%E7%8B%97"><span class="nav-number">3.</span> <span class="nav-text">设定执行耗时的看门狗</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E7%8E%B0-AppStore-%E5%BA%94%E7%94%A8%E7%9A%84%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95"><span class="nav-number">4.</span> <span class="nav-text">实现 AppStore 应用的远程调试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%99%84%EF%BC%9A%E8%BE%83%E4%B8%BA%E5%AE%89%E5%85%A8%E7%9A%84-C-x2F-C-%E7%A7%81%E6%9C%89-API-%E7%9A%84%E8%B0%83%E7%94%A8%E6%96%B9%E5%BC%8F"><span class="nav-number">5.</span> <span class="nav-text">附：较为安全的 C&#x2F;C++ 私有 API 的调用方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="MK"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">MK</p>
+  <div class="site-description" itemprop="description">LIFE IS NOT EASY BUT HARD WORK ALWAYS PAYS.</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">33</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">20</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">45</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/prinsun" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://weibo.com/prinsun" title="Weibo → https:&#x2F;&#x2F;weibo.com&#x2F;prinsun" rel="noopener" target="_blank"><i class="fab fa-weibo fa-fw"></i>Weibo</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MK</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://mist.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Mist</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script>
+  <script src="//cdn.jsdelivr.net/gh/fancyapps/fancybox@3/dist/jquery.fancybox.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/lozad@1/dist/lozad.min.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/pangu@4/dist/browser/pangu.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+  <script data-pjax>
+    (function(){
+      var canonicalURL, curProtocol;
+      //Get the <link> tag
+      var x=document.getElementsByTagName("link");
+		//Find the last canonical URL
+		if(x.length > 0){
+			for (i=0;i<x.length;i++){
+				if(x[i].rel.toLowerCase() == 'canonical' && x[i].href){
+					canonicalURL=x[i].href;
+				}
+			}
+		}
+    //Get protocol
+	    if (!canonicalURL){
+	    	curProtocol = window.location.protocol.split(':')[0];
+	    }
+	    else{
+	    	curProtocol = canonicalURL.split(':')[0];
+	    }
+      //Get current URL if the canonical URL does not exist
+	    if (!canonicalURL) canonicalURL = window.location.href;
+	    //Assign script content. Replace current URL with the canonical URL
+      !function(){var e=/([http|https]:\/\/[a-zA-Z0-9\_\.]+\.baidu\.com)/gi,r=canonicalURL,t=document.referrer;if(!e.test(r)){var n=(String(curProtocol).toLowerCase() === 'https')?"https://sp0.baidu.com/9_Q4simg2RQJ8t7jm9iCKT-xh_/s.gif":"//api.share.baidu.com/s.gif";t?(n+="?r="+encodeURIComponent(document.referrer),r&&(n+="&l="+r)):r&&(n+="?l="+r);var i=new Image;i.src=n}}(window);})();
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+
+<script>
+NexT.utils.loadComments(document.querySelector('#valine-comments'), () => {
+  NexT.utils.getScript('//unpkg.com/valine/dist/Valine.min.js', () => {
+    var GUEST = ['nick', 'mail', 'link'];
+    var guest = 'nick,mail';
+    guest = guest.split(',').filter(item => {
+      return GUEST.includes(item);
+    });
+    new Valine({
+      el         : '#valine-comments',
+      verify     : false,
+      notify     : false,
+      appId      : 'FR2mSA60UEvzmYC24OgbdtvW-gzGzoHsz',
+      appKey     : 'L70FAQa4gHBwVkjRwKJGajlx',
+      placeholder: "欢迎留言交流~",
+      avatar     : 'mm',
+      meta       : guest,
+      pageSize   : '10' || 10,
+      visitor    : true,
+      lang       : 'zh-cn' || 'zh-cn',
+      path       : location.pathname,
+      recordIP   : true,
+      serverURLs : ''
+    });
+  }, window.Valine);
+});
+</script>
+
+    </div>
+</body>
+</html>
